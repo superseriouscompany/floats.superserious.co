@@ -11,6 +11,8 @@ const api = request.defaults({
 })
 
 describe("bubbles api", function () {
+  this.slow(1000);
+
   before(function() {
     return api('/').catch(function(err) {
       console.error(`API is not running at ${baseUrl}`);
@@ -22,6 +24,30 @@ describe("bubbles api", function () {
     return api('/').then(function(response) {
       expect(response.body.cool).toEqual("nice", `Unexpected healthcheck result ${JSON.stringify(response.body)}`)
     })
+  });
+
+  describe("user creation", function () {
+    it("403s without a facebook token", function () {
+      return api.post('/users').then(shouldFail).catch(function(err) {
+        expect(err.statusCode).toEqual(403);
+      })
+    });
+
+    it("201s with valid facebook token", function () {
+      return api.post('/users', {body: { facebook_access_token: "FAKEBOOK1" }}).then(function(response) {
+        expect(response.statusCode).toEqual(201);
+        expect(response.body.access_token).toExist(`No access token found in ${JSON.stringify(response.body)}`);
+      })
+    });
+
+    it("200s with valid facebook token for existing ID", function () {
+      return api.post('/users', {body: { facebook_access_token: "FAKEBOOK2" }}).then(function(response) {
+        return api.post('/users', {body: { facebook_access_token: "FAKEBOOK2" }});
+      }).then(function(response) {
+        expect(response.statusCode).toEqual(200);
+        expect(response.body.access_token).toExist(`No access token found in ${JSON.stringify(response.body)}`);
+      })
+    });
   });
 });
 
