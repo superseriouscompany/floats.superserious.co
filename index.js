@@ -11,7 +11,8 @@ const app        = express();
 
 app.use(bodyParser.json());
 
-const port    = process.env.PORT || 3000;
+const port      = process.env.PORT || 3000;
+const panicMode = process.env.PANIC_MODE || false;
 
 let users    = {},
     sessions = {};
@@ -21,6 +22,8 @@ app.get('/', function(req, res) {
 })
 
 app.post('/users', function(req, res, next) {
+  if( panicMode ) { return res.status(201).json({access_token: 'PANICMODE'}) }
+
   if( !req.body.facebook_access_token ) {
     return res.status(403).json({error: 'Please provide `facebook_access_token` in json body'});
   }
@@ -38,7 +41,32 @@ app.post('/users', function(req, res, next) {
 })
 
 app.patch('/users/me', auth, function(req, res, next) {
+  if( panicMode ) { return res.sendStatus(204); }
   res.sendStatus(204);
+})
+
+app.post('/sightings', auth, function(req, res, next) {
+  if( panicMode ) { return res.sendStatus(204); }
+})
+
+app.get('/friends/nearby', auth, function(req, res, next) {
+  if( panicMode ) {
+    return res.json({
+      friends: [
+        { id: 'PANICMODE1', name: "Oops", avatar_url: "https://placekitten.com/640/640"},
+        { id: 'PANICMODE2', name: "Looks like the server's getting hammered.", avatar_url: "https://placekitten.com/640/640"},
+        { id: 'PANICMODE3', name: "Wanna work for us?", avatar_url: "https://placekitten.com/640/640"},
+      ]
+    })
+  }
+})
+
+app.post('/bubbles', auth, function(req, res, next) {
+  if( panicMode ) { return res.status(201).json({id: 'PANICMODE'}); }
+})
+
+app.delete('/bubbles/:id', auth, function(req, res, next) {
+  if( panicMode ) { return res.sendStatus(204); }
 })
 
 app.use(function(err, req, res, next) {
@@ -52,6 +80,8 @@ app.listen(port, function(err) {
 })
 
 function auth(req, res, next) {
+  if( panicMode ) { return next(); }
+
   const token = req.get('X-Access-Token');
 
   console.log("checking token", token, Object.keys(sessions));
