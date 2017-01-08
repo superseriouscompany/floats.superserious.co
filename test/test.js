@@ -4,13 +4,7 @@ const expect   = require('expect');
 const request  = require('request-promise');
 const fakebook = require('./fakebook');
 const factory  = require('./factory');
-
-const baseUrl = process.env.NODE_ENV == 'production' ? config.baseUrl: 'http://localhost:3000';
-const api = request.defaults({
-  baseUrl: baseUrl,
-  json: true,
-  resolveWithFullResponse: true,
-})
+const api      = require('./api');
 
 describe("bubbles api", function () {
   let handle;
@@ -18,7 +12,7 @@ describe("bubbles api", function () {
 
   before(function() {
     return api('/').catch(function(err) {
-      console.error(`API is not running at ${baseUrl}`);
+      console.error(`API is not running at ${api.baseUrl}`);
       process.exit(1);
     })
   })
@@ -65,6 +59,32 @@ describe("bubbles api", function () {
         expect(response.statusCode).toEqual(200);
         expect(response.body.access_token).toExist(`No access token found in ${JSON.stringify(response.body)}`);
       });
+    });
+  });
+
+  describe("updating self", function() {
+    it("verifies firebase token");
+
+    it("401s with invalid access token", function () {
+      return api.patch('/users/me', {body: { firebase_token: 'firebase123' }}).
+        then(shouldFail).
+        catch(function(err) {
+          expect(err.statusCode).toEqual(401);
+        }
+      );
+    });
+
+    it("accepts firebase token", function () {
+      return factory.user().then(function(user) {
+        return api({
+          method: 'PATCH',
+          url: '/users/me',
+          body:    { firebase_token:   'firebase123'},
+          headers: { 'X-Access-Token': user.access_token }
+        })
+      }).then(function(response) {
+        expect(response.statusCode).toEqual(204);
+      })
     });
   });
 });
