@@ -94,6 +94,7 @@ describe("fakebook", function() {
     }).then(function(r) {
       expect(r.body.name).toEqual('neil');
       expect(r.body.cool).toEqual('great');
+      expect(r.body.id).toExist();
     })
   });
 })
