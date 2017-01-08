@@ -44,6 +44,7 @@ describe("bubbles api", function () {
       }).then(function(response) {
         expect(response.statusCode).toEqual(201);
         expect(response.body.access_token).toExist(`No access token found in ${JSON.stringify(response.body)}`);
+        expect(response.body.id).toExist(`No id found in ${JSON.stringify(response.body)}`);
       })
     });
 
@@ -66,12 +67,9 @@ describe("bubbles api", function () {
     it("verifies firebase token");
 
     it("401s with invalid access token", function () {
-      return api.patch('/users/me', {body: { firebase_token: 'firebase123' }}).
-        then(shouldFail).
-        catch(function(err) {
-          expect(err.statusCode).toEqual(401);
-        }
-      );
+      return api.patch('/users/me', {body: { firebase_token: 'firebase123' }}).then(shouldFail).catch(function(err) {
+        expect(err.statusCode).toEqual(401);
+      });
     });
 
     it("accepts firebase token", function () {
@@ -87,53 +85,94 @@ describe("bubbles api", function () {
       })
     });
   });
+
+  describe("setting location", function() {
+    it("401s with invalid access token", function () {
+      return api.patch('/users/me', {body: { firebase_token: 'firebase123' }}).then(shouldFail).catch(function(err) {
+        expect(err.statusCode).toEqual(401);
+      });
+    });
+
+    it("400s if lat/lng are not provided");
+
+    it("400s if lat/lng are invalid");
+
+    it("204s with real lat/lng", function () {
+      return factory.user().then(function(user) {
+        return api.post('/sightings', {
+          body: {
+            lat: 39.376585,
+            lng: -9.340847
+          },
+          headers: { 'X-Access-Token': user.access_token}
+        })
+      }).then(function(response) {
+        expect(response.statusCode).toEqual(204);
+      });
+    });
+  });
 });
 
-describe("fakebook", function() {
-  this.slow(1000);
+describe("friends", function() {
+  it("creates friends automatically from facebook friends");
 
-  const api = request.defaults({
-    baseUrl: 'http://localhost:3001',
-    json: true,
-    resolveWithFullResponse: true,
-  })
+  it("allows removing friends");
 
-  let handle;
-  before(function() {
-    handle = fakebook(3001);
-  })
+  it("gets nearby friends within a 10km radius", function () {
+    let u0, u1, u2, accessToken;
 
-  after(function() {
-    handle();
-  })
+    return Promise.all([
+      factory.user(),
+      factory.user(),
+      factory.user()
+    ]).then(function(users) {
+      u0 = users[0];
+      u1 = users[1];
+      u2 = users[2];
 
-  it("proxies real access tokens to facebook", function() {
-    this.timeout(5000);
-
-    return api('/me?access_token=newp').then(shouldFail).catch(function(err) {
-      expect(err.statusCode).toEqual(400);
-      const body = err.response.body;
-      expect(body).toExist();
-      expect(body.error).toExist();
-      expect(body.error.code).toEqual(190, `Wrong error code in ${JSON.stringify(body.error)}`);
-      expect(body.error.fbtrace_id).toExist();
-      expect(body.error.fbtrace_id).toNotEqual('fakebook');
+      return Promise.all([
+        api.post('/sightings', {
+          body:    { lat: 10, lng: 10 },
+          headers: { 'X-Access-Token': u0.access_token },
+        }),
+        api.post('/sightings', {
+          body:    { lat: 10, lng: 10 },
+          headers: { 'X-Access-Token': u1.access_token },
+        }),
+        api.post('/sightings', {
+          body:    { lat: 30, lng: 30 },
+          headers: { 'X-Access-Token': u2.access_token },
+        }),
+      ])
+    }).then(function() {
+      return factory.user()
+    }).then(function(u) {
+      accessToken = u.access_token;
+      return api.post('/sightings', {
+        body: { lat: 10, lng: 10 },
+        headers: { 'X-Access-Token': accessToken },
+      })
+    }).then(function() {
+      api.get('/friends/nearby', {
+        headers: { 'X-Access-Token': accessToken },
+      })
+    }).then(function(response) {
+      expect(response.body.friends).toExist(`No friends in ${JSON.stringify(response.body)}`);
+      expect(response.body.friends.length).toEqual(2);
+      const u0Match = response.body.friends.find(function(f) { return f.id == u0.id});
+      expect(u0Match).toExist(`Didn't find ${u0.id} in ${JSON.stringify(response.body)}`);
+      const u1Match = response.body.friends.find(function(f) { return f.id == u1.id});
+      expect(u1Match).toExist(`Didn't find ${u1.id} in ${JSON.stringify(response.body)}`);
+      const u2Match = response.body.friends.find(function(f) { return f.id == u1.id});
+      expect(u2Match).toNotExist(`Found out of range user in nearby friends`);
     })
   });
+});
 
-  it("returns arbitrary details for a user created", function () {
-    let fbToken;
+describe("blowing bubbles", function() {
+  it("sends push notifications to all nearby friends");
 
-    return api.post('/users', {body: {name: 'neil', cool: 'great'}}).then(function(r) {
-      expect(r.body.access_token).toExist(`Missing access token in ${JSON.stringify(r.body)}`);
-      fbToken = r.body.access_token;
-      return api.get(`/me?access_token=${fbToken}`)
-    }).then(function(r) {
-      expect(r.body.name).toEqual('neil');
-      expect(r.body.cool).toEqual('great');
-      expect(r.body.id).toExist();
-    })
-  });
+  it("allows excluding ids");
 })
 
 function shouldFail(r) {
