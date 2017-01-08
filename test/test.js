@@ -80,6 +80,20 @@ describe("fakebook", function() {
       expect(body.error).toExist();
       expect(body.error.code).toEqual(190, `Wrong error code in ${JSON.stringify(body.error)}`);
       expect(body.error.fbtrace_id).toExist();
+      expect(body.error.fbtrace_id).toNotEqual('fakebook');
+    })
+  });
+
+  it("returns arbitrary details for a user created", function () {
+    let fbToken;
+
+    return api.post('/users', {body: {name: 'neil', cool: 'great'}}).then(function(r) {
+      expect(r.body.access_token).toExist(`Missing access token in ${JSON.stringify(r.body)}`);
+      fbToken = r.body.access_token;
+      return api.get(`/me?access_token=${fbToken}`)
+    }).then(function(r) {
+      expect(r.body.name).toEqual('neil');
+      expect(r.body.cool).toEqual('great');
     })
   });
 })
