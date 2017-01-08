@@ -3,6 +3,7 @@
 const expect   = require('expect');
 const request  = require('request-promise');
 const fakebook = require('./fakebook');
+const factory  = require('./factory');
 
 const baseUrl = process.env.NODE_ENV == 'production' ? config.baseUrl: 'http://localhost:3000';
 const api = request.defaults({
@@ -12,6 +13,7 @@ const api = request.defaults({
 })
 
 describe("bubbles api", function () {
+  let handle;
   this.slow(1000);
 
   before(function() {
@@ -19,6 +21,13 @@ describe("bubbles api", function () {
       console.error(`API is not running at ${baseUrl}`);
       process.exit(1);
     })
+  })
+
+  before(function() {
+    handle = fakebook(3001);
+  })
+  after(function() {
+    handle();
   })
 
   it("provides healthcheck", function () {
@@ -35,19 +44,27 @@ describe("bubbles api", function () {
     });
 
     it("201s with valid facebook token", function () {
-      return api.post('/users', {body: { facebook_access_token: "FAKEBOOK1" }}).then(function(response) {
+      return factory.fbUser().then(function(user) {
+        expect(user.access_token).toExist(`No access token for ${JSON.stringify(user)}`);
+        return api.post('/users', {body: { facebook_access_token: user.access_token }})
+      }).then(function(response) {
         expect(response.statusCode).toEqual(201);
         expect(response.body.access_token).toExist(`No access token found in ${JSON.stringify(response.body)}`);
       })
     });
 
     it("200s with valid facebook token for existing ID", function () {
-      return api.post('/users', {body: { facebook_access_token: "FAKEBOOK2" }}).then(function(response) {
-        return api.post('/users', {body: { facebook_access_token: "FAKEBOOK2" }});
+      let fbToken;
+
+      return factory.fbUser().then(function(user) {
+        fbToken = user.access_token;
+        return api.post('/users', {body: { facebook_access_token: fbToken }});
+      }).then(function() {
+        return api.post('/users', {body: { facebook_access_token: fbToken }});
       }).then(function(response) {
         expect(response.statusCode).toEqual(200);
         expect(response.body.access_token).toExist(`No access token found in ${JSON.stringify(response.body)}`);
-      })
+      });
     });
   });
 });
