@@ -1,9 +1,10 @@
 'use strict';
 
-const expect  = require('expect');
-const request = require('request-promise');
+const expect   = require('expect');
+const request  = require('request-promise');
+const fakebook = require('./fakebook');
 
-const baseUrl = process.env.NODE_ENV == 'production' ? config.baseUrl : 'http://localhost:3000';
+const baseUrl = process.env.NODE_ENV == 'production' ? config.baseUrl: 'http://localhost:3000';
 const api = request.defaults({
   baseUrl: baseUrl,
   json: true,
@@ -50,6 +51,38 @@ describe("bubbles api", function () {
     });
   });
 });
+
+describe("fakebook", function() {
+  this.slow(1000);
+
+  const api = request.defaults({
+    baseUrl: 'http://localhost:3001',
+    json: true,
+    resolveWithFullResponse: true,
+  })
+
+  let handle;
+  before(function() {
+    handle = fakebook(3001);
+  })
+
+  after(function() {
+    handle();
+  })
+
+  it("proxies real access tokens to facebook", function() {
+    this.timeout(5000);
+
+    return api('/me?access_token=newp').then(shouldFail).catch(function(err) {
+      expect(err.statusCode).toEqual(400);
+      const body = err.response.body;
+      expect(body).toExist();
+      expect(body.error).toExist();
+      expect(body.error.code).toEqual(190, `Wrong error code in ${JSON.stringify(body.error)}`);
+      expect(body.error.fbtrace_id).toExist();
+    })
+  });
+})
 
 function shouldFail(r) {
   let err;
