@@ -1,3 +1,5 @@
+'use strict';
+
 const request = require('request-promise');
 const api     = require('./api');
 
@@ -15,7 +17,9 @@ const factory = {
     return factory.fbUser(body).then(function(user) {
       return api.post('/users', {body: { facebook_access_token: user.access_token }});
     }).then(function(response) {
-      return response.body;
+      let user = response.body;
+      user.api = api.authenticated(user.access_token);
+      return user;
     })
   },
 }

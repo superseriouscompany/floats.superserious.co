@@ -99,12 +99,11 @@ describe("bubbles api", function () {
 
     it("204s with real lat/lng", function () {
       return factory.user().then(function(user) {
-        return api.post('/sightings', {
+        return user.api.post('/sightings', {
           body: {
             lat: 39.376585,
             lng: -9.340847
-          },
-          headers: { 'X-Access-Token': user.access_token}
+          }
         })
       }).then(function(response) {
         expect(response.statusCode).toEqual(204);

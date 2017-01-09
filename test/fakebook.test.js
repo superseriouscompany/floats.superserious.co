@@ -23,8 +23,6 @@ describe("fakebook", function() {
   })
 
   it("proxies real access tokens to facebook (run with LIVE=1)", !process.env.LIVE ? undefined : function() {
-
-
     this.timeout(5000);
 
     return api('/me?access_token=newp').then(shouldFail).catch(function(err) {

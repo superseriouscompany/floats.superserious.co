@@ -47,6 +47,7 @@ app.patch('/users/me', auth, function(req, res, next) {
 
 app.post('/sightings', auth, function(req, res, next) {
   if( panicMode ) { return res.sendStatus(204); }
+  return res.sendStatus(204);
 })
 
 app.get('/friends/nearby', auth, function(req, res, next) {
