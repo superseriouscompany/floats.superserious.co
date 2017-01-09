@@ -128,7 +128,10 @@ app.use(function(err, req, res, next) {
   res.status(500).json({message: 'Something went wrong.'});
 })
 
-app.listen(port, function(err) {
+const server = express();
+server.use('/v1', app);
+
+server.listen(port, function(err) {
   if( err ) { throw err; }
   log.info(`Listening on ${port}`);
 })
