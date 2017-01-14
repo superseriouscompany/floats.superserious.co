@@ -5,9 +5,7 @@ const auth    = require('../services/auth');
 const db      = require('../storage/users');
 const session = require('../services/session');
 
-let log;
 module.exports = function(app, l) {
-  log = l;
   app.post('/users', createUser);
   app.patch('/users/me', auth, updateUser);
 }

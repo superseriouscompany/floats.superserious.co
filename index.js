@@ -16,12 +16,8 @@ const panicMode = process.env.PANIC_MODE || false;
 app.get('/', function(req, res) { res.json({cool: 'nice'}); })
 
 // user routes
-require('./controllers/user')(app, log);
-
-app.post('/sightings', auth, function(req, res, next) {
-  if( panicMode ) { return res.sendStatus(204); }
-  return res.sendStatus(204);
-})
+require('./controllers/user')(app);
+require('./controllers/sighting')(app);
 
 app.get('/friends/nearby', auth, function(req, res, next) {
   if( panicMode ) {

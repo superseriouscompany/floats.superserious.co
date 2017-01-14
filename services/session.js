@@ -10,6 +10,8 @@ module.exports = {
 let sessions = {};
 
 function create(token, userId, ttl) {
+  if( !token ) { return Promise.reject(error('Token not provided', {userId, name: 'InputError'}))}
+
   sessions[token] = userId;
   if( ttl ) {
     setTimeout(function() {
@@ -22,5 +24,6 @@ function create(token, userId, ttl) {
 function find(token) {
   const id = sessions[token];
   if( !id ) return Promise.reject(error('Session not found', {token: token, name: 'SessionNotFound'}));
+  console.log("Found session", id, 'from', token);
   return Promise.resolve(sessions[token]);
 }
