@@ -209,7 +209,36 @@ describe("floats api", function () {
 
     it("validates proximity");
 
-    it("sends push notifications to all nearby friends");
+    it("sends push notifications to all nearby friends", function() {
+      let becca, cam, yee;
+      return Promise.all([
+        // becca
+        factory.user({lat: 40.697931, lng: -73.913163}),
+        // cam
+        factory.user({lat: 40.712465, lng: -73.957452}),
+        // yee
+        factory.user({lat: 40.732394, lng: -73.987489}),
+      ]).then(function(values) {
+        becca = values[0];
+        cam = values[1];
+        yee = values[2];
+
+        return Promise.all([
+          factory.friendship(becca, cam),
+          factory.friendship(becca, yee),
+        ])
+      }).then(function() {
+        return becca.api.post('/floats', {
+          body: {
+            user_ids: [cam.id, yee.id]
+          }
+        })
+      }).then(function(response) {
+        expect(response.statusCode).toEqual(201);
+        expect(response.body.id).toExist();
+        throw 'Firebase stub';
+      })
+    });
   })
 
   describe("joining floats", function() {

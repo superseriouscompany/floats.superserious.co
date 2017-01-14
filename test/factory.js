@@ -22,6 +22,11 @@ const factory = {
       return user;
     })
   },
+
+  friendship: function(u0, u1) {
+    return Promise.resolve({key: u0+'|'+u1});
+    // TODO: send and accept friend request
+  }
 }
 
 module.exports = factory;

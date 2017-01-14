@@ -1,5 +1,7 @@
-const auth  = require('../services/auth');
-const panic = require('../services/panic');
+const auth   = require('../services/auth');
+const panic  = require('../services/panic');
+const log    = require('../services/log');
+const floats = require('../storage/floats');
 
 module.exports = function(app) {
   app.post('/floats', auth, create);
@@ -9,8 +11,17 @@ module.exports = function(app) {
 }
 
 function create(req, res, next) {
-  log.info({text: req.body.text, user_ids: req.body.user_ids});
   if( process.env.PANIC_MODE ) { return res.status(201).json({id: 'PANICMODE'}); }
+
+  floats.create({
+    user_id: req.body.userId,
+    title: req.body.title,
+    invitees: req.body.user_ids,
+  }).then(function(float) {
+    return res.status(201).json({
+      id: float.id
+    })
+  }).catch(next);
 }
 
 function all(req, res, next) {
