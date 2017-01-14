@@ -24,7 +24,6 @@ function createUser(req, res, next) {
     return db.findByFacebookId(fbUser.id)
   }).then(function(user) {
     if( user ) {
-      const accessToken = uuid.v1();
       return res.status(200).json({access_token: user.access_token, id: user.id});
     }
 
