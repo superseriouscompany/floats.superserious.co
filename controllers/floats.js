@@ -4,6 +4,7 @@ const auth    = require('../services/auth');
 const panic   = require('../services/panic');
 const log     = require('../services/log');
 const notify  = require('../services/notify');
+const error   = require('../services/error');
 const floats  = require('../storage/floats');
 const users   = require('../storage/users');
 const friends = require('../storage/friends');
