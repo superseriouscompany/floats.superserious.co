@@ -6,9 +6,11 @@ const users = require('./users');
 
 module.exports = {
   create: create,
+  get: get,
   findByInvitee: findByInvitee,
   findByCreator: findByCreator,
   join: join,
+  attendees: attendees,
 
   flush: flush,
 }
@@ -22,6 +24,10 @@ function create(float) {
   float.attendees  = float.attendees || [];
   floats[float.id] = float;
   return Promise.resolve(float);
+}
+
+function get(id) {
+  return Promise.resolve(floats[id]);
 }
 
 function findByInvitee(userId) {
@@ -45,6 +51,10 @@ function join(floatId, userId) {
     floats[floatId].attendees.push(_.pick(user, 'id', 'avatar_url', 'name', 'username'))
     return Promise.resolve(true);
   })
+}
+
+function attendees(float) {
+  return Promise.resolve(float.attendees);
 }
 
 function flush() {

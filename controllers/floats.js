@@ -33,7 +33,7 @@ function create(req, res, next) {
       return req.body.invitees.indexOf(f.id) !== -1;
     });
     return floats.create({
-      user_id: req.body.userId,
+      user_id: req.userId,
       title: req.body.title,
       invitees: recipients.map(function(r) { return r.id }),
       user: _.pick(user, 'id', 'name', 'username', 'avatar_url'),
@@ -79,9 +79,29 @@ function mine(req, res, next) {
 function join(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.sendStatus(204); }
 
-  floats.join(req.params.id, req.userId).then(function() {
+  let float, creator;
+  return floats.get(req.params.id).then(function(f) {
+    float = f;
+    if( !float ) { throw error('This float was deleted.', {name: 'NotFound'}); }
+    return floats.join(float.id, req.userId)
+  }).then(function() {
+    return users.get(float.user_id);
+  }).then(function(u) {
+    if( !u ) { throw error('User not found', {name: 'UserNotFound'}) }
+    creator = u;
+    return users.get(req.userId);
+  }).then(function(user) {
+    if( !user ) { throw error('User not found', {name: 'UserNotFound'}) }
+    const stubUrl = req.get('X-Stub-Url');
+    console.log("notifying", stubUrl);
+    notify.firebase(creator.firebase_token, `${user.name} joined "${float.title}"`, stubUrl);
     res.sendStatus(204);
-  })
+  }).catch(function(err) {
+    if( err.name == 'NotFound' ) {
+      return res.status(400).json({message: err.message, dev_message: 'Float not found', id: req.params.id})
+    }
+    next(err);
+  });
 }
 
 function destroy(req, res, next) {

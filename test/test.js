@@ -312,7 +312,9 @@ describe("floats api", function () {
       return factory.float().then(function(float) {
         user = float.user;
         u0 = float.users[0];
-        return u0.api.post(`/floats/${float.id}/join`)
+        return u0.api.post(`/floats/${float.id}/join`, {
+          headers: {'X-Stub-Url': 'http://localhost:3002'}
+        })
       }).then(function(response) {
         expect(response.statusCode).toEqual(204);
         return u0.api.get('/floats')
@@ -329,9 +331,26 @@ describe("floats api", function () {
       })
     });
 
-    it("sends a notification to the float creator");
+    it("sends a notification to the float creator", function() {
+      let user;
+      return factory.float().then(function(float) {
+        user = float.user;
+        return float.users[0].api.post(`/floats/${float.id}/join`, {
+          headers: { 'X-Stub-Url': 'http://localhost:3002' }
+        })
+      }).then(function(response) {
+        expect(stub.calls.length).toEqual(1, `Expected 1 call in ${JSON.stringify(stub.calls)}`);
+        expect(stub.calls[0].url).toEqual('/fcm/send');
+        expect(stub.calls[0].body).toExist();
+        const notification = stub.calls[0].body;
+        expect(notification.priority).toEqual('high');
+        expect(notification.notification.body).toEqual('Tiago Quixote joined "Surf?"');
+        expect(notification.token).toEqual(user.firebase_token);
+      })
+    });
 
-    it("409s if they've already joined")
+    it("409s if they've already joined");
+
   })
 });
 
