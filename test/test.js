@@ -37,6 +37,8 @@ describe("bubbles api", function () {
       })
     });
 
+    it("403s if permissions are insufficient");
+
     it("201s with valid facebook token", function () {
       return factory.fbUser().then(function(user) {
         expect(user.access_token).toExist(`No access token for ${JSON.stringify(user)}`);

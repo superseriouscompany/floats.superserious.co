@@ -1,8 +1,9 @@
 'use strict';
 
-const fb   = require('../services/facebook');
-const auth = require('../services/auth');
-const db   = require('../storage/users');
+const fb      = require('../services/facebook');
+const auth    = require('../services/auth');
+const db      = require('../storage/users');
+const session = require('../services/session');
 
 let log;
 module.exports = function(app, l) {
@@ -28,7 +29,9 @@ function createUser(req, res, next) {
     }
 
     return db.createFromFacebook(fbUser).then(function(user) {
-      res.status(201).json({access_token: user.access_token, id: user.id});
+      return session.create(user.access_token, user.id).then(function(ok) {
+        res.status(201).json({access_token: user.access_token, id: user.id});
+      })
     });
   }).catch(next);
 }
