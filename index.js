@@ -129,6 +129,7 @@ app.use(function(err, req, res, next) {
 })
 
 const server = express();
+server.get('/', function(req, res) { res.redirect('/v1'); })
 server.use('/v1', app);
 
 server.listen(port, function(err) {
