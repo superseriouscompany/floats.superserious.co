@@ -6,7 +6,7 @@ const fakebook = require('./fakebook');
 const factory  = require('./factory');
 const api      = require('./api');
 
-describe("bubbles api", function () {
+describe("floats api", function () {
   let handle;
   this.slow(1000);
 
@@ -203,13 +203,21 @@ describe("bubbles api", function () {
       })
     });
   });
+
+  describe("creating floats", function() {
+    it("validates friendships");
+
+    it("validates proximity");
+
+    it("sends push notifications to all nearby friends");
+  })
+
+  describe("joining floats", function() {
+    it("400s if float is not found");
+
+    it("allows joining a float");
+  })
 });
-
-describe("blowing bubbles", function() {
-  it("sends push notifications to all nearby friends");
-
-  it("allows excluding ids");
-})
 
 function shouldFail(r) {
   let err;

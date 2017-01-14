@@ -16,70 +16,10 @@ const panicMode = process.env.PANIC_MODE || false;
 app.get('/', function(req, res) { res.json({cool: 'nice'}); })
 
 // app routes
-require('./controllers/user')(app);
-require('./controllers/pin')(app);
+require('./controllers/users')(app);
+require('./controllers/pins')(app);
 require('./controllers/friends')(app);
-
-app.post('/bubbles', auth, function(req, res, next) {
-  log.info({text: req.body.text, exclude_ids: req.body.exclude_ids});
-  if( panicMode ) { return res.status(201).json({id: 'PANICMODE'}); }
-})
-
-app.delete('/bubbles/:id', auth, function(req, res, next) {
-  if( panicMode ) { return res.sendStatus(204); }
-})
-
-app.get('/bubbles/mine', auth, function(req, res, next) {
-  if( panicMode ) {
-    return res.json({
-      title: "hmm, mewbe I should work for this app",
-      created_at: +new Date - 1000 * 60 * 60,
-      user: {
-        avatar_url: 'https://placekitten.com/640/640',
-        name: 'You',
-      },
-      attendees: [
-        {
-          avatar_url: 'https://placekitten.com/640/640',
-          name: "You kitten me?",
-          joined_at: +new Date,
-        },
-        {
-          avatar_url: 'https://placekitten.com/640/640',
-          name: "This is a catastrophe.",
-          joined_at: +new Date,
-        },
-      ]
-    })
-  }
-})
-
-app.get('/bubbles', auth, function(req, res, next) {
-  if( panicMode ) {
-    return res.json({
-      bubbles: [
-        {
-          title: 'Is everything down?',
-          created_at: +new Date - 1000 * 60 * 35,
-          user: {
-            name: 'Yep',
-            avatar_url: 'https://placekitten.com/640/640',
-          },
-          attending: false,
-        },
-        {
-          title: 'Still?',
-          created_at: +new Date - 1000 * 60 * 120,
-          user: {
-            name: 'Wow',
-            avatar_url: 'https://placekitten.com/640/640',
-          },
-          attending: true,
-        },
-      ]
-    })
-  }
-})
+require('./controllers/floats')(app);
 
 app.use(function(err, req, res, next) {
   log.error({err: err, message: err.message, errName: err.name, stack: err.stack}, 'Uncaught server error');
