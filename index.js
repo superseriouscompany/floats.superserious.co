@@ -17,7 +17,8 @@ app.get('/', function(req, res) { res.json({cool: 'nice'}); })
 
 // user routes
 require('./controllers/user')(app);
-require('./controllers/sighting')(app);
+// pin routes
+require('./controllers/pin')(app);
 
 app.get('/friends/nearby', auth, function(req, res, next) {
   if( panicMode ) {

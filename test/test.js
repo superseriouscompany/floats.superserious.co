@@ -95,7 +95,14 @@ describe("bubbles api", function () {
       });
     });
 
-    it("400s if lat/lng are not provided");
+    it("400s if lat/lng are not provided", function() {
+      return factory.user().then(function(user) {
+        return user.api.post('/pins').then(shouldFail);
+      }).catch(function(err) {
+        expect(err.statusCode).toEqual(400);
+        expect(err.response.body.dev_message).toEqual("Please provide `lat` and `lng` in request body");
+      })
+    });
 
     it("400s if lat/lng are invalid");
 
