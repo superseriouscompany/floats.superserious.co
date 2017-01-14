@@ -262,10 +262,8 @@ describe("floats api", function () {
     it("truncates text");
   })
 
-  describe("joining floats", function() {
-    it("400s if float is not found");
-
-    it("returns floats", function() {
+  describe("viewing floats", function() {
+    it("returns floats you were invited to", function() {
       let u0, float;
       return factory.float().then(function(f) {
         float = f;
@@ -282,6 +280,35 @@ describe("floats api", function () {
         expect(f.user.avatar_url).toEqual(u0.avatar_url);
         expect(f.user.name).toEqual(u0.name);
       })
+    });
+
+    it("returns floats you created", function() {
+      let u0, float;
+      return factory.float().then(function(f) {
+        float = f;
+        u0 = float.user;
+        return u0.api.get('/floats/mine')
+      }).then(function(response) {
+        expect(response.statusCode).toEqual(200);
+        expect(response.body.floats).toExist();
+        expect(response.body.floats.length).toEqual(1, `Expected exactly 1 float in ${JSON.stringify(response.body.floats)}`);
+        const f = response.body.floats[0];
+        expect(f.id).toEqual(float.id);
+        expect(f.title).toEqual(float.title);
+        expect(f.created_at).toEqual(float.created_at);
+        expect(f.user.avatar_url).toEqual(u0.avatar_url);
+        expect(f.user.name).toEqual(u0.name);
+        expect(f.attendees).toExist();
+        expect(f.attendees.length).toEqual(0);
+      })
+    })
+  })
+
+  describe("joining floats", function() {
+    it("400s if float is not found");
+
+    it("allows joining a float", function () {
+
     });
   })
 });

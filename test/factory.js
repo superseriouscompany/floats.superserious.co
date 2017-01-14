@@ -14,7 +14,7 @@ const factory = {
   },
 
   user: function(body) {
-    body = Object.assign({lat: 0, lng: 0}, body);
+    body = Object.assign({lat: 0, lng: 0, name: 'Tiago Quixote'}, body);
 
     return factory.fbUser(body).then(function(user) {
       return api.post('/users', {body: { facebook_access_token: user.access_token }});

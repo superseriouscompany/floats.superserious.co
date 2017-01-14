@@ -53,12 +53,26 @@ function all(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.json({floats: panic.floats}); }
 
   floats.findByInvitee(req.userId).then(function(floats) {
+    floats = floats.map(function(f) {
+      let ret = _.pick(f, 'id', 'title', 'user', 'created_at');
+      ret.attending = !!f.attendees.find(function(u) {
+        return u.id == req.userId
+      })
+      return ret;
+    })
     return res.json({floats: floats});
-  })
+  }).catch(next);
 }
 
 function mine(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.json({floats: panic.myFloats}); }
+
+  floats.findByCreator(req.userId).then(function(floats) {
+    floats = floats.map(function(f) {
+      return _.pick(f, 'id', 'title', 'user', 'created_at', 'attendees');
+    })
+    return res.json({floats: floats});
+  }).catch(next);
 }
 
 function destroy(req, res, next) {

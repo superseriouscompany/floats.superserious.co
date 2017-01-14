@@ -6,6 +6,8 @@ const _    = require('lodash');
 module.exports = {
   create: create,
   findByInvitee: findByInvitee,
+  findByCreator: findByCreator,
+
   flush: flush,
 }
 
@@ -13,9 +15,9 @@ let floats = {};
 
 function create(float) {
   // TODO validate user_id, invitees, title, created_at
-  console.log("creating float", JSON.stringify(float));
-  float.id = float.id || uuid.v1();
+  float.id         = float.id || uuid.v1();
   float.created_at = float.created_at || +new Date;
+  float.attendees  = float.attendees || [];
   floats[float.id] = float;
   return Promise.resolve(float);
 }
@@ -23,6 +25,14 @@ function create(float) {
 function findByInvitee(userId) {
   const fs = _.values(floats).filter(function(f) {
     return _.includes(f.invitees, userId);
+  })
+
+  return Promise.resolve(fs);
+}
+
+function findByCreator(userId) {
+  const fs = _.values(floats).filter(function(f) {
+    return f.user.id == userId
   })
 
   return Promise.resolve(fs);
