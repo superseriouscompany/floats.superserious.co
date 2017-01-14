@@ -1,4 +1,6 @@
-const auth = require('../services/auth');
+const auth  = require('../services/auth');
+const db    = require('../storage/pins');
+const users = require('../storage/users');
 
 module.exports = function(app) {
   app.post('/pins', auth, dropPin);
@@ -11,6 +13,25 @@ function dropPin(req, res, next) {
       dev_message: 'Please provide `lat` and `lng` in request body'
     })
   }
+  const lat = Number(req.body.lat);
+  const lng = Number(req.body.lng);
+  if( isNaN(lat) || isNaN(lng)
+      || lat < -90  || lat > 90
+      || lng < -180 || lng > 180 ) {
+    return res.status(400).json({
+      dev_message: '`lat` or `lng` is out of range (-90 to 90 and 180 to 180) or NaN'
+    })
+  }
 
-  return res.sendStatus(204);
+  const now = +new Date;
+  db.create({
+    lat: lat,
+    lng: lng,
+    user_id: req.userId,
+    created_at: now,
+  }).then(function() {
+    return users.update(req.userId, {lat: lat, lng: lng, last_pin_at: now});
+  }).then(function() {
+    return res.sendStatus(204);
+  }).catch(next)
 }

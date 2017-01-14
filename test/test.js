@@ -104,7 +104,19 @@ describe("bubbles api", function () {
       })
     });
 
-    it("400s if lat/lng are invalid");
+    it("400s if lat/lng are invalid", function() {
+      return factory.user().then(function(user) {
+        return user.api.post('/pins', {
+          body: {
+            lat: 91,
+            lng: 181,
+          }
+        }).then(shouldFail);
+      }).catch(function(err) {
+        expect(err.statusCode).toEqual(400);
+        expect(err.response.body.dev_message).toMatch("`lat` or `lng` is out of range");
+      })
+    });
 
     it("204s with real lat/lng", function () {
       return factory.user().then(function(user) {
