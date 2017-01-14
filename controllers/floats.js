@@ -93,9 +93,10 @@ function join(req, res, next) {
   }).then(function(user) {
     if( !user ) { throw error('User not found', {name: 'UserNotFound'}) }
     const stubUrl = req.get('X-Stub-Url');
-    console.log("notifying", stubUrl);
-    notify.firebase(creator.firebase_token, `${user.name} joined "${float.title}"`, stubUrl);
-    res.sendStatus(204);
+    const message = `${user.name} joined "${float.title}"`;
+    return notify.firebase(creator.firebase_token, message, stubUrl).then(function() {
+      res.sendStatus(204);
+    });
   }).catch(function(err) {
     if( err.name == 'NotFound' ) {
       return res.status(400).json({message: err.message, dev_message: 'Float not found', id: req.params.id})

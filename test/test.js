@@ -332,19 +332,24 @@ describe("floats api", function () {
     });
 
     it("sends a notification to the float creator", function() {
-      let user;
-      return factory.float().then(function(float) {
-        user = float.user;
+      let creator, user;
+      return Promise.all([
+        factory.user({name: 'Cliff Coyote'}),
+        factory.user({name: 'Frank Ferret'}),
+      ]).then(function(values) {
+        creator = values[0];
+        user    = values[1];
+        return factory.float({user: creator, invitees: [user]})
+      }).then(function(float) {
         return float.users[0].api.post(`/floats/${float.id}/join`, {
           headers: { 'X-Stub-Url': 'http://localhost:3002' }
         })
       }).then(function(response) {
-        expect(stub.calls.length).toEqual(1, `Expected 1 call in ${JSON.stringify(stub.calls)}`);
         expect(stub.calls[0].url).toEqual('/fcm/send');
         expect(stub.calls[0].body).toExist();
         const notification = stub.calls[0].body;
         expect(notification.priority).toEqual('high');
-        expect(notification.notification.body).toEqual('Tiago Quixote joined "Surf?"');
+        expect(notification.notification.body).toEqual('Frank Ferret joined "Surf?"');
         expect(notification.token).toEqual(user.firebase_token);
       })
     });

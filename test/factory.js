@@ -43,10 +43,10 @@ const factory = {
   },
 
   float: function(body) {
-    body = Object.assign({title: 'Surf?'}, body);
+    body = Object.assign({title: 'Surf?', invitees: []}, body);
 
     let friendship;
-    return factory.friendship().then(function(fp) {
+    return factory.friendship(body.user, body.invitees[0]).then(function(fp) {
       friendship = fp;
       return friendship.u0.api.post('/floats', {
         body: {
