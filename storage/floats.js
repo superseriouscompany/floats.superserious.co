@@ -1,12 +1,14 @@
 'use strict';
 
-const uuid = require('uuid');
-const _    = require('lodash');
+const uuid  = require('uuid');
+const _     = require('lodash');
+const users = require('./users');
 
 module.exports = {
   create: create,
   findByInvitee: findByInvitee,
   findByCreator: findByCreator,
+  join: join,
 
   flush: flush,
 }
@@ -36,6 +38,13 @@ function findByCreator(userId) {
   })
 
   return Promise.resolve(fs);
+}
+
+function join(floatId, userId) {
+  return users.get(userId).then(function(user) {
+    floats[floatId].attendees.push(_.pick(user, 'id', 'avatar_url', 'name', 'username'))
+    return Promise.resolve(true);
+  })
 }
 
 function flush() {

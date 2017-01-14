@@ -308,8 +308,30 @@ describe("floats api", function () {
     it("400s if float is not found");
 
     it("allows joining a float", function () {
-
+      let user, u0;
+      return factory.float().then(function(float) {
+        user = float.user;
+        u0 = float.users[0];
+        return u0.api.post(`/floats/${float.id}/join`)
+      }).then(function(response) {
+        expect(response.statusCode).toEqual(204);
+        return u0.api.get('/floats')
+      }).then(function(response) {
+        const float = response.body.floats[0];
+        expect(float.attending).toEqual(true, `Expected attending true in ${float}`);
+        return user.api.get('/floats/mine')
+      }).then(function(response) {
+        const attendees = response.body.floats[0].attendees;
+        expect(attendees.length).toEqual(1, `Expected exactly 1 attendee in ${JSON.stringify(attendees)}`);
+        expect(attendees[0].name).toEqual(u0.name);
+        expect(attendees[0].avatar_url).toEqual(u0.avatar_url);
+        expect(attendees[0].id).toEqual(u0.id);
+      })
     });
+
+    it("sends a notification to the float creator");
+
+    it("409s if they've already joined")
   })
 });
 

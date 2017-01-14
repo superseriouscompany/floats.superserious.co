@@ -13,6 +13,7 @@ module.exports = function(app) {
   app.post('/floats', auth, create);
   app.get('/floats/mine', auth, mine);
   app.get('/floats', auth, all);
+  app.post('/floats/:id/join', auth, join);
   app.delete('/floats/:id', auth, destroy);
 }
 
@@ -73,6 +74,14 @@ function mine(req, res, next) {
     })
     return res.json({floats: floats});
   }).catch(next);
+}
+
+function join(req, res, next) {
+  if( process.env.PANIC_MODE ) { return res.sendStatus(204); }
+
+  floats.join(req.params.id, req.userId).then(function() {
+    res.sendStatus(204);
+  })
 }
 
 function destroy(req, res, next) {
