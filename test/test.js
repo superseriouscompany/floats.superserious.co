@@ -268,7 +268,24 @@ describe("floats api", function () {
   describe("joining floats", function() {
     it("400s if float is not found");
 
-    it("allows joining a float");
+    it("returns floats", function() {
+      let u0, float;
+      return factory.float().then(function(f) {
+        float = f;
+        u0 = float.user;
+        return float.users[0].api.get('/floats')
+      }).then(function(response) {
+        console.log("got here");
+        expect(response.statusCode).toEqual(200);
+        expect(response.body.floats).toExist();
+        const f = response.body.floats[0];
+        expect(f.id).toEqual(float.id);
+        expect(f.title).toEqual(float.title);
+        expect(f.created_at).toEqual(float.created_at);
+        expect(f.user.avatar_url).toEqual(u0.avatar_url);
+        expect(f.user.name).toEqual(u0.name);
+      })
+    });
   })
 });
 

@@ -42,15 +42,15 @@ function create(req, res, next) {
     })
 
     return Promise.all(promises).then(function() {
-      return res.status(201).json({
-        id: float.id
-      })
+      return res.status(201).json(float);
     })
   }).catch(next);
 }
 
 function all(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.json({floats: panic.floats}); }
+
+  return res.sendStatus(418);
 }
 
 function mine(req, res, next) {
