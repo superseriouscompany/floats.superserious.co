@@ -20,6 +20,7 @@ require('./controllers/users')(app);
 require('./controllers/pins')(app);
 require('./controllers/friends')(app);
 require('./controllers/floats')(app);
+require('./controllers/flush')(app);
 
 app.use(function(err, req, res, next) {
   log.error({err: err, message: err.message, errName: err.name, stack: err.stack}, 'Uncaught server error');

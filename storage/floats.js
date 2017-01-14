@@ -6,6 +6,7 @@ const _    = require('lodash');
 module.exports = {
   create: create,
   findByInvitee: findByInvitee,
+  flush: flush,
 }
 
 let floats = {};
@@ -25,4 +26,10 @@ function findByInvitee(userId) {
   })
 
   return Promise.resolve(fs);
+}
+
+function flush() {
+  if( process.env.NODE_ENV == 'production' ) { return; }
+  floats = {};
+  return Promise.resolve(true);
 }

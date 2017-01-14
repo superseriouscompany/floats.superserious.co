@@ -11,6 +11,7 @@ module.exports = {
   findByFacebookId: findByFacebookId,
   createFromFacebook: createFromFacebook,
   all: all,
+  flush: flush,
 }
 
 let users = {};
@@ -33,6 +34,12 @@ function update(id, user) {
 
 function get(id) {
   return Promise.resolve(users[id]);
+}
+
+function flush() {
+  if( process.env.NODE_ENV == 'production' ) { return; }
+  users = {};
+  return Promise.resolve(true);
 }
 
 function findByFacebookId(facebookId) {

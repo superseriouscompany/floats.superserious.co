@@ -20,19 +20,16 @@ describe("floats api", function () {
 
   before(function() {
     handle = fakebook(3001);
-  })
-  after(function() {
-    handle();
-  })
+    stub   = tinystub(3002);
 
-  before(function() {
-    stub = tinystub(3002);
-  })
-  after(function() {
-    stub();
   })
   afterEach(function() {
     stub.calls = [];
+    return api.delete('/flush')
+  })
+  after(function() {
+    handle();
+    stub();
   })
 
   it("provides healthcheck", function () {
