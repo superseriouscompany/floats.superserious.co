@@ -25,7 +25,7 @@ function nearby(req, res, next) {
       return res.status(400).json({dev_message: 'No pin set yet', userId: req.userId})
     }
 
-    return db.forUser(req.userId);
+    return db.all(req.userId);
   }).then(function(friends) {
     friends = friends.filter(function(f) {
       return haversine(

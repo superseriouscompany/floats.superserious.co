@@ -205,6 +205,8 @@ describe("floats api", function () {
   });
 
   describe("creating floats", function() {
+    it("requires user_ids");
+
     it("validates friendships");
 
     it("validates proximity");
@@ -239,6 +241,8 @@ describe("floats api", function () {
         throw 'Firebase stub';
       })
     });
+
+    it("truncates text");
   })
 
   describe("joining floats", function() {

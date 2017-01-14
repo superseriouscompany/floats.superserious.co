@@ -1,10 +1,10 @@
 const users = require('./users');
 
 module.exports = {
-  forUser: forUser,
+  all: all,
 }
 
-function forUser(userId) {
+function all(userId) {
   return users.all().filter(function(u) {
     return u.id != userId
   });
