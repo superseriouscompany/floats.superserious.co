@@ -18,7 +18,8 @@
   "homepage": "https://github.com/superseriouscompany/bubbles.superserious.co#readme",
   "devDependencies": {
     "expect": "^1.20.2",
-    "mocha": "^3.2.0"
+    "mocha": "^3.2.0",
+    "tinystub": "^1.0.0"
   },
   "dependencies": {
     "body-parser": "^1.15.2",

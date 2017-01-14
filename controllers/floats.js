@@ -36,8 +36,9 @@ function create(req, res, next) {
       invitees: recipients.map(function(r) { return r.id }),
     })
   }).then(function(float) {
+    const stubUrl = process.env.NODE_ENV != 'production' && req.get('X-Stub-Url');
     const promises = recipients.map(function(r) {
-      return notify.firebase(r.firebase_token, `${user.name} floated "${req.body.title}"`);
+      return notify.firebase(r.firebase_token, `${user.name} floated "${req.body.title}"`, stubUrl);
     })
 
     return Promise.all(promises).then(function() {

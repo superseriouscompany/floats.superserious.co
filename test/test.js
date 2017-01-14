@@ -2,12 +2,13 @@
 
 const expect   = require('expect');
 const request  = require('request-promise');
+const tinystub = require('tinystub');
 const fakebook = require('./fakebook');
 const factory  = require('./factory');
 const api      = require('./api');
 
 describe("floats api", function () {
-  let handle;
+  let handle, stub;
   this.slow(1000);
 
   before(function() {
@@ -22,6 +23,16 @@ describe("floats api", function () {
   })
   after(function() {
     handle();
+  })
+
+  before(function() {
+    stub = tinystub(3002);
+  })
+  after(function() {
+    stub();
+  })
+  afterEach(function() {
+    stub.calls = [];
   })
 
   it("provides healthcheck", function () {
@@ -212,33 +223,42 @@ describe("floats api", function () {
     it("validates proximity");
 
     it("sends push notifications to all nearby friends", function() {
-      let becca, cam, yee;
+      let becca, cam, kevin;
       return Promise.all([
         // becca
-        factory.user({lat: 40.697931, lng: -73.913163}),
+        factory.user({name: 'Becca Webster', lat: 40.697931, lng: -73.913163}),
         // cam
         factory.user({lat: 40.712465, lng: -73.957452}),
-        // yee
+        // kevin
         factory.user({lat: 40.732394, lng: -73.987489}),
       ]).then(function(values) {
         becca = values[0];
         cam = values[1];
-        yee = values[2];
+        kevin = values[2];
 
         return Promise.all([
           factory.friendship(becca, cam),
-          factory.friendship(becca, yee),
+          factory.friendship(becca, kevin),
         ])
       }).then(function() {
         return becca.api.post('/floats', {
           body: {
-            user_ids: [cam.id, yee.id]
+            user_ids: [cam.id, kevin.id],
+            title: 'Go to maracuja'
+          },
+          headers: {
+            'X-Stub-Url': 'http://localhost:3002'
           }
         })
       }).then(function(response) {
         expect(response.statusCode).toEqual(201);
         expect(response.body.id).toExist();
-        throw 'Firebase stub';
+        expect(stub.calls[0].url).toEqual('/fcm/send');
+        expect(stub.calls[0].body).toExist();
+        const notification = stub.calls[0].body;
+        expect(notification.priority).toEqual('high');
+        expect(notification.notification.body).toEqual('Becca Webster floated "Go to maracuja"');
+        expect(stub.calls.length).toEqual(2);
       })
     });
 
