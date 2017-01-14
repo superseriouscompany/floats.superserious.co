@@ -1,4 +1,5 @@
-const auth = require('../services/auth');
+const auth  = require('../services/auth');
+const panic = require('../services/panic');
 
 module.exports = function(app) {
   app.post('/floats', auth, create);
@@ -13,57 +14,11 @@ function create(req, res, next) {
 }
 
 function all(req, res, next) {
-  if( process.env.PANIC_MODE ) {
-    return res.json({
-      floats: [
-        {
-          title: 'Is everything down?',
-          created_at: +new Date - 1000 * 60 * 35,
-          user: {
-            name: 'Yep',
-            avatar_url: 'https://placekitten.com/640/640',
-          },
-          attending: false,
-        },
-        {
-          title: 'Still?',
-          created_at: +new Date - 1000 * 60 * 120,
-          user: {
-            name: 'Wow',
-            avatar_url: 'https://placekitten.com/640/640',
-          },
-          attending: true,
-        },
-      ]
-    })
-  }
+  if( process.env.PANIC_MODE ) { return res.json({floats: panic.floats}); }
 }
 
 function mine(req, res, next) {
-  if( process.env.PANIC_MODE ) {
-    return res.json({
-      floats: [{
-        title: "hmm, mewbe I should work for this app",
-        created_at: +new Date - 1000 * 60 * 60,
-        user: {
-          avatar_url: 'https://placekitten.com/640/640',
-          name: 'You',
-        },
-        attendees: [
-          {
-            avatar_url: 'https://placekitten.com/640/640',
-            name: "You kitten me?",
-            joined_at: +new Date,
-          },
-          {
-            avatar_url: 'https://placekitten.com/640/640',
-            name: "This is a catastrophe.",
-            joined_at: +new Date,
-          },
-        ]
-      }]
-    })
-  }
+  if( process.env.PANIC_MODE ) { return res.json({floats: panic.myFloats}); }
 }
 
 function destroy(req, res, next) {

@@ -1,26 +1,19 @@
 'use strict';
 
+const haversine = require('haversine');
+const _         = require('lodash');
 const auth      = require('../services/auth');
 const db        = require('../storage/friends');
 const users     = require('../storage/users');
 const log       = require('../services/log');
-const haversine = require('haversine');
-const _         = require('lodash');
+const panic     = require('../services/panic');
 
 module.exports = function(app) {
   app.get('/friends/nearby', auth, nearby);
 }
 
 function nearby(req, res, next) {
-  if( process.env.PANIC_MODE ) {
-    return res.json({
-      friends: [
-        { id: 'PANICMODE1', name: "Oops", avatar_url: "https://placekitten.com/640/640"},
-        { id: 'PANICMODE2', name: "Server's down.", avatar_url: "https://placekitten.com/640/640"},
-        { id: 'PANICMODE3', name: "Work here?", avatar_url: "https://placekitten.com/640/640"},
-      ]
-    })
-  }
+  if( process.env.PANIC_MODE ) { return res.json({friends: panic.friends}); }
 
   let lat, lng;
 
