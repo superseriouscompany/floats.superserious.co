@@ -10,9 +10,14 @@ module.exports = {
   get: get,
   findByFacebookId: findByFacebookId,
   createFromFacebook: createFromFacebook,
+  all: all,
 }
 
 let users = {};
+
+function all() {
+  return _.values(users);
+}
 
 function create(user) {
   user.id = user.id || uuid.v1();

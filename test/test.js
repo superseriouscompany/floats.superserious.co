@@ -65,6 +65,19 @@ describe("bubbles api", function () {
     });
   });
 
+  describe("deleting account", true ? null : function() {
+    let user;
+    return factory.user().then(function(u) {
+      user = u;
+      return user.api.delete('/users/me')
+    }).then(function(response) {
+      expect(response.statusCode).toEqual(204)
+      user.api.get('/users/me').then(shouldFail).catch(function(err) {
+        expect(err.statusCode).toEqual(401);
+      })
+    }).
+  })
+
   describe("updating self", function() {
     it("verifies firebase token");
 
@@ -131,61 +144,60 @@ describe("bubbles api", function () {
       });
     });
   });
-});
 
-describe("friends", function() {
-  it("creates friends automatically from facebook friends");
+  describe("making friends", function() {
+    it("pulls all people on the app in reverse cron order of when they joined");
+    it("pulls your facebook friends");
+    it("allows sending a friend request");
+    it("allows canceling a sent request");
+    it("allows accepting a friend request");
+    it("allows denying a friend request");
+  })
 
-  it("allows removing friends");
+  describe("friends", function() {
+    it("allows removing friends");
 
-  it("gets nearby friends within a 10km radius", true ? null : function () {
-    let u0, u1, u2, accessToken;
-
-    return Promise.all([
-      factory.user(),
-      factory.user(),
-      factory.user()
-    ]).then(function(users) {
-      u0 = users[0];
-      u1 = users[1];
-      u2 = users[2];
+    it("gets nearby friends within a 10km radius", function () {
+      let u0, u1, u2, user, accessToken;
 
       return Promise.all([
-        api.post('/pins', {
-          body:    { lat: 10, lng: 10 },
-          headers: { 'X-Access-Token': u0.access_token },
-        }),
-        api.post('/pins', {
-          body:    { lat: 10, lng: 10 },
-          headers: { 'X-Access-Token': u1.access_token },
-        }),
-        api.post('/pins', {
-          body:    { lat: 30, lng: 30 },
-          headers: { 'X-Access-Token': u2.access_token },
-        }),
-      ])
-    }).then(function() {
-      return factory.user()
-    }).then(function(u) {
-      accessToken = u.access_token;
-      return api.post('/pins', {
-        body: { lat: 10, lng: 10 },
-        headers: { 'X-Access-Token': accessToken },
+        factory.user(),
+        factory.user(),
+        factory.user(),
+        factory.user(),
+      ]).then(function(users) {
+        u0 = users[0];
+        u1 = users[1];
+        u2 = users[2];
+        user = users[3];
+
+        return Promise.all([
+          u0.api.post('/pins', {
+            body: { lat: 10, lng: 10 },
+          }),
+          u1.api.post('/pins', {
+            body: { lat: 10, lng: 10 },
+          }),
+          u2.api.post('/pins', {
+            body: { lat: 30, lng: 30 },
+          }),
+          user.api.post('/pins', {
+            body: { lat: 10, lng: 10 },
+          })
+        ])
+      }).then(function() {
+        return user.api.get('/friends/nearby');
+      }).then(function(response) {
+        expect(response.body.friends).toExist(`No friends in ${JSON.stringify(response.body)}`);
+        expect(response.body.friends.length).toEqual(2, "Found the wrong number of nearby friends");
+        const u0Match = response.body.friends.find(function(f) { return f.id == u0.id});
+        expect(u0Match).toExist(`Didn't find ${u0.id} in ${JSON.stringify(response.body)}`);
+        const u1Match = response.body.friends.find(function(f) { return f.id == u1.id});
+        expect(u1Match).toExist(`Didn't find ${u1.id} in ${JSON.stringify(response.body)}`);
+        const u2Match = response.body.friends.find(function(f) { return f.id == u2.id});
+        expect(u2Match).toNotExist(`Found out of range user in nearby friends`);
       })
-    }).then(function() {
-      api.get('/friends/nearby', {
-        headers: { 'X-Access-Token': accessToken },
-      })
-    }).then(function(response) {
-      expect(response.body.friends).toExist(`No friends in ${JSON.stringify(response.body)}`);
-      expect(response.body.friends.length).toEqual(2);
-      const u0Match = response.body.friends.find(function(f) { return f.id == u0.id});
-      expect(u0Match).toExist(`Didn't find ${u0.id} in ${JSON.stringify(response.body)}`);
-      const u1Match = response.body.friends.find(function(f) { return f.id == u1.id});
-      expect(u1Match).toExist(`Didn't find ${u1.id} in ${JSON.stringify(response.body)}`);
-      const u2Match = response.body.friends.find(function(f) { return f.id == u1.id});
-      expect(u2Match).toNotExist(`Found out of range user in nearby friends`);
-    })
+    });
   });
 });
 

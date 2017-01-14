@@ -15,22 +15,10 @@ const panicMode = process.env.PANIC_MODE || false;
 // healthcheck
 app.get('/', function(req, res) { res.json({cool: 'nice'}); })
 
-// user routes
+// app routes
 require('./controllers/user')(app);
-// pin routes
 require('./controllers/pin')(app);
-
-app.get('/friends/nearby', auth, function(req, res, next) {
-  if( panicMode ) {
-    return res.json({
-      friends: [
-        { id: 'PANICMODE1', name: "Oops", avatar_url: "https://placekitten.com/640/640"},
-        { id: 'PANICMODE2', name: "Server's down.", avatar_url: "https://placekitten.com/640/640"},
-        { id: 'PANICMODE3', name: "Work here?", avatar_url: "https://placekitten.com/640/640"},
-      ]
-    })
-  }
-})
+require('./controllers/friends')(app);
 
 app.post('/bubbles', auth, function(req, res, next) {
   log.info({text: req.body.text, exclude_ids: req.body.exclude_ids});
