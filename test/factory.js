@@ -50,7 +50,7 @@ const factory = {
       friendship = fp;
       return friendship.u0.api.post('/floats', {
         body: {
-          user_ids: [friendship.u1.id],
+          invitees: [friendship.u1.id],
           title: body.title
         },
         headers: {

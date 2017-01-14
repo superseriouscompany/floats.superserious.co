@@ -216,7 +216,7 @@ describe("floats api", function () {
   });
 
   describe("creating floats", function() {
-    it("requires user_ids");
+    it("requires invitees");
 
     it("validates friendships");
 
@@ -243,7 +243,7 @@ describe("floats api", function () {
       }).then(function() {
         return becca.api.post('/floats', {
           body: {
-            user_ids: [cam.id, kevin.id],
+            invitees: [cam.id, kevin.id],
             title: 'Go to maracuja'
           },
           headers: {
@@ -253,6 +253,7 @@ describe("floats api", function () {
       }).then(function(response) {
         expect(response.statusCode).toEqual(201);
         expect(response.body.id).toExist();
+        expect(stub.calls.length).toEqual(2, `Expected 2 calls in ${JSON.stringify(stub.calls)}`);
         expect(stub.calls[0].url).toEqual('/fcm/send');
         expect(stub.calls[0].body).toExist();
         const notification = stub.calls[0].body;
@@ -275,9 +276,9 @@ describe("floats api", function () {
         u0 = float.user;
         return float.users[0].api.get('/floats')
       }).then(function(response) {
-        console.log("got here");
         expect(response.statusCode).toEqual(200);
         expect(response.body.floats).toExist();
+        expect(response.body.floats.length).toEqual(1, `Expected exactly 1 float in ${JSON.stringify(response.body.floats)}`);
         const f = response.body.floats[0];
         expect(f.id).toEqual(float.id);
         expect(f.title).toEqual(float.title);

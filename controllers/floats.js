@@ -7,6 +7,7 @@ const notify  = require('../services/notify');
 const floats  = require('../storage/floats');
 const users   = require('../storage/users');
 const friends = require('../storage/friends');
+const _       = require('lodash');
 
 module.exports = function(app) {
   app.post('/floats', auth, create);
@@ -18,8 +19,8 @@ module.exports = function(app) {
 function create(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.status(201).json({id: 'PANICMODE'}); }
 
-  if( !req.body.user_ids ) {
-    return res.status(400).json({dev_message: 'You must provide an array of `user_ids` in the request body.'})
+  if( !req.body.invitees ) {
+    return res.status(400).json({dev_message: 'You must provide an array of `invitees` in the request body.'})
   }
 
   let user, recipients;
@@ -28,12 +29,13 @@ function create(req, res, next) {
     return friends.all(req.userId)
   }).then(function(friends) {
     recipients = friends.filter(function(f) {
-      return req.body.user_ids.indexOf(f.id) !== -1;
+      return req.body.invitees.indexOf(f.id) !== -1;
     });
     return floats.create({
       user_id: req.body.userId,
       title: req.body.title,
       invitees: recipients.map(function(r) { return r.id }),
+      user: _.pick(user, 'id', 'name', 'username', 'avatar_url'),
     })
   }).then(function(float) {
     const stubUrl = process.env.NODE_ENV != 'production' && req.get('X-Stub-Url');
@@ -50,7 +52,9 @@ function create(req, res, next) {
 function all(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.json({floats: panic.floats}); }
 
-  return res.sendStatus(418);
+  floats.findByInvitee(req.userId).then(function(floats) {
+    return res.json({floats: floats});
+  })
 }
 
 function mine(req, res, next) {
