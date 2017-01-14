@@ -2,11 +2,9 @@
 
 const express    = require('express');
 const bodyParser = require('body-parser');
-const bunyan     = require('bunyan');
-const uuid       = require('uuid');
 const fb         = require('./services/facebook');
-
-const log        = bunyan.createLogger({ name: 'bubbles' });
+const auth       = require('./services/auth');
+const log        = require('./services/log');
 const app        = express();
 
 app.use(bodyParser.json());
@@ -14,14 +12,11 @@ app.use(bodyParser.json());
 const port      = process.env.PORT || 3000;
 const panicMode = process.env.PANIC_MODE || false;
 
-let users    = {},
-    sessions = {};
-
 // healthcheck
 app.get('/', function(req, res) { res.json({cool: 'nice'}); })
 
 // user routes
-require('./controllers/user')(app);
+require('./controllers/user')(app, log);
 
 app.post('/sightings', auth, function(req, res, next) {
   if( panicMode ) { return res.sendStatus(204); }
@@ -102,7 +97,7 @@ app.get('/bubbles', auth, function(req, res, next) {
 })
 
 app.use(function(err, req, res, next) {
-  log.error({err: err}, 'Uncaught server error');
+  log.error({err: err, message: err.message, errName: err.name, stack: err.stack}, 'Uncaught server error');
   res.status(500).json({message: 'Something went wrong.'});
 })
 

@@ -1,6 +1,12 @@
-const auth = require('../services/auth');
+'use strict';
 
-module.exports = function(app) {
+const fb   = require('../services/facebook');
+const auth = require('../services/auth');
+const db   = require('../storage/users');
+
+let log;
+module.exports = function(app, l) {
+  log = l;
   app.post('/users', createUser);
   app.patch('/users/me', auth, updateUser);
 }
@@ -12,20 +18,23 @@ function createUser(req, res, next) {
     return res.status(403).json({error: 'Please provide `facebook_access_token` in json body'});
   }
 
-  return fb.me(req.body.facebook_access_token).then(function(user) {
-    if( users[user.id] ) {
-      return res.json({access_token: users[user.id].access_token});
+  let fbUser;
+  return fb.me(req.body.facebook_access_token).then(function(fu) {
+    fbUser = fu;
+    return db.findByFacebookId(fbUser.id)
+  }).then(function(user) {
+    if( user ) {
+      const accessToken = uuid.v1();
+      return res.status(200).json({access_token: user.access_token, id: user.id});
     }
 
-    const accessToken = uuid.v1();
-    users[user.id] = Object.assign(user, {access_token: accessToken});
-    sessions[accessToken] = users[user.id];
-    return res.status(201).json({access_token: accessToken});
+    return db.createFromFacebook(fbUser).then(function(user) {
+      res.status(201).json({access_token: user.access_token, id: user.id});
+    });
   }).catch(next);
 }
 
 function updateUser(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.sendStatus(204); }
-    res.sendStatus(204);
-  })
+  res.sendStatus(204);
 }
