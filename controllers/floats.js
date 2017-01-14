@@ -107,4 +107,21 @@ function join(req, res, next) {
 
 function destroy(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.sendStatus(204); }
+
+  return floats.get(req.params.id).then(function(f) {
+    if( !f ) { throw error('This float was deleted.', {name: 'NotFound'}); }
+    if( f.user_id != req.userId ) { throw error('Permission denied.', {name: 'Unauthorized', userId: req.userId, floatId: f.id}); }
+
+    return floats.destroy(f.id)
+  }).then(function() {
+    res.sendStatus(204);
+  }).catch(function(err) {
+    if( err.name == 'NotFound' ) {
+      return res.status(400).json({message: err.message, dev_message: 'Float not found', id: req.params.id})
+    }
+    if( err.name == 'Unauthorized' ) {
+      return res.status(400).json({message: err.message, dev_message: 'Creator id does not match authenticated user', floatId: err.floatId, userId: req.userId});
+    }
+    next(err);
+  })
 }

@@ -11,7 +11,7 @@ module.exports = {
   findByCreator: findByCreator,
   join: join,
   attendees: attendees,
-
+  destroy: destroy,
   flush: flush,
 }
 
@@ -55,6 +55,11 @@ function join(floatId, userId) {
 
 function attendees(float) {
   return Promise.resolve(float.attendees);
+}
+
+function destroy(floatId) {
+  delete floats[floatId];
+  return Promise.resolve(true);
 }
 
 function flush() {

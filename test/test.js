@@ -72,17 +72,19 @@ describe("floats api", function () {
     });
   });
 
-  describe("deleting account", true ? null : function() {
-    let user;
-    return factory.user().then(function(u) {
-      user = u;
-      return user.api.delete('/users/me')
-    }).then(function(response) {
-      expect(response.statusCode).toEqual(204)
-      user.api.get('/users/me').then(shouldFail).catch(function(err) {
-        expect(err.statusCode).toEqual(401);
+  describe("deleting account", function() {
+    it("allows deletion", true ? null : function () {
+      let user;
+      return factory.user().then(function(u) {
+        user = u;
+        return user.api.delete('/users/me')
+      }).then(function(response) {
+        expect(response.statusCode).toEqual(204)
+        user.api.get('/users/me').then(shouldFail).catch(function(err) {
+          expect(err.statusCode).toEqual(401);
+        })
       })
-    })
+    });
   })
 
   describe("updating self", function() {
@@ -356,6 +358,23 @@ describe("floats api", function () {
 
     it("409s if they've already joined");
 
+  })
+
+  describe("deleting floats", function() {
+    it("403s if you aren't the creator");
+
+    it("allows deletion from creator", function () {
+      let user;
+      return factory.float().then(function(f) {
+        user = f.user;
+        return user.api.delete(`/floats/${f.id}`)
+      }).then(function(response) {
+        expect(response.statusCode).toEqual(204);
+        return user.api.get('/floats/mine')
+      }).then(function(response) {
+        expect(response.body.floats.length).toEqual(0, `Expected no floats in ${JSON.stringify(response.body.floats)}`);
+      })
+    });
   })
 });
 
