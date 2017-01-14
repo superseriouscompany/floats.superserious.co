@@ -1,5 +1,6 @@
 'use strict';
 
+const log     = require('../services/log');
 const fb      = require('../services/facebook');
 const auth    = require('../services/auth');
 const db      = require('../storage/users');
@@ -15,6 +16,7 @@ function createUser(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.status(201).json({access_token: 'PANICMODE'}) }
 
   if( !req.body.facebook_access_token ) {
+    log.warn('Facebook access token not provided', req.body);
     return res.status(403).json({error: 'Please provide `facebook_access_token` in json body'});
   }
 

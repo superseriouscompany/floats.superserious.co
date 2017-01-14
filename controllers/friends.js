@@ -3,10 +3,11 @@
 const haversine = require('haversine');
 const _         = require('lodash');
 const auth      = require('../services/auth');
-const db        = require('../storage/friends');
-const users     = require('../storage/users');
+const error     = require('../services/error');
 const log       = require('../services/log');
 const panic     = require('../services/panic');
+const db        = require('../storage/friends');
+const users     = require('../storage/users');
 
 module.exports = function(app) {
   app.get('/friends/nearby', auth, nearby);
@@ -17,12 +18,12 @@ function nearby(req, res, next) {
 
   let lat, lng;
 
-  users.get(req.userId).then(function(user) {
+  return users.get(req.userId).then(function(user) {
     lat = user.lat;
     lng = user.lng;
     if( lat === undefined || lng === undefined ) {
       log.warn('No pin set yet', {userId: req.userId});
-      return res.status(400).json({dev_message: 'No pin set yet', userId: req.userId})
+      throw error('No pin set yet', {userId: req.userId, name: 'NoPin'});
     }
 
     return db.all(req.userId);
@@ -38,5 +39,13 @@ function nearby(req, res, next) {
     res.json({
       friends: friends.map(function(f) { return _.pick(f, ['id', 'avatar_url', 'name']); })
     })
-  }).catch(next);
+  }).catch(function(err) {
+    if( err.name == 'NoPin' ) {
+      return res.status(400).json({
+        message: err.message,
+      })
+    }
+
+    next(err);
+  });
 }

@@ -12,6 +12,9 @@ app.use(bodyParser.json());
 const port      = process.env.PORT || 3000;
 const panicMode = process.env.PANIC_MODE || false;
 
+// disable 304s
+app.disable('etag');
+
 // healthcheck
 app.get('/', function(req, res) { res.json({cool: 'nice'}); })
 
