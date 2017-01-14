@@ -17,33 +17,11 @@ const panicMode = process.env.PANIC_MODE || false;
 let users    = {},
     sessions = {};
 
-app.get('/', function(req, res) {
-  res.json({cool: 'nice'});
-})
+// healthcheck
+app.get('/', function(req, res) { res.json({cool: 'nice'}); })
 
-app.post('/users', function(req, res, next) {
-  if( panicMode ) { return res.status(201).json({access_token: 'PANICMODE'}) }
-
-  if( !req.body.facebook_access_token ) {
-    return res.status(403).json({error: 'Please provide `facebook_access_token` in json body'});
-  }
-
-  return fb.me(req.body.facebook_access_token).then(function(user) {
-    if( users[user.id] ) {
-      return res.json({access_token: users[user.id].access_token});
-    }
-
-    const accessToken = uuid.v1();
-    users[user.id] = Object.assign(user, {access_token: accessToken});
-    sessions[accessToken] = users[user.id];
-    return res.status(201).json({access_token: accessToken});
-  }).catch(next);
-})
-
-app.patch('/users/me', auth, function(req, res, next) {
-  if( panicMode ) { return res.sendStatus(204); }
-  res.sendStatus(204);
-})
+// user routes
+require('./controllers/user')(app);
 
 app.post('/sightings', auth, function(req, res, next) {
   if( panicMode ) { return res.sendStatus(204); }
@@ -136,15 +114,3 @@ server.listen(port, function(err) {
   if( err ) { throw err; }
   log.info(`Listening on ${port}`);
 })
-
-function auth(req, res, next) {
-  if( panicMode ) { return next(); }
-
-  const token = req.get('X-Access-Token');
-
-  if( !token || !sessions[token] ) {
-    return res.status(401).json({error: "Invalid Access Token", token: token});
-  }
-
-  next();
-}
