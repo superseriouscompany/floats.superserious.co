@@ -24,7 +24,6 @@ describe("floats api", function () {
 
   })
   afterEach(function() {
-    stub.calls = [];
     return api.delete('/flush')
   })
   after(function() {
