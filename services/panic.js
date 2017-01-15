@@ -48,4 +48,10 @@ module.exports = {
     { id: 'PANICMODE2', name: "Server's down.", avatar_url: "https://placekitten.com/640/640"},
     { id: 'PANICMODE3', name: "Work here?", avatar_url: "https://placekitten.com/640/640"},
   ],
+
+  randos: [
+    { id: 'PANICMODE1', name: "Oops", avatar_url: "https://placekitten.com/640/640"},
+    { id: 'PANICMODE2', name: "Server's down.", avatar_url: "https://placekitten.com/640/640"},
+    { id: 'PANICMODE3', name: "Work here?", avatar_url: "https://placekitten.com/640/640"},
+  ],
 }
