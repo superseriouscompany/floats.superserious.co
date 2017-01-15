@@ -97,15 +97,19 @@ describe("floats api", function () {
     });
 
     it("accepts firebase token", function () {
-      return factory.user().then(function(user) {
-        return api({
-          method: 'PATCH',
+      let user;
+      return factory.user().then(function(u) {
+        user = u;
+        return user.api.patch({
           url: '/users/me',
-          body:    { firebase_token:   'firebase123'},
-          headers: { 'X-Access-Token': user.access_token }
+          body:    { firebase_token: 'firebase123'},
         })
       }).then(function(response) {
         expect(response.statusCode).toEqual(204);
+        return user.api('/users/me')
+      }).then(function(response) {
+        expect(response.statusCode).toEqual(200);
+        expect(response.body.hasFirebaseToken).toEqual(true);
       })
     });
   });
