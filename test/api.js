@@ -1,5 +1,5 @@
 const request = require('request-promise');
-const config  = require('../services/config');
+const config  = require('../config');
 const baseUrl = process.env.NODE_ENV == 'production' ? config.baseUrl : 'http://localhost:3000/v1';
 
 const api = request.defaults({
@@ -15,5 +15,4 @@ api.authenticated = function(accessToken) {
 }
 
 api.baseUrl = baseUrl;
-
 module.exports = api;

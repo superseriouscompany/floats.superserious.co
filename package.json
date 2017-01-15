@@ -23,6 +23,7 @@
     "tinystub": "^1.0.0"
   },
   "dependencies": {
+    "aws-sdk": "^2.7.21",
     "body-parser": "^1.15.2",
     "bunyan": "^1.8.5",
     "express": "^4.14.0",
