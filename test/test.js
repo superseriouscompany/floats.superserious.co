@@ -336,7 +336,7 @@ describe("floats api", function () {
     it("sends a notification to the float creator", function() {
       let creator, user;
       return Promise.all([
-        factory.user({name: 'Cliff Coyote'}),
+        factory.user({name: 'Cliff Coyote', firebase_token: 'lawng'}),
         factory.user({name: 'Frank Ferret'}),
       ]).then(function(values) {
         creator = values[0];
@@ -352,7 +352,8 @@ describe("floats api", function () {
         const notification = stub.calls[0].body;
         expect(notification.priority).toEqual('high');
         expect(notification.notification.body).toEqual('Frank Ferret joined "Surf?"');
-        expect(notification.token).toEqual(user.firebase_token);
+        expect(notification.to).toExist();
+        expect(notification.to).toEqual('lawng');
       })
     });
 

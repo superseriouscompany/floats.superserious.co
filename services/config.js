@@ -1,4 +1,3 @@
-module.exports = {
+module.exports = Object.assign({
   baseUrl: 'https://floats.superserious.co',
-  firebaseKey: 'NOPE'
-}
+}, require('./secrets'));
