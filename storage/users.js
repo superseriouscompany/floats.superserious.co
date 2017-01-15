@@ -52,6 +52,7 @@ function createFromFacebook(user) {
   user.facebook_id = user.id;
   user.id = uuid.v1();
   user.access_token = uuid.v1();
+  user.avatar_url = `https://graph.facebook.com/v2.8/${user.facebook_id}/picture`
   users[user.id] = user;
   return Promise.resolve(user);
 }
