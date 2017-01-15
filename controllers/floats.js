@@ -95,6 +95,8 @@ function join(req, res, next) {
     if( !user ) { throw error('User not found', {name: 'UserNotFound'}) }
     const stubUrl = req.get('X-Stub-Url');
     const message = `${user.name} joined "${float.title}"`;
+
+    if( req.body.silent ) { return res.sendStatus(204); }
     return notify.firebase(creator.firebase_token, message, stubUrl).then(function() {
       res.sendStatus(204);
     });
