@@ -8,5 +8,7 @@ module.exports = function(app) {
 }
 
 function all(req, res, next) {
-  return res.json({randos: panic.randos});
+  if( process.env.PANIC_MODE ) { return res.json({randos: panic.randos}); }
+
+  next('not implemented');
 }

@@ -11,6 +11,7 @@ const users     = require('../storage/users');
 
 module.exports = function(app) {
   app.get('/friends/nearby', auth, nearby);
+  app.delete('/friends/:id', auth, block);
 }
 
 function nearby(req, res, next) {
@@ -48,4 +49,10 @@ function nearby(req, res, next) {
 
     next(err);
   });
+}
+
+function block(req, res, next) {
+  if( process.env.PANIC_MODE ) { return res.sendStatus(204); }
+
+  next('not implemented');
 }
