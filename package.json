@@ -1,10 +1,11 @@
 {
   "name": "bubbles.superserious.co",
   "version": "1.0.0",
-  "description": "Bubbles API",
+  "description": "Floats API",
   "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "start": "node index.js",
+    "test": "mocha",
   },
   "repository": {
     "type": "git",
