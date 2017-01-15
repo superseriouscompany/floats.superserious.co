@@ -11,11 +11,12 @@ const users     = require('../storage/users');
 
 module.exports = function(app) {
   app.get('/friends/nearby', auth, nearby);
+  app.get('/friends', auth, all);
   app.delete('/friends/:id', auth, block);
 }
 
 function nearby(req, res, next) {
-  if( process.env.PANIC_MODE ) { return res.json({friends: panic.friends}); }
+  if( process.env.PANIC_MODE ) { return res.json({friends: panic.nearbyFriends}); }
 
   let lat, lng;
 
@@ -49,6 +50,12 @@ function nearby(req, res, next) {
 
     next(err);
   });
+}
+
+function all(req, res, next) {
+  if( process.env.PANIC_MODE ) { return res.json({friends: panic.friends}); }
+
+  next('not implemented');
 }
 
 function block(req, res, next) {
