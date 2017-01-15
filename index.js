@@ -24,6 +24,8 @@ require('./controllers/pins')(app);
 require('./controllers/friends')(app);
 require('./controllers/floats')(app);
 require('./controllers/flush')(app);
+require('./controllers/randos')(app);
+require('./controllers/friend_requests')(app);
 
 app.use(function(err, req, res, next) {
   log.error({err: err, message: err.message, errName: err.name, stack: err.stack}, 'Uncaught server error');
