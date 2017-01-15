@@ -4,12 +4,14 @@
   "description": "Floats API",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "test": "mocha"
+    "start":        "node index.js",
+    "test":         "mocha",
+    "createTables": "node storage/dynamo/schemas/createTables.js",
+    "dropTables":   "node storage/dynamo/schemas/dropTables.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/superseriouscompany/bubbles.superserious.co.git"
+    "url":  "git+https://github.com/superseriouscompany/bubbles.superserious.co.git"
   },
   "author": "Neil Sarkar & Super Serious Company",
   "license": "MIT",
