@@ -12,6 +12,7 @@ module.exports = function(app, l) {
   app.post('/users', createUser);
   app.get('/users/me', auth, getUser);
   app.patch('/users/me', auth, updateUser);
+  app.delete('/users/me', auth, deleteUser);
 }
 
 function createUser(req, res, next) {
@@ -58,4 +59,10 @@ function updateUser(req, res, next) {
   users.update(req.userId, fields).then(function() {
     res.sendStatus(204);
   }).catch(next);
+}
+
+function deleteUser(req, res, next) {
+  if( process.env.PANIC_MODE ) { return res.sendStatus(204); }
+
+  next('not implemented');
 }
