@@ -11,6 +11,7 @@ module.exports = {
   findByFacebookId: findByFacebookId,
   createFromFacebook: createFromFacebook,
   all: all,
+  destroy: destroy,
   flush: flush,
 }
 
@@ -34,6 +35,12 @@ function update(id, user) {
 
 function get(id) {
   return Promise.resolve(users[id]);
+}
+
+function destroy(id) {
+  delete users[id];
+
+  return Promise.resolve(true);
 }
 
 function flush() {

@@ -64,5 +64,7 @@ function updateUser(req, res, next) {
 function deleteUser(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.sendStatus(204); }
 
-  next('not implemented');
+  users.destroy(req.userId).then(function() {
+    res.sendStatus(204);
+  }).catch(next);
 }
