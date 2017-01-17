@@ -9,9 +9,6 @@ const app        = express();
 
 app.use(bodyParser.json());
 
-const port      = process.env.PORT || 3000;
-const panicMode = process.env.PANIC_MODE || false;
-
 // disable 304s
 app.disable('etag');
 
@@ -36,7 +33,17 @@ const server = express();
 server.get('/', function(req, res) { res.redirect('/v1'); })
 server.use('/v1', app);
 
+if( module.parent ) {
+  module.exports = function(port) {
+    const ref    = server.listen(port);
+    const handle = ref.close.bind(ref);
+    return handle;
+  }
+  return;
+}
+
+const port = process.env.PORT || 3000
 server.listen(port, function(err) {
   if( err ) { throw err; }
   log.info(`Listening on ${port}`);
-})
+});

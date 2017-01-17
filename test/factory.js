@@ -4,7 +4,7 @@ const request = require('request-promise');
 const api     = require('./api');
 
 const fakebook = request.defaults({
-  baseUrl: 'http://localhost:3001',
+  baseUrl: 'http://localhost:4201',
   json: true
 })
 
@@ -54,7 +54,7 @@ const factory = {
           title: body.title
         },
         headers: {
-          'X-Stub-Url': 'http://localhost:3002'
+          'X-Stub-Url': 'http://localhost:4202'
         }
       })
     }).then(function(response) {

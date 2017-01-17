@@ -7,28 +7,23 @@ const fakebook = require('./fakebook');
 const factory  = require('./factory');
 const api      = require('./api');
 const h        = require('./helpers');
+const server   = require('../index');
 
 describe("floats api", function () {
-  let handle, stub;
+  let serverHandle, fakebookHandle, stub;
   this.slow(1000);
 
   before(function() {
-    return api('/').catch(function(err) {
-      console.error(`API is not running at ${api.baseUrl}`);
-      process.exit(1);
-    })
-  })
-
-  before(function() {
-    handle = fakebook(3001);
-    stub   = tinystub(3002);
-
+    serverHandle   = server(4200);
+    fakebookHandle = fakebook(4201);
+    stub           = tinystub(4202);
   })
   afterEach(function() {
     return api.delete('/flush')
   })
   after(function() {
-    handle();
+    serverHandle();
+    fakebookHandle();
     stub();
   })
 
@@ -250,7 +245,7 @@ describe("floats api", function () {
             title: 'Go to maracuja'
           },
           headers: {
-            'X-Stub-Url': 'http://localhost:3002'
+            'X-Stub-Url': 'http://localhost:4202'
           }
         })
       }).then(function(response) {
@@ -320,7 +315,7 @@ describe("floats api", function () {
         user = float.user;
         u0 = float.users[0];
         return u0.api.post(`/floats/${float.id}/join`, {
-          headers: {'X-Stub-Url': 'http://localhost:3002'}
+          headers: {'X-Stub-Url': 'http://localhost:4202'}
         })
       }).then(function(response) {
         expect(response.statusCode).toEqual(204);
@@ -349,7 +344,7 @@ describe("floats api", function () {
         return factory.float({user: creator, invitees: [user]})
       }).then(function(float) {
         return float.users[0].api.post(`/floats/${float.id}/join`, {
-          headers: { 'X-Stub-Url': 'http://localhost:3002' }
+          headers: { 'X-Stub-Url': 'http://localhost:4202' }
         })
       }).then(function(response) {
         expect(stub.calls[0].url).toEqual('/fcm/send');
