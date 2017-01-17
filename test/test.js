@@ -6,6 +6,7 @@ const tinystub = require('tinystub');
 const fakebook = require('./fakebook');
 const factory  = require('./factory');
 const api      = require('./api');
+const h        = require('./helpers');
 
 describe("floats api", function () {
   let handle, stub;
@@ -39,7 +40,7 @@ describe("floats api", function () {
 
   describe("user creation", function () {
     it("403s without a facebook token", function () {
-      return api.post('/users').then(shouldFail).catch(function(err) {
+      return api.post('/users').then(h.shouldFail).catch(function(err) {
         expect(err.statusCode).toEqual(403);
       })
     });
@@ -80,7 +81,7 @@ describe("floats api", function () {
         return user.api.delete('/users/me')
       }).then(function(response) {
         expect(response.statusCode).toEqual(204)
-        user.api.get('/users/me').then(shouldFail).catch(function(err) {
+        user.api.get('/users/me').then(h.shouldFail).catch(function(err) {
           expect(err.statusCode).toEqual(401);
         })
       })
@@ -91,7 +92,7 @@ describe("floats api", function () {
     it("verifies firebase token");
 
     it("401s with invalid access token", function () {
-      return api.patch('/users/me', {body: { firebase_token: 'firebase123' }}).then(shouldFail).catch(function(err) {
+      return api.patch('/users/me', {body: { firebase_token: 'firebase123' }}).then(h.shouldFail).catch(function(err) {
         expect(err.statusCode).toEqual(401);
       });
     });
@@ -116,14 +117,14 @@ describe("floats api", function () {
 
   describe("setting location", function() {
     it("401s with invalid access token", function () {
-      return api.post('/pins', {body: { lat: 10, lng: 10 }}).then(shouldFail).catch(function(err) {
+      return api.post('/pins', {body: { lat: 10, lng: 10 }}).then(h.shouldFail).catch(function(err) {
         expect(err.statusCode).toEqual(401);
       });
     });
 
     it("400s if lat/lng are not provided", function() {
       return factory.user().then(function(user) {
-        return user.api.post('/pins').then(shouldFail);
+        return user.api.post('/pins').then(h.shouldFail);
       }).catch(function(err) {
         expect(err.statusCode).toEqual(400);
         expect(err.response.body.dev_message).toEqual("Please provide `lat` and `lng` in request body");
@@ -137,7 +138,7 @@ describe("floats api", function () {
             lat: 91,
             lng: 181,
           }
-        }).then(shouldFail);
+        }).then(h.shouldFail);
       }).catch(function(err) {
         expect(err.statusCode).toEqual(400);
         expect(err.response.body.dev_message).toMatch("`lat` or `lng` is out of range");
@@ -382,16 +383,3 @@ describe("floats api", function () {
     });
   })
 });
-
-function shouldFail(r) {
-  let err;
-  if( r.statusCode ) {
-    err = new Error(`Expected an unsuccessful response, got: ${r.statusCode} ${JSON.stringify(r.body)}`);
-    err.statusCode = r.statusCode;
-    err.response = { body: r.body };
-  } else {
-    err = new Error(`Expected an unsuccessful response, got: ${r}`);
-    err.statusCode = 420;
-  }
-  throw err;
-}
