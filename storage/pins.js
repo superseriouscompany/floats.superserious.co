@@ -9,6 +9,7 @@ module.exports = {
 let pins = [];
 
 function create(pin) {
+  pin.created_at = pin.created_at || +new Date;
   pins.push(pin);
 
   return Promise.resolve(true);

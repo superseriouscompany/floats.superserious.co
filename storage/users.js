@@ -23,6 +23,7 @@ function all() {
 
 function create(user) {
   user.id = user.id || uuid.v1();
+  user.created_at = user.created_at || +new Date;
   users[user.id] = user;
   return Promise.resolve(user);
 }
