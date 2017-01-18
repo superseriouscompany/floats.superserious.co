@@ -22,7 +22,10 @@ function create(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.status(201).json({id: 'PANICMODE'}); }
 
   if( !req.body.invitees || !req.body.invitees.length ) {
-    return res.status(400).json({debug: '`invitees` array must contain at least one user id'})
+    return res.status(400).json({debug: '`invitees` array must contain at least one user id'});
+  }
+  if( !req.body.title || req.body.title.trim().length < 3 ) {
+    return res.status(400).json({message: 'Your title must contain at least one word.'});
   }
 
   let user, recipients;

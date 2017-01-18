@@ -6,7 +6,7 @@ module.exports = {
 
 function shouldFail(r) {
   let err;
-  if( r.statusCode ) {
+  if( r && r.statusCode ) {
     err = new Error(`Expected an unsuccessful response, got: ${r.statusCode} ${JSON.stringify(r.body)}`);
     err.statusCode = r.statusCode;
     err.response = { body: r.body };

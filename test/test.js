@@ -235,6 +235,29 @@ describe("floats api", function () {
 
     it("validates proximity");
 
+    it("requires a title", function () {
+      let user, invitee;
+      return Promise.all([
+        factory.user(),
+        factory.user(),
+      ]).then(function(values) {
+        user = values[0];
+        invitee = values[1];
+        return user.api.post('/floats', {
+          body: {
+            invitees: [invitee.id],
+            title: '         ',
+          },
+          headers: {
+            'X-Stub-Url': 'http://localhost:4202'
+          }
+        })
+      }).then(h.shouldFail).catch(function(err) {
+        expect(err.statusCode).toEqual(400);
+        expect(err.response.body.message).toEqual('Your title must contain at least one word.');
+      })
+    });
+
     it("sends push notifications to all nearby friends", function() {
       let becca, cam, kevin;
       return Promise.all([
