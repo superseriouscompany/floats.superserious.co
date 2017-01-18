@@ -49,12 +49,12 @@ function findByCreator(userId) {
 
 function join(floatId, userId) {
   return users.get(userId).then(function(user) {
-    floats[floatId].attendees.push(_.pick(user, 'id', 'avatar_url', 'name', 'username'))
-
     const conflict = floats[floatId].attendees.find(function(a) {
       return a.id === userId
     })
     if( conflict ) { throw error('Float has already been joined.', {name: 'DuplicateJoinError'}); }
+
+    floats[floatId].attendees.push(_.pick(user, 'id', 'avatar_url', 'name', 'username'))
 
     return Promise.resolve(true);
   })
