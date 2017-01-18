@@ -256,7 +256,32 @@ describe("floats api", function () {
       })
     });
 
-    it("validates proximity");
+    // Pending bc I'm not sure how to do this in a scalable way
+    it("validates proximity", true ? null : function() {
+      let user, friend;
+      return Promise.all([
+        factory.user({lat: 0, lng: 0}),
+        factory.user({lat: 50, lng: 50}),
+      ]).then(function(v) {
+        user   = v[0];
+        friend = v[1];
+        return factory.friendship(user, friend);
+      }).then(function() {
+        return user.api.post('/floats', {
+          body: {
+            invitees: [friend.id],
+            title: 'Attempt at inviting out of range user'
+          },
+          headers: {
+            'X-Stub-Url': 'http://localhost:4202'
+          }
+        })
+      }).then(h.shouldFail).catch(function(err) {
+        expect(err.statusCode).toEqual(400);
+        expect(err.response.body.name).toEqual('OutOfBounds');
+        expect(err.response.body.debug).toEqual(`These friends are not in the area: [${friend.id}]`);
+      })
+    });
 
     it("validates length", function() {
       let user, invitee;
@@ -281,7 +306,23 @@ describe("floats api", function () {
       })
     });
 
-    it("doesn't allow more than 100 invitees");
+    it("doesn't allow more than 100 invitees", function() {
+      let user;
+      return factory.user().then(function(user) {
+        return user.api.post('/floats', {
+          body: {
+            invitees: new Array(102).join('nope-').split('-'),
+            title: 'Surf session?',
+          },
+          headers: {
+            'X-Stub-Url': 'http://localhost:4202'
+          }
+        })
+      }).then(h.shouldFail).catch(function(err) {
+        expect(err.statusCode).toEqual(400);
+        expect(err.response.body.message).toEqual('You have tried to invite too many people. You can invite 100 people at most.');
+      })
+    });
 
     it("requires a title", function () {
       let user, invitee;

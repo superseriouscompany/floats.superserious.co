@@ -24,6 +24,9 @@ function create(req, res, next) {
   if( !req.body.invitees || !req.body.invitees.length ) {
     return res.status(400).json({debug: '`invitees` array must contain at least one user id'});
   }
+  if( req.body.invitees.length > 100 ) {
+    return res.status(400).json({message: 'You have tried to invite too many people. You can invite 100 people at most.'})
+  }
   if( !req.body.title || req.body.title.trim().length < 3 ) {
     return res.status(400).json({message: 'Your title must contain at least one word.'});
   }
