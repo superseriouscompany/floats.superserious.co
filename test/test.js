@@ -214,7 +214,22 @@ describe("floats api", function () {
   });
 
   describe("creating floats", function() {
-    it("requires invitees");
+    it("requires invitees", function() {
+      return factory.user().then(function(u) {
+        return u.api.post('/floats', {
+          body: {
+            title: 'Lets hang out with no one',
+            invitees: [],
+          },
+          headers: {
+            'X-Stub-Url': 'http://localhost:4202'
+          }
+        })
+      }).then(h.shouldFail).catch(function(err) {
+        expect(err.statusCode).toEqual(400);
+        expect(err.response.body.debug).toEqual("`invitees` array must contain at least one user id");
+      })
+    });
 
     it("validates friendships");
 

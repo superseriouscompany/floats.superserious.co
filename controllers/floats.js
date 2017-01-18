@@ -21,8 +21,8 @@ module.exports = function(app) {
 function create(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.status(201).json({id: 'PANICMODE'}); }
 
-  if( !req.body.invitees ) {
-    return res.status(400).json({debug: 'You must provide an array of `invitees` in the request body.'})
+  if( !req.body.invitees || !req.body.invitees.length ) {
+    return res.status(400).json({debug: '`invitees` array must contain at least one user id'})
   }
 
   let user, recipients;
