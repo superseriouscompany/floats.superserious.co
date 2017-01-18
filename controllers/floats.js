@@ -27,6 +27,9 @@ function create(req, res, next) {
   if( !req.body.title || req.body.title.trim().length < 3 ) {
     return res.status(400).json({message: 'Your title must contain at least one word.'});
   }
+  if( req.body.title.trim().length > 140 ) {
+    return res.status(400).json({message: 'Your title is too long. It can only contain 140 characters.'});
+  }
 
   let user, recipients;
   users.get(req.userId).then(function(u) {

@@ -8,6 +8,7 @@ const factory  = require('./factory');
 const api      = require('./api');
 const h        = require('./helpers');
 const server   = require('../index');
+const _        = require('lodash');
 
 describe("floats api", function () {
   let serverHandle, fakebookHandle, stub;
@@ -257,6 +258,29 @@ describe("floats api", function () {
 
     it("validates proximity");
 
+    it("validates length", function() {
+      let user, invitee;
+      return Promise.all([
+        factory.user(),
+        factory.user(),
+      ]).then(function(values) {
+        user = values[0];
+        invitee = values[1];
+        return user.api.post('/floats', {
+          body: {
+            invitees: [invitee.id],
+            title: _.repeat('a', 141),
+          },
+          headers: {
+            'X-Stub-Url': 'http://localhost:4202'
+          }
+        })
+      }).then(h.shouldFail).catch(function(err) {
+        expect(err.statusCode).toEqual(400);
+        expect(err.response.body.message).toEqual('Your title is too long. It can only contain 140 characters.');
+      })
+    });
+
     it("doesn't allow more than 100 invitees");
 
     it("requires a title", function () {
@@ -322,8 +346,6 @@ describe("floats api", function () {
         expect(stub.calls.length).toEqual(2);
       })
     });
-
-    it("truncates text");
   })
 
   describe("viewing floats", function() {
