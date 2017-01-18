@@ -1,5 +1,5 @@
 const auth  = require('../services/auth');
-const db    = require('../storage/pins');
+const pins  = require('../storage/pins');
 const users = require('../storage/users');
 
 module.exports = function(app) {
@@ -24,7 +24,7 @@ function dropPin(req, res, next) {
   }
 
   const now = +new Date;
-  db.create({
+  pins.create({
     lat: lat,
     lng: lng,
     user_id: req.userId,
