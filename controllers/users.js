@@ -6,6 +6,7 @@ const auth    = require('../services/auth');
 const error   = require('../services/auth');
 const users   = require('../storage/users');
 const session = require('../services/session');
+const panic   = require('../services/panic');
 const _       = require('lodash');
 
 module.exports = function(app, l) {
@@ -41,7 +42,7 @@ function createUser(req, res, next) {
 }
 
 function getUser(req, res, next) {
-  if( process.env.PANIC_MODE ) { return res.json({name: 'Nope'}) }
+  if( process.env.PANIC_MODE ) { return res.json(panic.user) }
 
   return users.get(req.userId).then(function(user) {
     if( !user ) { throw error('User not found', {userId: req.userId, name: 'NotFound'}) }
