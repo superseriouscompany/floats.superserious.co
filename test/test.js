@@ -69,14 +69,14 @@ describe("floats api", function () {
   });
 
   describe("deleting account", function() {
-    it("allows deletion", true ? null : function () {
+    it("allows deletion", function () {
       let user;
       return factory.user().then(function(u) {
         user = u;
         return user.api.delete('/users/me')
       }).then(function(response) {
-        expect(response.statusCode).toEqual(204)
-        user.api.get('/users/me').then(h.shouldFail).catch(function(err) {
+        expect(response.statusCode).toEqual(204);
+        return user.api.get('/users/me').then(h.shouldFail).catch(function(err) {
           expect(err.statusCode).toEqual(401);
         })
       })
