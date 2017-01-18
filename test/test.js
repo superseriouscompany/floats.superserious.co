@@ -122,7 +122,7 @@ describe("floats api", function () {
         return user.api.post('/pins').then(h.shouldFail);
       }).catch(function(err) {
         expect(err.statusCode).toEqual(400);
-        expect(err.response.body.dev_message).toEqual("Please provide `lat` and `lng` in request body");
+        expect(err.response.body.debug).toEqual("Please provide `lat` and `lng` in request body");
       })
     });
 
@@ -136,7 +136,7 @@ describe("floats api", function () {
         }).then(h.shouldFail);
       }).catch(function(err) {
         expect(err.statusCode).toEqual(400);
-        expect(err.response.body.dev_message).toMatch("`lat` or `lng` is out of range");
+        expect(err.response.body.debug).toMatch("`lat` or `lng` is out of range");
       })
     });
 
@@ -314,7 +314,7 @@ describe("floats api", function () {
         })
       }).then(h.shouldFail).catch(function(err) {
         expect(err.statusCode).toEqual(400);
-        expect(err.response.body.dev_message).toEqual("Float not found");
+        expect(err.response.body.debug).toEqual("Float not found");
       })
     });
 
@@ -366,8 +366,24 @@ describe("floats api", function () {
       })
     });
 
-    it("409s if they've already joined");
+    it("409s if they've already joined", function() {
+      let user, float;
 
+      return factory.float().then(function(f) {
+        float = f;
+        user = float.users[0];
+        return user.api.post(`/floats/${float.id}/join`, {
+          headers: {'X-Stub-Url': 'http://localhost:4202'}
+        })
+      }).then(function(response) {
+        expect(response.statusCode).toEqual(204);
+        return user.api.post(`/floats/${float.id}/join`, {
+          headers: {'X-Stub-Url': 'http://localhost:4202'}
+        })
+      }).then(h.shouldFail).catch(function(err) {
+        expect(err.statusCode).toEqual(409);
+      });
+    });
   })
 
   describe("deleting floats", function() {

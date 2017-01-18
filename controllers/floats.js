@@ -22,7 +22,7 @@ function create(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.status(201).json({id: 'PANICMODE'}); }
 
   if( !req.body.invitees ) {
-    return res.status(400).json({dev_message: 'You must provide an array of `invitees` in the request body.'})
+    return res.status(400).json({debug: 'You must provide an array of `invitees` in the request body.'})
   }
 
   let user, recipients;
@@ -102,7 +102,10 @@ function join(req, res, next) {
     });
   }).catch(function(err) {
     if( err.name == 'NotFound' ) {
-      return res.status(400).json({message: err.message, dev_message: 'Float not found', id: req.params.id})
+      return res.status(400).json({message: err.message, debug: 'Float not found', id: req.params.id})
+    }
+    if( err.name == 'DuplicateJoinError' ) {
+      return res.status(409).json({message: "Oops, you've already joined this float."});
     }
     next(err);
   });
@@ -120,10 +123,10 @@ function destroy(req, res, next) {
     res.sendStatus(204);
   }).catch(function(err) {
     if( err.name == 'NotFound' ) {
-      return res.status(400).json({message: err.message, dev_message: 'Float not found', id: req.params.id})
+      return res.status(400).json({message: err.message, debug: 'Float not found', id: req.params.id})
     }
     if( err.name == 'Unauthorized' ) {
-      return res.status(403).json({message: err.message, dev_message: 'Creator id does not match authenticated user', floatId: err.floatId, userId: req.userId});
+      return res.status(403).json({message: err.message, debug: 'Creator id does not match authenticated user', floatId: err.floatId, userId: req.userId});
     }
     next(err);
   })
