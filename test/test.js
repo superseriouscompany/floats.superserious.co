@@ -8,7 +8,6 @@ const factory  = require('./factory');
 const api      = require('./api');
 const h        = require('./helpers');
 const server   = require('../index');
-const _        = require('lodash');
 
 describe("floats api", function () {
   let serverHandle, fakebookHandle, stub;
@@ -294,7 +293,7 @@ describe("floats api", function () {
         return user.api.post('/floats', {
           body: {
             invitees: [invitee.id],
-            title: _.repeat('a', 141),
+            title: 'a'.repeat(141),
           },
           headers: {
             'X-Stub-Url': 'http://localhost:4202'
