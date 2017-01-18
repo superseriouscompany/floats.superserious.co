@@ -231,9 +231,33 @@ describe("floats api", function () {
       })
     });
 
-    it("validates friendships");
+    // Pending bc everyone is friends with everyone by default
+    it("validates friendships", true ? null : function() {
+      let user, rando;
+      return Promise.all([
+        factory.user(),
+        factory.user(),
+      ]).then(function(v) {
+        user   = v[0];
+        rando  = v[1];
+        return user.api.post('/floats', {
+          body: {
+            invitees: [rando.id],
+            title: 'Attempt at spamming'
+          },
+          headers: {
+            'X-Stub-Url': 'http://localhost:4202'
+          }
+        })
+      }).then(h.shouldFail).catch(function(err) {
+        expect(err.statusCode).toEqual(400);
+        expect(err.response.body.debug).toEqual(`These are not your friends: [${rando.id}]`);
+      })
+    });
 
     it("validates proximity");
+
+    it("doesn't allow more than 100 invitees");
 
     it("requires a title", function () {
       let user, invitee;

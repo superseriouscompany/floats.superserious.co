@@ -36,6 +36,12 @@ function create(req, res, next) {
     recipients = friends.filter(function(f) {
       return req.body.invitees.indexOf(f.id) !== -1;
     });
+    if( recipients.length < req.body.invitees.length ) {
+      const badIds = _.differenceWith(req.body.invitees, recipients, function(a, b) {
+        return a == b.id;
+      })
+      throw error('Invalid invitees: not friends', {name: 'InvalidFriends', ids: badIds});
+    }
     return floats.create({
       user_id: req.userId,
       title: req.body.title,
@@ -51,7 +57,14 @@ function create(req, res, next) {
     return Promise.all(promises).then(function() {
       return res.status(201).json(float);
     })
-  }).catch(next);
+  }).catch(function(err) {
+    if( err.name == 'InvalidFriends' ) {
+      const badIds = err.ids && err.ids.length && err.ids.join(',');
+      return res.status(400).json({debug: `These are not your friends: [${badIds}]`});
+    }
+
+    next(err);
+  });
 }
 
 function all(req, res, next) {
