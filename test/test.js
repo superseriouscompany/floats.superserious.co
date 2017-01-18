@@ -307,7 +307,16 @@ describe("floats api", function () {
   })
 
   describe("joining floats", function() {
-    it("400s if float is not found");
+    it("400s if float is not found", function() {
+      return factory.user().then(function(user) {
+        return user.api.post(`/floats/nope/join`, {
+          headers: {'X-Stub-Url': 'http://localhost:4202'}
+        })
+      }).then(h.shouldFail).catch(function(err) {
+        expect(err.statusCode).toEqual(400);
+        expect(err.response.body.dev_message).toEqual("Float not found");
+      })
+    });
 
     it("allows joining a float", function () {
       let user, u0;
