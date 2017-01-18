@@ -1,6 +1,6 @@
-# bubbles.superserious.co
+# floats.superserious.co
 
-This is the bubbles api.
+This is the floats api.
 
 ## Requirements
 
@@ -11,8 +11,14 @@ This is the bubbles api.
     $ npm install
 
 ## Running
-
+    # run normally
     $ npm start
+
+    # run in panic mode
+    $ PANIC_MODE=1 npm start
+
+    # run in production mode
+    $ NODE_ENV=production npm start
 
 ## Testing
 
