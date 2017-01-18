@@ -123,7 +123,7 @@ function destroy(req, res, next) {
       return res.status(400).json({message: err.message, dev_message: 'Float not found', id: req.params.id})
     }
     if( err.name == 'Unauthorized' ) {
-      return res.status(400).json({message: err.message, dev_message: 'Creator id does not match authenticated user', floatId: err.floatId, userId: req.userId});
+      return res.status(403).json({message: err.message, dev_message: 'Creator id does not match authenticated user', floatId: err.floatId, userId: req.userId});
     }
     next(err);
   })

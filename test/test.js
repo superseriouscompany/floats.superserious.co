@@ -362,7 +362,18 @@ describe("floats api", function () {
   })
 
   describe("deleting floats", function() {
-    it("403s if you aren't the creator");
+    it("403s if you aren't the creator", function() {
+      let user;
+      return factory.user().then(function(u) {
+        user = u;
+        return factory.float();
+      }).then(function(f) {
+        return user.api.delete(`/floats/${f.id}`)
+      }).then(h.shouldFail).catch(function(err) {
+        expect(err.statusCode).toEqual(403);
+        expect(err.response.body.message).toEqual("Permission denied.");
+      })
+    });
 
     it("allows deletion from creator", function () {
       let user;
