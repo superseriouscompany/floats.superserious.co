@@ -3,6 +3,7 @@
 const uuid  = require('uuid');
 const _     = require('lodash');
 const users = require('./users');
+const error = require('../services/error');
 
 module.exports = {
   create: create,
@@ -48,7 +49,13 @@ function findByCreator(userId) {
 
 function join(floatId, userId) {
   return users.get(userId).then(function(user) {
+    const conflict = floats[floatId].attendees.find(function(a) {
+      return a.id === userId
+    })
+    if( conflict ) { throw error('Float has already been joined.', {name: 'DuplicateJoinError'}); }
+
     floats[floatId].attendees.push(_.pick(user, 'id', 'avatar_url', 'name', 'username'))
+
     return Promise.resolve(true);
   })
 }

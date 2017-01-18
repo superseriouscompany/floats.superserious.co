@@ -8,14 +8,14 @@ describe("fakebook", function() {
   this.slow(1000);
 
   const api = request.defaults({
-    baseUrl: 'http://localhost:3001',
+    baseUrl: 'http://localhost:4201',
     json: true,
     resolveWithFullResponse: true,
   })
 
   let handle;
   before(function() {
-    handle = fakebook(3001);
+    handle = fakebook(4201);
   })
 
   after(function() {

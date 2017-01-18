@@ -4,6 +4,7 @@ const error = require('../services/error');
 
 module.exports = {
   create: create,
+  destroy: destroy,
   find: find,
 }
 
@@ -19,6 +20,10 @@ function create(token, userId, ttl) {
     }, ttl);
   }
   return Promise.resolve(true);
+}
+
+function destroy(token) {
+  delete sessions[token];
 }
 
 function find(token) {
