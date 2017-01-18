@@ -84,6 +84,7 @@ describe("floats api", function () {
   })
 
   describe("updating self", function() {
+    // pending, security https://firebase.google.com/docs/auth/admin/verify-id-tokens
     it("verifies firebase token");
 
     it("401s with invalid access token", function () {
