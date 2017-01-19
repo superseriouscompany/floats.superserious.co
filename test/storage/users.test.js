@@ -64,5 +64,23 @@ module.exports = function() {
         })
       });
     })
+
+    describe(".all", function() {
+      it("returns all users in the database", function () {
+        return Promise.all([
+          users.create({name: 'Neil'}),
+          users.create({name: 'Santi'}),
+          users.create({name: 'Andrew'}),
+          users.create({name: 'Kevin'}),
+        ]).then(function() {
+          return users.all()
+        }).then(function(all) {
+          ['Neil', 'Santi', 'Andrew', 'Kevin'].forEach(function(n) {
+            const match = all.find(function(u) {return u.name == n});
+            expect(match).toExist(`Couldn't find ${n}`);
+          })
+        })
+      });
+    })
   })
 }

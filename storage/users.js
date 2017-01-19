@@ -36,7 +36,7 @@ function get(id) {
 }
 
 function all() {
-  return _.values(users);
+  return Promise.resolve(_.values(users));
 }
 
 function update(id, user) {
