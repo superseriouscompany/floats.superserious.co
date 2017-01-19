@@ -29,15 +29,17 @@ function createUser(req, res, next) {
     fbUser = fu;
     return users.findByFacebookId(fbUser.id)
   }).then(function(user) {
-    if( user ) {
-      return res.status(200).json(_.pick(user, fields));
+    return res.status(200).json(_.pick(user, fields));
+  }).catch(function(err) {
+    if( err.name == 'UserNotFound' ) {
+      return users.createFromFacebook(fbUser).then(function(user) {
+        return session.create(user.access_token, user.id).then(function(ok) {
+          res.status(201).json(_.pick(user, fields));
+        })
+      });
     }
 
-    return users.createFromFacebook(fbUser).then(function(user) {
-      return session.create(user.access_token, user.id).then(function(ok) {
-        res.status(201).json(_.pick(user, fields));
-      })
-    });
+    next(err);
   }).catch(next);
 }
 

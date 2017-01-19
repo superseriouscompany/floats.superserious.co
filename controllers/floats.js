@@ -68,7 +68,6 @@ function create(req, res, next) {
       const badIds = err.ids && err.ids.length && err.ids.join(',');
       return res.status(400).json({debug: `These are not your friends: [${badIds}]`});
     }
-
     next(err);
   });
 }
@@ -105,16 +104,13 @@ function join(req, res, next) {
   let float, creator;
   return floats.get(req.params.id).then(function(f) {
     float = f;
-    if( !float ) { throw error('This float was deleted.', {name: 'NotFound'}); }
     return floats.join(float.id, req.userId)
   }).then(function() {
     return users.get(float.user_id);
   }).then(function(u) {
-    if( !u ) { throw error('User not found', {name: 'UserNotFound'}) }
     creator = u;
     return users.get(req.userId);
   }).then(function(user) {
-    if( !user ) { throw error('User not found', {name: 'UserNotFound'}) }
     const stubUrl = req.get('X-Stub-Url');
     const message = `${user.name} would.`;
 
@@ -123,7 +119,7 @@ function join(req, res, next) {
       res.sendStatus(204);
     });
   }).catch(function(err) {
-    if( err.name == 'NotFound' ) {
+    if( err.name == 'FloatNotFound' ) {
       return res.status(400).json({message: err.message, debug: 'Float not found', id: req.params.id})
     }
     if( err.name == 'DuplicateJoinError' ) {
