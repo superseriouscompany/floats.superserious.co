@@ -17,25 +17,32 @@ module.exports = {
 
 let users = {};
 
-function all() {
-  return _.values(users);
+function create(user) {
+  return new Promise(function(resolve, reject) {
+    if( !user ) { return reject(error('user is null', {name: 'InputError'})); }
+    user.id         = user.id || uuid.v1();
+    user.created_at = user.created_at || +new Date;
+    users[user.id]  = user;
+    resolve(user);
+  })
 }
 
-function create(user) {
-  user.id = user.id || uuid.v1();
-  user.created_at = user.created_at || +new Date;
-  users[user.id] = user;
-  return Promise.resolve(user);
+function get(id) {
+  return new Promise(function(resolve, reject) {
+    if( !id )        { return reject(error('id is null', {name: 'InputError'})); }
+    if( !users[id] ) { return reject(error('user not found', {name: 'UserNotFound', id: id}))}
+    resolve(users[id]);
+  })
+}
+
+function all() {
+  return _.values(users);
 }
 
 function update(id, user) {
   if( !users[id] ) { throw error('No user found', {name: 'UserNotFound', id: id}); };
   users[id] = Object.assign(users[id], user);
   return Promise.resolve(true);
-}
-
-function get(id) {
-  return Promise.resolve(users[id]);
 }
 
 function destroy(id) {
