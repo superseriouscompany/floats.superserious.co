@@ -198,6 +198,7 @@ module.exports = function() {
 
       it("throws UserNotFound if user doesn't exist");
     });
+
     describe(".attendees", function() {
       it("throws InputError if float id is not provided", function () {
         return floats.attendees().then(h.shouldFail).catch(function(err) {
@@ -205,6 +206,7 @@ module.exports = function() {
         })
       });
     });
+
     describe(".destroy", function() {
       it("throws InputError if float id is not provided", function () {
         return floats.destroy().then(h.shouldFail).catch(function(err) {
