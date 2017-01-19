@@ -2,6 +2,7 @@
 
 const expect = require('expect');
 const floats = require('../../storage/floats');
+const users  = require('../../storage/users');
 const h      = require('../helpers');
 
 module.exports = function() {
@@ -83,10 +84,27 @@ module.exports = function() {
         it(`throws ${errorName} if ${t.name}`, function () {
           return floats.create(t.float).then(h.shouldFail).catch(function(err) {
             expect(err.name).toEqual(errorName)
-          })
+          });
         });
       });
+
+      it("creates float with id and created_at", function () {
+        return Promise.all([
+          users.create({}),
+          users.create({}),
+        ]).then(function(v) {
+          return floats.create({
+            title: 'great',
+            user_id: v[0].id,
+            invitees: [v[1].id],
+          })
+        }).then(function(float) {
+          expect(float.id).toExist();
+          expect(float.created_at).toBeGreaterThan(+new Date - 60000);
+        })
+      });
     });
+
     describe(".get", function() {
       it("throws InputError if id is null", function () {
         return floats.get().then(h.shouldFail).catch(function(err) {
