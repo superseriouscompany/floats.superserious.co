@@ -59,7 +59,7 @@ function destroy(id) {
 }
 
 function flush() {
-  if( process.env.NODE_ENV == 'production' ) { return; }
+  if( process.env.NODE_ENV == 'production' ) { return Promise.reject('Not in prod'); }
   users = {};
   return Promise.resolve(true);
 }
