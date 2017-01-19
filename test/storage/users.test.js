@@ -152,7 +152,7 @@ module.exports = function() {
     });
 
     describe(".flush", function () {
-      it("destroys all users", function () {
+      it("destroys all users", function() {
         return Promise.all([
           users.create({}),
           users.create({}),
@@ -168,13 +168,48 @@ module.exports = function() {
     });
 
     describe(".findByFacebookId", function () {
-      it("throws UserNotFound if ", function () {
+      it("throws InputError", function() {
+        return users.findByFacebookId().then(h.shouldFail).catch(function(err) {
+          expect(err.name).toEqual('InputError');
+        })
+      });
 
+      it("throws UserNotFound if no user has this facebook id", function () {
+        return users.findByFacebookId('nope').then(h.shouldFail).catch(function(err) {
+          expect(err.name).toEqual('UserNotFound');
+        })
+      });
+
+      it("returns user by facebook id", function () {
+        return users.create({name: 'Ines', facebook_id: 'fb123'}).then(function() {
+          return users.findByFacebookId('fb123')
+        }).then(function(user) {
+          expect(user.name).toEqual('Ines');
+        })
       });
     });
 
     describe(".createFromFacebook", function () {
+      it("throws InputError if user doesn't exist", function () {
+        return users.createFromFacebook().then(h.shouldFail).catch(function(err) {
+          expect(err.name).toEqual('InputError');
+        })
+      });
 
+      it("throws InputError if user id doesn't exist", function () {
+        return users.createFromFacebook({}).then(h.shouldFail).catch(function(err) {
+          expect(err.name).toEqual('InputError');
+        })
+      });
+
+      it("populates avatar, facebook_id and access_token", function () {
+        return users.createFromFacebook({id: 1234}).then(function(user) {
+          expect(user.id).toExist();
+          expect(user.facebook_id).toEqual(1234);
+          expect(user.access_token).toExist();
+          expect(user.avatar_url).toEqual('https: //graph.facebook.com/v2.8/1234/picture');
+        })
+      });
     });
   })
 }

@@ -65,16 +65,25 @@ function flush() {
 }
 
 function findByFacebookId(facebookId) {
-  const key = _.findKey(users, {facebook_id: facebookId});
-  if( !key ) { return Promise.resolve(null); }
-  return Promise.resolve(users[key]);
+  return new Promise(function(resolve, reject) {
+    if( !facebookId ) { return reject(error('facebookId is null', {name: 'InputError'})); }
+    const key = _.findKey(users, {facebook_id: facebookId});
+    if( !key ) { return reject(error('No user found', {name: 'UserNotFound'})); }
+
+    return resolve(users[key]);
+  })
 }
 
 function createFromFacebook(user) {
-  user.facebook_id = user.id;
-  user.id = uuid.v1();
-  user.access_token = uuid.v1();
-  user.avatar_url = `https://graph.facebook.com/v2.8/${user.facebook_id}/picture`
-  users[user.id] = user;
-  return Promise.resolve(user);
+  return new Promise(function(resolve, reject) {
+    if( !user ) { return reject(error('user is null', {name: 'InputError'})); }
+    if( !user.id ) { return reject(error('user id is null', {name: 'InputError', user: user}))}
+
+    user.facebook_id  = user.id;
+    user.id           = uuid.v1();
+    user.access_token = uuid.v1();
+    user.avatar_url   = `https: //graph.facebook.com/v2.8/${user.facebook_id}/picture`
+    users[user.id]    = user;
+    resolve(user);
+  })
 }
