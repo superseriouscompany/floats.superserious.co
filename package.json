@@ -1,24 +1,25 @@
 {
-  "name": "bubbles.superserious.co",
+  "name": "floats.superserious.co",
   "version": "1.0.0",
   "description": "Floats API",
   "main": "index.js",
   "scripts": {
     "start":        "node index.js",
     "test":         "mocha",
+    "livetest":     "LIVE=1 mocha --timeout 10000 --slow 2000",
     "createTables": "node storage/dynamo/schemas/createTables.js",
     "dropTables":   "node storage/dynamo/schemas/dropTables.js"
   },
   "repository": {
     "type": "git",
-    "url":  "git+https://github.com/superseriouscompany/bubbles.superserious.co.git"
+    "url": "git+https://github.com/superseriouscompany/floats.superserious.co.git"
   },
   "author": "Neil Sarkar & Super Serious Company",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/superseriouscompany/bubbles.superserious.co/issues"
+    "url": "https://github.com/superseriouscompany/floats.superserious.co/issues"
   },
-  "homepage": "https://github.com/superseriouscompany/bubbles.superserious.co#readme",
+  "homepage": "https://github.com/superseriouscompany/floats.superserious.co#readme",
   "devDependencies": {
     "expect": "^1.20.2",
     "mocha": "^3.2.0",

@@ -67,4 +67,10 @@ module.exports = {
     { id: 'PANICMODE2', name: "Frank Ferret", avatar_url: "https://placekitten.com/640/640"},
     { id: 'PANICMODE3', name: "Hank Hippo", avatar_url: "https://placekitten.com/640/640"},
   ],
+
+  user: {
+    id: 'PANICMODE1',
+    name: "Darlene Down",
+    avatar_url: "https://placekitten.com/640/640",
+  },
 }

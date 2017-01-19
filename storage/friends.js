@@ -5,7 +5,9 @@ module.exports = {
 }
 
 function all(userId) {
-  return users.all().filter(function(u) {
-    return u.id != userId
-  });
+  return users.all().then(function(all) {
+    return all.filter(function(u) {
+      return u.id != userId
+    });
+  })
 }

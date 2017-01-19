@@ -6,7 +6,7 @@ const auth      = require('../services/auth');
 const error     = require('../services/error');
 const log       = require('../services/log');
 const panic     = require('../services/panic');
-const db        = require('../storage/friends');
+const friends   = require('../storage/friends');
 const users     = require('../storage/users');
 
 module.exports = function(app) {
@@ -28,7 +28,7 @@ function nearby(req, res, next) {
       throw error('No pin set yet', {userId: req.userId, name: 'NoPin'});
     }
 
-    return db.all(req.userId);
+    return friends.all(req.userId);
   }).then(function(friends) {
     friends = friends.filter(function(f) {
       return haversine(

@@ -2,7 +2,7 @@ const request = require('request-promise');
 
 const baseUrl = process.env.NODE_ENV == 'production' ?
   'https://graph.facebook.com' :
-  'http://localhost:3001';
+  'http://localhost:4201';
 
 const fb = request.defaults({
   baseUrl: baseUrl,

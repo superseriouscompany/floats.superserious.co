@@ -6,28 +6,24 @@ const tinystub = require('tinystub');
 const fakebook = require('./fakebook');
 const factory  = require('./factory');
 const api      = require('./api');
+const h        = require('./helpers');
+const server   = require('../index');
 
 describe("floats api", function () {
-  let handle, stub;
+  let serverHandle, fakebookHandle, stub;
   this.slow(1000);
 
   before(function() {
-    return api('/').catch(function(err) {
-      console.error(`API is not running at ${api.baseUrl}`);
-      process.exit(1);
-    })
-  })
-
-  before(function() {
-    handle = fakebook(3001);
-    stub   = tinystub(3002);
-
+    serverHandle   = server(4200);
+    fakebookHandle = fakebook(4201);
+    stub           = tinystub(4202);
   })
   afterEach(function() {
     return api.delete('/flush')
   })
   after(function() {
-    handle();
+    serverHandle();
+    fakebookHandle();
     stub();
   })
 
@@ -39,7 +35,7 @@ describe("floats api", function () {
 
   describe("user creation", function () {
     it("403s without a facebook token", function () {
-      return api.post('/users').then(shouldFail).catch(function(err) {
+      return api.post('/users').then(h.shouldFail).catch(function(err) {
         expect(err.statusCode).toEqual(403);
       })
     });
@@ -73,14 +69,14 @@ describe("floats api", function () {
   });
 
   describe("deleting account", function() {
-    it("allows deletion", true ? null : function () {
+    it("allows deletion", function () {
       let user;
       return factory.user().then(function(u) {
         user = u;
         return user.api.delete('/users/me')
       }).then(function(response) {
-        expect(response.statusCode).toEqual(204)
-        user.api.get('/users/me').then(shouldFail).catch(function(err) {
+        expect(response.statusCode).toEqual(204);
+        return user.api.get('/users/me').then(h.shouldFail).catch(function(err) {
           expect(err.statusCode).toEqual(401);
         })
       })
@@ -88,10 +84,11 @@ describe("floats api", function () {
   })
 
   describe("updating self", function() {
+    // pending, security https://firebase.google.com/docs/auth/admin/verify-id-tokens
     it("verifies firebase token");
 
     it("401s with invalid access token", function () {
-      return api.patch('/users/me', {body: { firebase_token: 'firebase123' }}).then(shouldFail).catch(function(err) {
+      return api.patch('/users/me', {body: { firebase_token: 'firebase123' }}).then(h.shouldFail).catch(function(err) {
         expect(err.statusCode).toEqual(401);
       });
     });
@@ -116,17 +113,17 @@ describe("floats api", function () {
 
   describe("setting location", function() {
     it("401s with invalid access token", function () {
-      return api.post('/pins', {body: { lat: 10, lng: 10 }}).then(shouldFail).catch(function(err) {
+      return api.post('/pins', {body: { lat: 10, lng: 10 }}).then(h.shouldFail).catch(function(err) {
         expect(err.statusCode).toEqual(401);
       });
     });
 
     it("400s if lat/lng are not provided", function() {
       return factory.user().then(function(user) {
-        return user.api.post('/pins').then(shouldFail);
+        return user.api.post('/pins').then(h.shouldFail);
       }).catch(function(err) {
         expect(err.statusCode).toEqual(400);
-        expect(err.response.body.dev_message).toEqual("Please provide `lat` and `lng` in request body");
+        expect(err.response.body.debug).toEqual("Please provide `lat` and `lng` in request body");
       })
     });
 
@@ -137,10 +134,10 @@ describe("floats api", function () {
             lat: 91,
             lng: 181,
           }
-        }).then(shouldFail);
+        }).then(h.shouldFail);
       }).catch(function(err) {
         expect(err.statusCode).toEqual(400);
-        expect(err.response.body.dev_message).toMatch("`lat` or `lng` is out of range");
+        expect(err.response.body.debug).toMatch("`lat` or `lng` is out of range");
       })
     });
 
@@ -218,11 +215,137 @@ describe("floats api", function () {
   });
 
   describe("creating floats", function() {
-    it("requires invitees");
+    it("requires invitees", function() {
+      return factory.user().then(function(u) {
+        return u.api.post('/floats', {
+          body: {
+            title: 'Lets hang out with no one',
+            invitees: [],
+          },
+          headers: {
+            'X-Stub-Url': 'http://localhost:4202'
+          }
+        })
+      }).then(h.shouldFail).catch(function(err) {
+        expect(err.statusCode).toEqual(400);
+        expect(err.response.body.debug).toEqual("`invitees` array must contain at least one user id");
+      })
+    });
 
-    it("validates friendships");
+    // Pending bc everyone is friends with everyone by default
+    it("validates friendships", true ? null : function() {
+      let user, rando;
+      return Promise.all([
+        factory.user(),
+        factory.user(),
+      ]).then(function(v) {
+        user   = v[0];
+        rando  = v[1];
+        return user.api.post('/floats', {
+          body: {
+            invitees: [rando.id],
+            title: 'Attempt at spamming'
+          },
+          headers: {
+            'X-Stub-Url': 'http://localhost:4202'
+          }
+        })
+      }).then(h.shouldFail).catch(function(err) {
+        expect(err.statusCode).toEqual(400);
+        expect(err.response.body.debug).toEqual(`These are not your friends: [${rando.id}]`);
+      })
+    });
 
-    it("validates proximity");
+    // Pending bc I'm not sure how to do this in a scalable way
+    it("validates proximity", true ? null : function() {
+      let user, friend;
+      return Promise.all([
+        factory.user({lat: 0, lng: 0}),
+        factory.user({lat: 50, lng: 50}),
+      ]).then(function(v) {
+        user   = v[0];
+        friend = v[1];
+        return factory.friendship(user, friend);
+      }).then(function() {
+        return user.api.post('/floats', {
+          body: {
+            invitees: [friend.id],
+            title: 'Attempt at inviting out of range user'
+          },
+          headers: {
+            'X-Stub-Url': 'http://localhost:4202'
+          }
+        })
+      }).then(h.shouldFail).catch(function(err) {
+        expect(err.statusCode).toEqual(400);
+        expect(err.response.body.name).toEqual('OutOfBounds');
+        expect(err.response.body.debug).toEqual(`These friends are not in the area: [${friend.id}]`);
+      })
+    });
+
+    it("validates length", function() {
+      let user, invitee;
+      return Promise.all([
+        factory.user(),
+        factory.user(),
+      ]).then(function(values) {
+        user = values[0];
+        invitee = values[1];
+        return user.api.post('/floats', {
+          body: {
+            invitees: [invitee.id],
+            title: 'a'.repeat(141),
+          },
+          headers: {
+            'X-Stub-Url': 'http://localhost:4202'
+          }
+        })
+      }).then(h.shouldFail).catch(function(err) {
+        expect(err.statusCode).toEqual(400);
+        expect(err.response.body.message).toEqual('Your title is too long. It can only contain 140 characters.');
+      })
+    });
+
+    it("doesn't allow more than 100 invitees", function() {
+      let user;
+      return factory.user().then(function(user) {
+        return user.api.post('/floats', {
+          body: {
+            invitees: new Array(102).join('nope-').split('-'),
+            title: 'Surf session?',
+          },
+          headers: {
+            'X-Stub-Url': 'http://localhost:4202'
+          }
+        })
+      }).then(h.shouldFail).catch(function(err) {
+        expect(err.statusCode).toEqual(400);
+        expect(err.response.body.message).toEqual('You have tried to invite too many people. You can invite 100 people at most.');
+      })
+    });
+
+    it("requires a title", function () {
+      let user, invitee;
+      return Promise.all([
+        factory.user(),
+        factory.user(),
+      ]).then(function(values) {
+        user = values[0];
+        invitee = values[1];
+        return user.api.post('/floats', {
+          body: {
+            invitees: [invitee.id],
+            title: '         ',
+          },
+          headers: {
+            'X-Stub-Url': 'http://localhost:4202'
+          }
+        })
+      }).then(h.shouldFail).catch(function(err) {
+        expect(err.statusCode).toEqual(400);
+        expect(err.response.body.message).toEqual('Your title must contain at least one word.');
+      })
+    });
 
     it("sends push notifications to all nearby friends", function() {
       let becca, cam, kevin;
@@ -249,7 +372,7 @@ describe("floats api", function () {
             title: 'Go to maracuja'
           },
           headers: {
-            'X-Stub-Url': 'http://localhost:3002'
+            'X-Stub-Url': 'http://localhost:4202'
           }
         })
       }).then(function(response) {
@@ -264,8 +387,6 @@ describe("floats api", function () {
         expect(stub.calls.length).toEqual(2);
       })
     });
-
-    it("truncates text");
   })
 
   describe("viewing floats", function() {
@@ -311,7 +432,16 @@ describe("floats api", function () {
   })
 
   describe("joining floats", function() {
-    it("400s if float is not found");
+    it("400s if float is not found", function() {
+      return factory.user().then(function(user) {
+        return user.api.post(`/floats/nope/join`, {
+          headers: {'X-Stub-Url': 'http://localhost:4202'}
+        })
+      }).then(h.shouldFail).catch(function(err) {
+        expect(err.statusCode).toEqual(400);
+        expect(err.response.body.debug).toEqual("Float not found");
+      })
+    });
 
     it("allows joining a float", function () {
       let user, u0;
@@ -319,7 +449,7 @@ describe("floats api", function () {
         user = float.user;
         u0 = float.users[0];
         return u0.api.post(`/floats/${float.id}/join`, {
-          headers: {'X-Stub-Url': 'http://localhost:3002'}
+          headers: {'X-Stub-Url': 'http://localhost:4202'}
         })
       }).then(function(response) {
         expect(response.statusCode).toEqual(204);
@@ -348,7 +478,7 @@ describe("floats api", function () {
         return factory.float({user: creator, invitees: [user]})
       }).then(function(float) {
         return float.users[0].api.post(`/floats/${float.id}/join`, {
-          headers: { 'X-Stub-Url': 'http://localhost:3002' }
+          headers: { 'X-Stub-Url': 'http://localhost:4202' }
         })
       }).then(function(response) {
         expect(stub.calls[0].url).toEqual('/fcm/send');
@@ -361,12 +491,39 @@ describe("floats api", function () {
       })
     });
 
-    it("409s if they've already joined");
+    it("409s if they've already joined", function() {
+      let user, float;
 
+      return factory.float().then(function(f) {
+        float = f;
+        user = float.users[0];
+        return user.api.post(`/floats/${float.id}/join`, {
+          headers: {'X-Stub-Url': 'http://localhost:4202'}
+        })
+      }).then(function(response) {
+        expect(response.statusCode).toEqual(204);
+        return user.api.post(`/floats/${float.id}/join`, {
+          headers: {'X-Stub-Url': 'http://localhost:4202'}
+        })
+      }).then(h.shouldFail).catch(function(err) {
+        expect(err.statusCode).toEqual(409);
+      });
+    });
   })
 
   describe("deleting floats", function() {
-    it("403s if you aren't the creator");
+    it("403s if you aren't the creator", function() {
+      let user;
+      return factory.user().then(function(u) {
+        user = u;
+        return factory.float();
+      }).then(function(f) {
+        return user.api.delete(`/floats/${f.id}`)
+      }).then(h.shouldFail).catch(function(err) {
+        expect(err.statusCode).toEqual(403);
+        expect(err.response.body.message).toEqual("Permission denied.");
+      })
+    });
 
     it("allows deletion from creator", function () {
       let user;
@@ -382,16 +539,3 @@ describe("floats api", function () {
     });
   })
 });
-
-function shouldFail(r) {
-  let err;
-  if( r.statusCode ) {
-    err = new Error(`Expected an unsuccessful response, got: ${r.statusCode} ${JSON.stringify(r.body)}`);
-    err.statusCode = r.statusCode;
-    err.response = { body: r.body };
-  } else {
-    err = new Error(`Expected an unsuccessful response, got: ${r}`);
-    err.statusCode = 420;
-  }
-  throw err;
-}

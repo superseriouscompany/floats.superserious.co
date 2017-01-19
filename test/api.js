@@ -1,6 +1,6 @@
 const request = require('request-promise');
 const config  = require('../config');
-const baseUrl = process.env.NODE_ENV == 'production' ? config.baseUrl : 'http://localhost:3000/v1';
+const baseUrl = process.env.NODE_ENV == 'production' ? config.baseUrl : 'http://localhost:4200/v1';
 
 const api = request.defaults({
   baseUrl: baseUrl,
