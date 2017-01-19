@@ -168,7 +168,7 @@ module.exports = function() {
     });
 
     describe(".findByFacebookId", function () {
-      it("throws InputError", function() {
+      it("throws InputError if facebook id is blank", function() {
         return users.findByFacebookId().then(h.shouldFail).catch(function(err) {
           expect(err.name).toEqual('InputError');
         })

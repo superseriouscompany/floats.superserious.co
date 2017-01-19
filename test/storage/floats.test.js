@@ -272,10 +272,43 @@ module.exports = function() {
           expect(err.name).toEqual('FloatNotFound');
         })
       });
+
+      it("destroys float", function () {
+        return createFloat().then(function(f) {
+          float = f;
+          return floats.destroy(float.id)
+        }).then(function() {
+          return floats.get(float.id)
+        }).then(h.shouldFail).catch(function(err) {
+          expect(err.name).toEqual('FloatNotFound');
+        });
+      });
     });
 
     describe(".flush", function() {
-      it("clears all floats out");
+      it("clears all floats out", function() {
+        let all;
+        return Promise.all([
+          createFloat(),
+          createFloat(),
+          createFloat(),
+        ]).then(function(v) {
+          all = v;
+          return floats.flush();
+        }).then(function() {
+          return floats.get(all[0].id);
+        }).then(h.shouldFail).catch(function(err) {
+          expect(err.name).toEqual('FloatNotFound')
+        }).then(function() {
+          return floats.get(all[1].id);
+        }).then(h.shouldFail).catch(function(err) {
+          expect(err.name).toEqual('FloatNotFound')
+        }).then(function() {
+          return floats.get(all[1].id);
+        }).then(h.shouldFail).catch(function(err) {
+          expect(err.name).toEqual('FloatNotFound')
+        })
+      });
     });
   });
 }
