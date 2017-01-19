@@ -152,7 +152,19 @@ module.exports = function() {
     });
 
     describe(".flush", function () {
-
+      it("destroys all users", function () {
+        return Promise.all([
+          users.create({}),
+          users.create({}),
+          users.create({})
+        ]).then(function() {
+          return users.flush()
+        }).then(function() {
+          return users.all();
+        }).then(function(all) {
+          expect(all.length).toEqual(0);
+        })
+      });
     });
 
     describe(".findByFacebookId", function () {
