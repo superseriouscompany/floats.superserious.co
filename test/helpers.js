@@ -14,5 +14,6 @@ function shouldFail(r) {
     err = new Error(`Expected an unsuccessful response, got: ${r}`);
     err.statusCode = 420;
   }
+  err.name = 'ShouldHaveFailed';
   throw err;
 }

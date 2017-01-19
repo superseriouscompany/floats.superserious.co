@@ -205,7 +205,38 @@ module.exports = function() {
       });
 
       it("throws NotInvited if user was not invited", function () {
-        return createFloat()
+        return Promise.all([
+          createFloat(),
+          users.create({})
+        ]).then(function(v) {
+          return floats.join(v[0].id, v[1].id);
+        }).then(h.shouldFail).catch(function(err) {
+          expect(err.name).toEqual('NotInvited');
+        });
+      });
+
+      it("throws DuplicateJoinError if float is joined twice", function () {
+        return createFloat().then(function(f) {
+          float = f;
+          user = {id: f.invitees[0]};
+          return floats.join(float.id, user.id);
+        }).then(function() {
+          return floats.join(float.id, user.id);
+        }).then(h.shouldFail).catch(function(err) {
+          expect(err.name).toEqual('DuplicateJoinError');
+        })
+      });
+
+      it("allows joining float", function () {
+        return createFloat().then(function(f) {
+          float = f;
+          user = {id: f.invitees[0]};
+          return floats.join(float.id, user.id);
+        }).then(function() {
+          return floats.findByInvitee(user.id);
+        }).then(function(all) {
+          expect(all[0].id).toEqual(float.id);
+        });
       });
     });
 
@@ -215,13 +246,25 @@ module.exports = function() {
           expect(err.name).toEqual('InputError');
         })
       });
+
+      it("returns attendees", function () {
+        return createFloat().then(function(f) {
+          float = f;
+          user = {id: f.invitees[0]};
+          return floats.join(float.id, user.id);
+        }).then(function() {
+          return floats.attendees(float);
+        }).then(function(attendees) {
+          expect(attendees[0].id).toEqual(user.id);
+        });
+      });
     });
 
     describe(".destroy", function() {
       it("throws InputError if float id is not provided", function () {
         return floats.destroy().then(h.shouldFail).catch(function(err) {
           expect(err.name).toEqual('InputError');
-        })
+        });
       });
 
       it("throws FloatNotFound if float doesn't exist", function () {
@@ -232,9 +275,7 @@ module.exports = function() {
     });
 
     describe(".flush", function() {
-      it("clears all floats out", function () {
-
-      });
+      it("clears all floats out");
     });
   });
 }
