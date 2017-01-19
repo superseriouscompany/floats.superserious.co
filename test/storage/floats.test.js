@@ -32,21 +32,21 @@ module.exports = function() {
           name: 'invitees are empty',
           float: {
             title: 'great',
-            user_id: 'neil',
+            user: { id: 'neil' },
           },
         },
         {
           name: 'invitees are blank',
           float: {
             title: 'great',
-            user_id: 'neil',
+            user: { id: 'neil' },
             invitees: [],
           },
         },
         {
           name: 'title is empty',
           float: {
-            user_id: 'neil',
+            user: { id: 'neil' },
             invitees: ['someone'],
           },
         },
@@ -55,7 +55,7 @@ module.exports = function() {
           errorName: 'SizeError',
           float: {
             title: '                    o                       ',
-            user_id: 'neil',
+            user: { id: 'neil' },
             invitees: ['someone'],
           }
         },
@@ -64,7 +64,7 @@ module.exports = function() {
           errorName: 'SizeError',
           float: {
             title: 'a'.repeat(141),
-            user_id: 'neil',
+            user: { id: 'neil' },
             invitees: ['someone'],
           }
         },
@@ -73,7 +73,7 @@ module.exports = function() {
           errorName: 'UserNotFound',
           float: {
             title: 'great',
-            user_id: 'nope',
+            user: { id: 'nope' },
             invitees: ['someone'],
           }
         }
@@ -95,7 +95,7 @@ module.exports = function() {
         ]).then(function(v) {
           return floats.create({
             title: 'great',
-            user_id: v[0].id,
+            user: { id: v[0].id },
             invitees: [v[1].id],
           })
         }).then(function(float) {
@@ -119,20 +119,17 @@ module.exports = function() {
       });
 
       it("finds properly created floats", function () {
-        return Promise.all([
-          users.create({}),
-          users.create({}),
-        ]).then(function(v) {
-          return floats.create({
-            title: 'great',
-            user_id: v[0].id,
-            invitees: [v[1].id],
-          })
-        }).then(function(float) {
-
+        return createFloat().then(function(f) {
+          float = f;
+          return floats.get(float.id);
+        }).then(function(f) {
+          expect(f).toExist();
+          expect(f.id).toEqual(float.id);
+          expect(f.title).toEqual(float.title);
         })
       });
     });
+
     describe(".findByInvitee", function() {
       it("throws InputError if invitee id is null", function () {
         return floats.findByInvitee().then(h.shouldFail).catch(function(err) {
@@ -153,13 +150,36 @@ module.exports = function() {
         });
       });
     });
+
     describe(".findByCreator", function() {
       it("throws InputError if creator id is null", function () {
         return floats.findByCreator().then(h.shouldFail).catch(function(err) {
           expect(err.name).toEqual('InputError');
         })
       });
+
+      it("finds all floats that one person created", function () {
+        return users.create({}).then(function(u) {
+          user = u;
+
+          return Promise.all([
+            createFloat({title: 'first', user: { id: user.id }}),
+            createFloat({title: 'second', user: { id: user.id }}),
+            createFloat({title: 'third', user: { id: user.id }}),
+          ])
+        }).then(function() {
+          return floats.findByCreator(user.id)
+        }).then(function(all) {
+          expect(all).toExist();
+          expect(all.length).toEqual(3, `Expected 3 floats in ${JSON.stringify(all)}`);
+          const titles = all.map(function(f) { return f.title });
+          expect(titles).toContain('first', `Expected first in ${JSON.stringify(all)}`);
+          expect(titles).toContain('second', `Expected second in ${JSON.stringify(all)}`);
+          expect(titles).toContain('third', `Expected third in ${JSON.stringify(all)}`);
+        })
+      });
     });
+
     describe(".join", function() {
       it("throws InputError if float id or user id is null", function () {
         return floats.join().then(h.shouldFail).catch(function(err) {
@@ -212,9 +232,10 @@ function createFloat(params) {
     users.create({}),
     users.create({}),
   ]).then(function(v) {
-    return floats.create(Object.assign({}, {
-      user_id: v[0].id,
+    return floats.create(Object.assign({
+      user: { id: v[0].id },
       invitees: [v[1].id],
+      title: 'Test Float',
     }, params));
   });
 }
