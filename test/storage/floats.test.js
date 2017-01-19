@@ -186,7 +186,7 @@ module.exports = function() {
           expect(err.name).toEqual('InputError');
           return floats.join('something')
         }).then(h.shouldFail).catch(function(err) {
-            expect(err.name).toEqual('InputError');
+          expect(err.name).toEqual('InputError');
         })
       });
 
@@ -196,7 +196,17 @@ module.exports = function() {
         })
       });
 
-      it("throws UserNotFound if user doesn't exist");
+      it("throws UserNotFound if user doesn't exist", function() {
+        return createFloat().then(function(f) {
+          return floats.join(f.id, 'nope');
+        }).then(h.shouldFail).catch(function(err) {
+          expect(err.name).toEqual('UserNotFound');
+        })
+      });
+
+      it("throws NotInvited if user was not invited", function () {
+        return createFloat()
+      });
     });
 
     describe(".attendees", function() {

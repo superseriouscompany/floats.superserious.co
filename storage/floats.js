@@ -76,7 +76,7 @@ function join(floatId, userId) {
     if( !userId )  { return reject(error('userId not provided', {name: 'InputError'})); }
     if( !floats[floatId] ) { return reject(error('Float not found', {name: 'FloatNotFound', id: floatId })); }
 
-    return users.get(userId).then(function(user) {
+    users.get(userId).then(function(user) {
       const conflict = floats[floatId].attendees.find(function(a) {
         return a.id === userId
       })
@@ -85,7 +85,7 @@ function join(floatId, userId) {
       floats[floatId].attendees.push(_.pick(user, 'id', 'avatar_url', 'name', 'username'))
 
       return resolve(true);
-    })
+    }).catch(reject);
   })
 
 }
