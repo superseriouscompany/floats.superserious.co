@@ -117,12 +117,40 @@ module.exports = function() {
           expect(err.name).toEqual('FloatNotFound');
         })
       });
+
+      it("finds properly created floats", function () {
+        return Promise.all([
+          users.create({}),
+          users.create({}),
+        ]).then(function(v) {
+          return floats.create({
+            title: 'great',
+            user_id: v[0].id,
+            invitees: [v[1].id],
+          })
+        }).then(function(float) {
+
+        })
+      });
     });
     describe(".findByInvitee", function() {
       it("throws InputError if invitee id is null", function () {
         return floats.findByInvitee().then(h.shouldFail).catch(function(err) {
           expect(err.name).toEqual('InputError');
         })
+      });
+
+      it("returns floats that the person was invited to", function () {
+        return Promise.all([
+          createFloat({title: 'surlo', invitees: ['chuck']}),
+          createFloat({title: 'soccer', invitees: ['chuck']}),
+        ]).then(function() {
+          return floats.findByInvitee('chuck');
+        }).then(function(all) {
+          const titles = all.map(function(f) {return f.title; });
+          expect(titles).toContain('surlo', `Didn't find surlo in ${JSON.stringify(all)}`);
+          expect(titles).toContain('soccer', `Didn't find soccer in ${JSON.stringify(all)}`);
+        });
       });
     });
     describe(".findByCreator", function() {
@@ -176,5 +204,17 @@ module.exports = function() {
 
       });
     });
+  });
+}
+
+function createFloat(params) {
+  return Promise.all([
+    users.create({}),
+    users.create({}),
+  ]).then(function(v) {
+    return floats.create(Object.assign({}, {
+      user_id: v[0].id,
+      invitees: [v[1].id],
+    }, params));
   });
 }
