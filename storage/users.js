@@ -40,9 +40,12 @@ function all() {
 }
 
 function update(id, user) {
-  if( !users[id] ) { throw error('No user found', {name: 'UserNotFound', id: id}); };
-  users[id] = Object.assign(users[id], user);
-  return Promise.resolve(true);
+  return new Promise(function(resolve, reject) {
+    if( !id || !user ) { return reject(error('id or user is null', {name: 'InputError', id: id, user: user})); };
+    if( !users[id] ) { return reject(error('No user found', {name: 'UserNotFound', id: id})); };
+    users[id] = Object.assign(users[id], user, {id: users[id].id, created_at: users[id].created_at});
+    resolve(true);
+  })
 }
 
 function destroy(id) {

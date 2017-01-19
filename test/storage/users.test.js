@@ -82,5 +82,47 @@ module.exports = function() {
         })
       });
     })
+
+    describe(".update", function() {
+      it("throws InputError if id is null", function () {
+        return users.update().then(h.shouldFail).catch(function(err) {
+          expect(err.name).toEqual('InputError');
+        })
+      });
+
+      it("throws InputError if object is null", function () {
+        return users.update('cool').then(h.shouldFail).catch(function(err) {
+          expect(err.name).toEqual('InputError');
+        })
+      });
+
+      it("throws UserNotFound if id is not found", function () {
+        return users.update('nerp', {}).then(h.shouldFail).catch(function(err) {
+          expect(err.name).toEqual('UserNotFound');
+        })
+      });
+
+      it("doesn't update id or created_at", function () {
+        return users.create({id: 'cool', created_at: 2}).then(function(user) {
+          return users.update('cool', {id: 'nice', created_at: 3});
+        }).then(function() {
+          return users.get('cool')
+        }).then(function(user) {
+          expect(user.id).toEqual('cool');
+          expect(user.created_at).toEqual(2);
+        })
+      });
+
+      it("updates user object", function() {
+        return users.create({id: 'cool', created_at: 2}).then(function(user) {
+          return users.update('cool', {name: 'good', foo: 'bar'});
+        }).then(function() {
+          return users.get('cool')
+        }).then(function(user) {
+          expect(user.name).toEqual('good');
+          expect(user.foo).toEqual('bar');
+        })
+      });
+    })
   })
 }
