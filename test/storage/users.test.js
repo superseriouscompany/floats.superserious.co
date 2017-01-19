@@ -124,5 +124,45 @@ module.exports = function() {
         })
       });
     })
+
+    describe(".destroy", function () {
+      it("throws InputError if id is null", function () {
+        return users.destroy().then(h.shouldFail).catch(function(err) {
+          expect(err.name).toEqual('InputError');
+        })
+      });
+
+      it("throws UserNotFound if user is not found", function () {
+        return users.destroy('nerp').then(h.shouldFail).catch(function(err) {
+          expect(err.name).toEqual('UserNotFound');
+        })
+      });
+
+      it("destroys user", function () {
+        return users.create({}).then(function(u) {
+          user = u;
+          return users.destroy(user.id);
+        }).then(function(ok) {
+          expect(ok).toExist();
+          return users.get(user.id);
+        }).then(h.shouldFail).catch(function(err) {
+          expect(err.name).toEqual('UserNotFound');
+        })
+      });
+    });
+
+    describe(".flush", function () {
+
+    });
+
+    describe(".findByFacebookId", function () {
+      it("throws UserNotFound if ", function () {
+
+      });
+    });
+
+    describe(".createFromFacebook", function () {
+
+    });
   })
 }

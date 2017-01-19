@@ -49,9 +49,13 @@ function update(id, user) {
 }
 
 function destroy(id) {
-  delete users[id];
+  return new Promise(function(resolve, reject) {
+    if( !id ) { return reject(error('id is null', {name: 'InputError'})); };
+    if( !users[id] ) { return reject(error('No user found', {name: 'UserNotFound', id: id})); };
 
-  return Promise.resolve(true);
+    delete users[id];
+    resolve(true);
+  })
 }
 
 function flush() {
