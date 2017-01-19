@@ -17,7 +17,75 @@ module.exports = function() {
       it("throws InputError if float is null", function () {
         return floats.create().then(h.shouldFail).catch(function(err) {
           expect(err.name).toEqual('InputError');
-        })
+        });
+      });
+
+      const validationTests = [
+        {
+          name: 'user id is empty',
+          float: {
+            title: 'great',
+            invitees: ['someone'],
+          },
+        },
+        {
+          name: 'invitees are empty',
+          float: {
+            title: 'great',
+            user_id: 'neil',
+          },
+        },
+        {
+          name: 'invitees are blank',
+          float: {
+            title: 'great',
+            user_id: 'neil',
+            invitees: [],
+          },
+        },
+        {
+          name: 'title is empty',
+          float: {
+            user_id: 'neil',
+            invitees: ['someone'],
+          },
+        },
+        {
+          name: 'title is too short',
+          errorName: 'SizeError',
+          float: {
+            title: '                    o                       ',
+            user_id: 'neil',
+            invitees: ['someone'],
+          }
+        },
+        {
+          name: 'title is too long',
+          errorName: 'SizeError',
+          float: {
+            title: 'a'.repeat(141),
+            user_id: 'neil',
+            invitees: ['someone'],
+          }
+        },
+        {
+          name: 'user doesn\'t exist',
+          errorName: 'UserNotFound',
+          float: {
+            title: 'great',
+            user_id: 'nope',
+            invitees: ['someone'],
+          }
+        }
+      ]
+
+      validationTests.forEach(function(t) {
+        const errorName = t.errorName || 'ValidationError';
+        it(`throws ${errorName} if ${t.name}`, function () {
+          return floats.create(t.float).then(h.shouldFail).catch(function(err) {
+            expect(err.name).toEqual(errorName)
+          })
+        });
       });
     });
     describe(".get", function() {
@@ -57,7 +125,7 @@ module.exports = function() {
         })
       });
 
-      it("throws FloatNotFound if float doesn't exist", function () {
+      it("throws FloatNotFound if float doesn't exist", function() {
         return floats.join('nope', 'nope').then(h.shouldFail).catch(function(err) {
           expect(err.name).toEqual('FloatNotFound');
         })

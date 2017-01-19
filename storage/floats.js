@@ -21,12 +21,21 @@ let floats = {};
 function create(float) {
   return new Promise(function(resolve, reject) {
     if( !float ) { return reject(error('float not provided', {name: 'InputError'})); }
-    // TODO validate user_id, invitees, title, created_at
-    float.id         = float.id || uuid.v1();
-    float.created_at = float.created_at || +new Date;
-    float.attendees  = float.attendees || [];
-    floats[float.id] = float;
-    resolve(float);
+    if( !float.invitees ) { return reject(error('invitees not provided', {name: 'ValidationError'})); }
+    if( !float.invitees.length ) { return reject(error('invitees are empty', {name: 'ValidationError'})); }
+    if( !float.title ) { return reject(error('title not provided', {name: 'ValidationError'})); }
+    if( !float.user_id) { return reject(error('user_id not provided', {name: 'ValidationError'})); }
+    float.title = float.title && float.title.trim();
+    if( float.title.length < 3 ) { return reject(error('title is too short', {name: 'SizeError'})); }
+    if( float.title.length > 140 ) { return reject(error('title is too long', {name: 'SizeError'})); }
+
+    return users.get(float.user_id).then(function() {
+      float.id         = float.id || uuid.v1();
+      float.created_at = float.created_at || +new Date;
+      float.attendees  = float.attendees || [];
+      floats[float.id] = float;
+      resolve(float);
+    }).catch(reject);
   })
 }
 
