@@ -14,13 +14,12 @@ module.exports = function() {
     })
 
     describe(".create", function() {
-      it("throws InputError if float is null", function () {
-        return floats.create().then(h.shouldFail).catch(function(err) {
-          expect(err.name).toEqual('InputError');
-        });
-      });
-
       const validationTests = [
+        {
+          name: 'float is null',
+          errorName: 'InputError',
+          float: null,
+        },
         {
           name: 'user id is empty',
           float: {
