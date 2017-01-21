@@ -3,6 +3,7 @@
 const uuid   = require('uuid');
 const _      = require('lodash');
 const client = require('./client');
+const schema = require('./schemas/schemas').users;
 const error  = require('../../services/error');
 const config = require('../../config');
 
@@ -47,7 +48,11 @@ function get(id) {
 }
 
 function all() {
-  return Promise.resolve(_.values(users));
+  return client.scan({
+    TableName: config.usersTableName,
+  }).then(function(users) {
+    return users.Items;
+  })
 }
 
 function update(id, user) {
@@ -101,8 +106,8 @@ function destroy(id) {
 
 function flush() {
   if( process.env.NODE_ENV == 'production' ) { return Promise.reject('Not in prod'); }
-  users = {};
-  return Promise.resolve(true);
+
+  return client.truncate(config.usersTableName, schema);
 }
 
 function findByFacebookId(facebookId) {
@@ -121,6 +126,7 @@ function createFromFacebook(user) {
     if( !user.id ) { return reject(error('user id is null', {name: 'InputError', user: user}))}
 
     user.facebook_id  = user.id;
+    user.id           = null;
     user.access_token = uuid.v1();
     user.avatar_url   = `https: //graph.facebook.com/v2.8/${user.facebook_id}/picture`
     return create(user).then(resolve).catch(reject);

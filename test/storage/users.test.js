@@ -160,12 +160,14 @@ module.exports = function() {
 
     describe(".flush", function () {
       it("destroys all users", function() {
+        this.timeout(30000);
+        this.slow(18000);
         return Promise.all([
           users.create({}),
           users.create({}),
           users.create({})
         ]).then(function() {
-          return users.flush()
+          return users.flush();
         }).then(function() {
           return users.all();
         }).then(function(all) {
@@ -188,8 +190,8 @@ module.exports = function() {
       });
 
       it("returns user by facebook id", function () {
-        return users.create({name: 'Ines', facebook_id: 'fb123'}).then(function() {
-          return users.findByFacebookId('fb123')
+        return users.create({name: 'Ines', facebook_id: 123}).then(function() {
+          return users.findByFacebookId(123)
         }).then(function(user) {
           expect(user.name).toEqual('Ines');
         })

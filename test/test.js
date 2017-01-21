@@ -19,12 +19,19 @@ describe("floats api", function () {
     stub           = tinystub(4202);
   })
   afterEach(function() {
-    return api.delete('/flush')
+    if( !process.env.LIVE ) {
+      return api.delete('/flush')
+    }
   })
   after(function() {
     serverHandle();
     fakebookHandle();
     stub();
+  })
+  after(function() {
+    if( process.env.LIVE ) {
+      return api.delete('/flush');
+    }
   })
 
   it("provides healthcheck", function () {
