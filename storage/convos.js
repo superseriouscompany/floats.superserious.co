@@ -5,10 +5,11 @@ const _     = require('lodash');
 const users = require('./users');
 
 module.exports = {
-  create: create,
+  create:         create,
   findByMemberId: findByMemberId,
+  destroy:        destroy,
 
-  flush: flush,
+  flush:          flush,
 }
 
 let convos = {};
@@ -38,6 +39,13 @@ function flush() {
 
   return Promise.resolve().then(function() {
     convos = {};
+    return true;
+  })
+}
+
+function destroy(floatId, id) {
+  return Promise.resolve().then(function() {
+    delete convos[id];
     return true;
   })
 }

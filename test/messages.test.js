@@ -82,15 +82,33 @@ describe("messages", function () {
   describe("deleting conversations", function() {
     it("validates stuff");
 
-    it("204s if conversation is successfully deleted");
+    it("204s if conversation is successfully deleted", function() {
+      return factory.convo().then(function(c) {
+        return c.float.user.api.delete(`/floats/${c.float.id}/convos/${c.id}`)
+      }).then(function(response) {
+        expect(response.statusCode).toEqual(204);
+      })
+    });
 
     it("broadcasts message to users participating");
 
     it("removes conversation from list");
   });
   describe("leaving conversations", function() {
-    it("allows user to leave conversations");
-  })  
+    it("validates stuff");
+
+    it("allows user to leave conversations", function() {
+      return factory.convo().then(function(c) {
+        return c.float.users[0].api.delete(`/floats/${c.float.id}/convos/${c.id}/membership`)
+      }).then(function(response) {
+        expect(response.statusCode).toEqual(204);
+      })
+    });
+
+    it("deletes conversation if there are only two participants");
+
+    it("does not delete conversation if there are more participants");
+  })
   describe("merging conversations", function() {
     it("validates stuff");
 
