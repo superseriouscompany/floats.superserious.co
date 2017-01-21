@@ -1,7 +1,7 @@
 'use strict';
 
 const request = require('request-promise');
-const config  = require('./config');
+const config  = require('../config');
 const log     = require('./log');
 
 module.exports = {

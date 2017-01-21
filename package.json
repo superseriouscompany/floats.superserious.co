@@ -4,9 +4,11 @@
   "description": "Floats API",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "test": "mocha",
-    "livetest": "LIVE=1 mocha --timeout 10000 --slow 2000"
+    "start":        "node index.js",
+    "test":         "mocha",
+    "livetest":     "LIVE=1 mocha --timeout 10000 --slow 2000",
+    "createTables": "node storage/dynamo/schemas/createTables.js",
+    "dropTables":   "node storage/dynamo/schemas/dropTables.js"
   },
   "repository": {
     "type": "git",
@@ -24,6 +26,7 @@
     "tinystub": "^1.0.0"
   },
   "dependencies": {
+    "aws-sdk": "^2.7.21",
     "body-parser": "^1.15.2",
     "bunyan": "^1.8.5",
     "express": "^4.14.0",
