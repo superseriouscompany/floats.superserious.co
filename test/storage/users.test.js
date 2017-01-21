@@ -148,13 +148,16 @@ module.exports = function() {
       });
 
       it("destroys user", function () {
+        let foundUserToDestroy;
         return users.create({}).then(function(u) {
           user = u;
           return users.destroy(user.id);
         }).then(function(ok) {
+          foundUserToDestroy = true;
           expect(ok).toExist();
           return users.get(user.id);
         }).then(h.shouldFail).catch(function(err) {
+          expect(foundUserToDestroy).toExist();
           expect(err.name).toEqual('UserNotFound');
         })
       });
