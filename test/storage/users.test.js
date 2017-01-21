@@ -189,7 +189,7 @@ module.exports = function() {
       });
 
       it("throws UserNotFound if no user has this facebook id", function () {
-        return users.findByFacebookId('nope').then(h.shouldFail).catch(function(err) {
+        return users.findByFacebookId(21).then(h.shouldFail).catch(function(err) {
           expect(err.name).toEqual('UserNotFound');
         })
       });
@@ -199,6 +199,28 @@ module.exports = function() {
           return users.findByFacebookId(123)
         }).then(function(user) {
           expect(user.name).toEqual('Ines');
+        })
+      });
+    });
+
+    describe(".findByAccessToken", function () {
+      it("throws InputError if access token is blank", function() {
+        return users.findByAccessToken().then(h.shouldFail).catch(function(err) {
+          expect(err.name).toEqual('InputError');
+        })
+      });
+
+      it("throws UserNotFound if no user has this access token", function () {
+        return users.findByAccessToken('nerp').then(h.shouldFail).catch(function(err) {
+          expect(err.name).toEqual('UserNotFound');
+        })
+      });
+
+      it("returns user by access token", function () {
+        return users.create({name: 'Severin', access_token: 'sev123'}).then(function() {
+          return users.findByAccessToken('sev123')
+        }).then(function(user) {
+          expect(user.name).toEqual('Severin');
         })
       });
     });

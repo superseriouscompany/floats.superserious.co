@@ -9,6 +9,7 @@ module.exports = {
   update: update,
   get: get,
   findByFacebookId: findByFacebookId,
+  findByAccessToken: findByAccessToken,
   createFromFacebook: createFromFacebook,
   all: all,
   destroy: destroy,
@@ -68,6 +69,16 @@ function findByFacebookId(facebookId) {
   return new Promise(function(resolve, reject) {
     if( !facebookId ) { return reject(error('facebookId is null', {name: 'InputError'})); }
     const key = _.findKey(users, {facebook_id: facebookId});
+    if( !key ) { return reject(error('No user found', {name: 'UserNotFound'})); }
+
+    return resolve(users[key]);
+  })
+}
+
+function findByAccessToken(accessToken) {
+  return new Promise(function(resolve, reject) {
+    if( !accessToken ) { return reject(error('accessToken is null', {name: 'InputError'})); }
+    const key = _.findKey(users, {access_token: accessToken});
     if( !key ) { return reject(error('No user found', {name: 'UserNotFound'})); }
 
     return resolve(users[key]);

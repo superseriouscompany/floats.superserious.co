@@ -12,6 +12,7 @@ module.exports = {
   update: update,
   get: get,
   findByFacebookId: findByFacebookId,
+  findByAccessToken: findByAccessToken,
   createFromFacebook: createFromFacebook,
   all: all,
   destroy: destroy,
@@ -115,6 +116,22 @@ function findByFacebookId(facebookId) {
     KeyConditionExpression: 'facebook_id = :facebook_id',
     ExpressionAttributeValues: {
       ':facebook_id': facebookId
+    },
+    Limit: 1,
+  }).then(function(user) {
+    if( !user.Items.length ) { throw error('No user found', {name: 'UserNotFound'}); }
+    return user.Items[0];
+  })
+}
+
+function findByAccessToken(accessToken) {
+  if( !accessToken ) { return Promise.reject(error('accessToken is null', {name: 'InputError'})); }
+  return client.query({
+    TableName: config.usersTableName,
+    IndexName: 'access_token',
+    KeyConditionExpression: 'access_token = :access_token',
+    ExpressionAttributeValues: {
+      ':access_token': accessToken
     },
     Limit: 1,
   }).then(function(user) {
