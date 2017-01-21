@@ -80,11 +80,39 @@ module.exports = {
   convos: [
     {
       id: 'PANICMODE1',
-      name: 'Death and Taxes',
       float_id: 'PANICMODE1',
       members: ['PANICMODE1', 'PANICMODE2'],
       last_message_at: +new Date,
       last_message_text: 'Oh no'
+    },
+  ],
+
+  messages: [
+    {
+      id: 2,
+      float_id: 'PANICMODE1',
+      convo_id: 'PANICMODE1',
+      type: 'new_message',
+      text: 'Hello World',
+      created_at: +new Date,
+      user: {
+        id: 'PANICMODE1',
+        name: 'Bright Optimism',
+        avatar_url: 'https://placekitten.com/640/640',
+      }
+    },
+    {
+      id: 1,
+      float_id: 'PANICMODE1',
+      convo_id: 'PANICMODE1',
+      type: 'new_message',
+      text: 'Goodbye, Cruel World',
+      created_at: +new Date,
+      user: {
+        id: 'PANICMODE2',
+        name: 'Real Life',
+        avatar_url: 'https://placekitten.com/640/640',
+      }
     },
   ],
 }

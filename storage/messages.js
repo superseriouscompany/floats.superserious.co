@@ -1,10 +1,13 @@
 'use strict';
 
-const users = require('./users');
 const _     = require('lodash');
+const db = {
+  users: require('./users'),
+}
 
 module.exports = {
   create: create,
+  findByConvo: findByConvo,
 }
 
 let messages = {};
@@ -12,7 +15,7 @@ let inc = 1;
 
 function create(floatId, convoId, userId, text) {
   return Promise.resolve().then(function() {
-    return users.get(userId)
+    return db.users.get(userId)
   }).then(function(user) {
     messages[floatId] = messages[floatId] || {};
     messages[floatId][convoId] = messages[floatId][convoId] || [];
@@ -27,4 +30,10 @@ function create(floatId, convoId, userId, text) {
     messages[floatId][convoId].push(message);
     return message;
   });
+}
+
+function findByConvo(floatId, convoId) {
+  return Promise.resolve().then(function() {
+    return messages[floatId][convoId] || [];
+  })
 }

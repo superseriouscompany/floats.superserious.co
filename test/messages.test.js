@@ -11,6 +11,7 @@ const server   = require('../index');
 
 describe("messages", function () {
   let serverHandle, fakebookHandle, stub;
+  let convo, message;
   this.slow(1000);
 
   before(function() {
@@ -123,7 +124,11 @@ describe("messages", function () {
 
     it("201s on successful message creation", function() {
       return factory.convo().then(function(c) {
-        return c.float.user.api.post(`/floats/${c.float.id}/convos/${c.id}/messages`)
+        return c.float.user.api.post(`/floats/${c.float.id}/convos/${c.id}/messages`, {
+          body: {
+            text: 'Hello world',
+          }
+        })
       }).then(function(response) {
         expect(response.statusCode).toEqual(201, `Expected 201, got ${JSON.stringify(response.body)}`);
         expect(response.body.id).toExist();
@@ -143,7 +148,20 @@ describe("messages", function () {
 
     it("supports to");
 
-    it("returns last 20 messages by default");
+    it("returns last 20 messages by default", function() {
+      return factory.convo().then(function(c) {
+        convo = c;
+        return factory.message(c.float.user, c.float.id, c.id, 'where ya ass was at');
+      }).then(function(m) {
+        return convo.float.user.api.get(`/floats/${convo.float.id}/convos/${convo.id}/messages`);
+      }).then(function(response) {
+        expect(response.statusCode).toEqual(200);
+        let messages = response.body.messages;
+        expect(messages).toExist(`Expected messages key in ${JSON.stringify(response.body)}`);
+        expect(messages.length).toEqual(1, `Expected exactly one message in ${JSON.stringify(response.body)}`);
+        expect(messages[0].text).toEqual('where ya ass was at');
+      });
+    });
   })
 
   describe("deleting messages", function() {

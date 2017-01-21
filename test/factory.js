@@ -79,6 +79,16 @@ const factory = {
       convo.float = float;
       return convo;
     });
+  },
+
+  message: function(user, floatId, convoId, text) {
+    return user.api.post(`/floats/${floatId}/convos/${convoId}/messages`, {
+      body: {
+        text: text,
+      }
+    }).then(function(response) {
+      return response.body;
+    })
   }
 }
 
