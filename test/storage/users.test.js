@@ -19,6 +19,8 @@ module.exports = function() {
         })
       });
 
+      it("throws ConflictError if id is taken");
+
       it("returns user", function () {
         return users.create({}).then(function(user) {
           expect(user.id).toExist();
@@ -112,6 +114,8 @@ module.exports = function() {
           expect(user.created_at).toEqual(2);
         })
       });
+
+      it("doesn't overwrite fields that aren't specified");
 
       it("updates user object", function() {
         return users.create({id: 'cool', created_at: 2}).then(function(user) {
