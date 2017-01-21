@@ -111,12 +111,18 @@ function flush() {
 }
 
 function findByFacebookId(facebookId) {
-  return new Promise(function(resolve, reject) {
-    if( !facebookId ) { return reject(error('facebookId is null', {name: 'InputError'})); }
-    const key = _.findKey(users, {facebook_id: facebookId});
-    if( !key ) { return reject(error('No user found', {name: 'UserNotFound'})); }
-
-    return resolve(users[key]);
+  if( !facebookId ) { return Promise.reject(error('facebookId is null', {name: 'InputError'})); }
+  return client.query({
+    TableName: config.usersTableName,
+    IndexName: 'facebook_id',
+    KeyConditionExpression: 'facebook_id = :facebook_id',
+    ExpressionAttributeValues: {
+      ':facebook_id': facebookId
+    },
+    Limit: 1,
+  }).then(function(user) {
+    if( !user.Items.length ) { throw error('No user found', {name: 'UserNotFound'}); }
+    return user.Items[0];
   })
 }
 

@@ -21,6 +21,8 @@ module.exports = function() {
 
       it("throws ConflictError if id is taken");
 
+      it("throws ConflictError if facebook id is taken");
+
       it("returns user", function () {
         return users.create({}).then(function(user) {
           expect(user.id).toExist();
