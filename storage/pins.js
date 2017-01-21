@@ -1,3 +1,3 @@
-module.exports = process.env.NODE_ENV == 'production' || process.env.LIVE ?
+module.exports = false ?
   require('./dynamo/pins') :
   require('./memory/pins');
