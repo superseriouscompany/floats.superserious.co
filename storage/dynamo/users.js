@@ -53,22 +53,35 @@ function all() {
 function update(id, user) {
   return new Promise(function(resolve, reject) {
     if( !id || !user ) { return reject(error('id or user is null', {name: 'InputError', id: id, user: user})); };
-    if( !users[id] ) { return reject(error('No user found', {name: 'UserNotFound', id: id})); };
 
-    const fields = _.pick(req.body, 'name', 'username', 'firebase_token');
+    let updateExpression = 'set';
+    let attributeNames   = {};
+    let attributeValues  = {};
+    ['name', 'username', 'firebase_token'].forEach(function(field) {
+      if( user[field] ) {
+        attributeNames[`#${field}`]  = field;
+        attributeValues[`:${field}`] = user[field];
+        updateExpression += `#${field} = :${field},`
+      }
+    })
+    if( _.isEmpty(attributeValues) )  { return reject(error('none provided of: name, username, firebase_token', {name: 'InputError', id: id, user: user}))}
+    updateExpression = updateExpression.substring(0,updateExpression.length - 1);
 
     return client.update({
-      TableName: config.usersTableName,
-      Key: { id: id },
-      UpdateExpression: 'set name = :name, username = :username, firebase_token = :firebase_token',
-      ExpressionAttributeValues: {
-        ':name': user.name,
-        ':username': user.username,
-        ':firebase_token': user.firebase_token,
-      },
+      TableName:                 config.usersTableName,
+      Key:                       { id: id },
+      ConditionExpression:       'attribute_exists(id)',
+      UpdateExpression:          updateExpression,
+      ExpressionAttributeValues: attributeValues,
+      ExpressionAttributeNames:  attributeNames,
     }).then(function(ok) {
       resolve(true)
-    }).catch(reject);
+    }).catch(function(err) {
+      if( err.name == 'ConditionalCheckFailedException' ) {
+        return reject(error('No user found', {name: 'UserNotFound', id: id}));
+      }
+      reject(err);
+    });
   })
 }
 

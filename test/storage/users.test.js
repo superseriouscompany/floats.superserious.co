@@ -98,15 +98,17 @@ module.exports = function() {
         })
       });
 
+      it("throws InputError if name, username or firebase token aren't provided");
+
       it("throws UserNotFound if id is not found", function () {
-        return users.update('nerp', {}).then(h.shouldFail).catch(function(err) {
+        return users.update('nerp', {'username': 'test'}).then(h.shouldFail).catch(function(err) {
           expect(err.name).toEqual('UserNotFound');
         })
       });
 
       it("doesn't update id or created_at", function () {
         return users.create({id: 'cool', created_at: 2}).then(function(user) {
-          return users.update('cool', {id: 'nice', created_at: 3});
+          return users.update('cool', {id: 'nice', created_at: 3, username: 'test'});
         }).then(function() {
           return users.get('cool')
         }).then(function(user) {
@@ -119,12 +121,13 @@ module.exports = function() {
 
       it("updates user object", function() {
         return users.create({id: 'cool', created_at: 2}).then(function(user) {
-          return users.update('cool', {name: 'good', foo: 'bar'});
+          return users.update('cool', {name: 'good', username: 'test', firebase_token: 'dope'});
         }).then(function() {
           return users.get('cool')
         }).then(function(user) {
           expect(user.name).toEqual('good');
-          expect(user.foo).toEqual('bar');
+          expect(user.username).toEqual('test');
+          expect(user.firebase_token).toEqual('dope');
         })
       });
     })
