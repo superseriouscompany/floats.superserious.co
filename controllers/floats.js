@@ -35,10 +35,8 @@ function create(req, res, next) {
   }
 
   let user, recipients;
-  users.get(req.userId).then(function(u) {
-    user = u;
-    return friends.all(req.userId)
-  }).then(function(friends) {
+  user = req.user;
+  return friends.all(req.userId).then(function(friends) {
     recipients = friends.filter(function(f) {
       return req.body.invitees.indexOf(f.id) !== -1;
     });
@@ -109,10 +107,8 @@ function join(req, res, next) {
     return users.get(float.user_id);
   }).then(function(u) {
     creator = u;
-    return users.get(req.userId);
-  }).then(function(user) {
     const stubUrl = req.get('X-Stub-Url');
-    const message = `${user.name} would.`;
+    const message = `${req.user.name} would.`;
 
     if( req.body.silent ) { return res.sendStatus(204); }
     return notify.firebase(creator.firebase_token, message, stubUrl).then(function() {
