@@ -45,11 +45,40 @@ describe("messages", function () {
       });
     });
 
-    it("informs users of new conversation via websocket", function () {
-      
-    });
-  });
+    it("sets names on convo");
 
+    it("informs users of new conversation via websocket");
+  });
+  describe("retrieving conversations", function() {
+    it("checks auth");
+
+    it("200s with a list of conversations that this user is participating in", function() {
+      let u0, u1, convo;
+      return factory.convo().then(function(c) {
+        convo = c;
+        u0 = c.float.user;
+        u1 = c.float.users[0];
+        return u0.api.get('/convos');
+      }).then(function(response) {
+        let convos = response.body.convos;
+        expect(convos.length).toEqual(1, `Expected exactly one convo in ${convos}`);
+        expect(convos[0].id).toEqual(convo.id);
+        expect(convos[0].float_id).toEqual(convo.float.id);
+        // expect(convos[0].name).toEqual(u0.name.split(' ')[0] + ', ' + u1.name.split(' ')[0]);
+        return u1.api.get('/convos');
+      }).then(function(response) {
+        let convos = response.body.convos;
+        expect(convos.length).toEqual(1, `Expected exactly one convo in ${convos}`);
+        expect(convos[0].id).toEqual(convo.id);
+        expect(convos[0].float_id).toEqual(convo.float.id);
+        // expect(convos[0].name).toEqual(u0.name.split(' ')[0] + ', ' + u1.name.split(' ')[0]);
+      })
+    });
+
+    it("doesn't show conversations the user is not participating in");
+
+    it("shows latest message sent");
+  })
   describe("deleting conversations", function() {
     it("validates stuff");
 
@@ -59,11 +88,9 @@ describe("messages", function () {
 
     it("removes conversation from list");
   });
-  describe("retrieving conversations", function() {
-    it("checks auth");
-
-    it("200s with a list of conversations that this user is participating in");
-  })
+  describe("leaving conversations", function() {
+    it("allows user to leave conversations");
+  })  
   describe("merging conversations", function() {
     it("validates stuff");
 

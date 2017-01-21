@@ -6,6 +6,9 @@ const users = require('./users');
 
 module.exports = {
   create: create,
+  findByMemberId: findByMemberId,
+
+  flush: flush,
 }
 
 let convos = {};
@@ -19,5 +22,22 @@ function create(floatId, userId, members) {
     }
     convos[convo.id] = convo;
     return convo;
+  })
+}
+
+function findByMemberId(userId) {
+  return Promise.resolve().then(function() {
+    return _.reject(_.values(convos), function(c) {
+      !_.includes(c.members, userId);
+    });
+  })
+}
+
+function flush() {
+  if( process.env.NODE_ENV == 'production' ) return Promise.reject('Production Safeguard :)');
+
+  return Promise.resolve().then(function() {
+    convos = {};
+    return true;
   })
 }

@@ -1,16 +1,21 @@
 'use strict';
 
-const users  = require('../storage/users');
-const floats = require('../storage/floats');
+const db = {
+  users:  require('../storage/users'),
+  floats: require('../storage/floats'),
+  convos: require('../storage/convos'),
+}
 
 module.exports = function(app) {
   if( process.env.NODE_ENV == 'production' ) { return; }
 
   app.delete('/flush', function(req, res, next) {
-    users.flush().then(function() {
-      return floats.flush()
-    }).then(function() {
+    Promise.all([
+      db.users.flush(),
+      db.floats.flush(),
+      db.convos.flush(),
+    ]).then(function() {
       res.sendStatus(204);
-    })
+    }).catch(next);
   })
 }

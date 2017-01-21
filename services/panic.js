@@ -1,6 +1,7 @@
 module.exports = {
   floats: [
     {
+      id: 'PANICMODE1',
       title: 'Is everything down?',
       created_at: +new Date - 1000 * 60 * 35,
       user: {
@@ -10,6 +11,7 @@ module.exports = {
       attending: false,
     },
     {
+      id: 'PANICMODE2',
       title: 'Still?',
       created_at: +new Date - 1000 * 60 * 120,
       user: {
@@ -22,6 +24,7 @@ module.exports = {
 
   myFloats: [
     {
+      id: 'PANICMODE1',
       title: "hmm, mewbe I should work for this app",
       created_at: +new Date - 1000 * 60 * 60,
       user: {
@@ -73,4 +76,15 @@ module.exports = {
     name: "Darlene Down",
     avatar_url: "https://placekitten.com/640/640",
   },
+
+  convos: [
+    {
+      id: 'PANICMODE1',
+      name: 'Death and Taxes',
+      float_id: 'PANICMODE1',
+      members: ['PANICMODE1', 'PANICMODE2'],
+      last_message_at: +new Date,
+      last_message_text: 'Oh no'
+    },
+  ],
 }

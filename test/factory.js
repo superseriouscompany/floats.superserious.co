@@ -63,6 +63,22 @@ const factory = {
       float.user = friendship.u0;
       return float;
     })
+  },
+
+  convo: function() {
+    let float;
+    return factory.float().then(function(f) {
+      float = f;
+      return f.users[0].api.post(`/floats/${f.id}/convos`, {
+        body: {
+          members: [f.user.id],
+        }
+      })
+    }).then(function(response) {
+      let convo = response.body;
+      convo.float = float;
+      return convo;
+    });
   }
 }
 
