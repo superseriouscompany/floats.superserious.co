@@ -1,6 +1,6 @@
 'use strict';
 
-const users = require('./users');
+const users = require('../users');
 
 module.exports = {
   all: all,

@@ -2,7 +2,7 @@
 
 const uuid  = require('uuid');
 const _     = require('lodash');
-const users = require('./users');
+const users = require('../users');
 const error = require('../../services/error');
 
 module.exports = {
