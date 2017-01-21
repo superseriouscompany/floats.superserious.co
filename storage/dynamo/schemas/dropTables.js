@@ -1,4 +1,4 @@
-const client  = require('../client');
+const client  = require('../client').lowLevel;
 const schemas = require('./schemas');
 const _       = require('lodash');
 

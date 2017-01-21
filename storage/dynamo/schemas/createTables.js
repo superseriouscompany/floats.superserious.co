@@ -1,13 +1,15 @@
-const client  = require('../client');
+const _       = require('lodash');
+const client  = require('../client').lowLevel;
 const schemas = require('./schemas');
 
-client.createTable(schemas.pins, function(err) {
-  if( err ) {
-    if( err.code == 'ResourceInUseException' ) {
-      return console.log("Pins table already exists.");
+_.values(schemas).forEach(function(schema) {
+  client.createTable(schema, function(err) {
+    if( err ) {
+      if( err.code == 'ResourceInUseException' ) {
+        return console.log(`${schema.TableName} already exists.`);
+      }
+      throw err;
     }
-    throw err;
-  }
-
-  console.log("Created pins table.");
-})
+    console.log("Created", schema.TableName);
+  })
+});
