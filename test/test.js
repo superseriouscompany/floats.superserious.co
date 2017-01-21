@@ -25,9 +25,9 @@ describe("floats api", function () {
   })
   after(function() {
     this.timeout(30000);
-    if( process.env.LIVE ) {
-      return api.delete('/flush');
-    }
+    // if( process.env.LIVE ) {
+    //   return api.delete('/flush');
+    // }
   })
   after(function() {
     serverHandle();

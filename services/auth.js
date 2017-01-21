@@ -12,7 +12,7 @@ module.exports = function auth(req, res, next) {
     req.user = user;
     next();
   }).catch(function(err) {
-    if( err.name == 'SessionNotFound' ) {
+    if( err.name == 'UserNotFound' ) {
       return res.status(401).json({error: "Invalid Access Token", token: token});
     }
     next(err);
