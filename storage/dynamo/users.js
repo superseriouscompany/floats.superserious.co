@@ -59,7 +59,7 @@ function update(id, user) {
   let updateExpression = 'set';
   let attributeNames   = {};
   let attributeValues  = {};
-  ['name', 'username', 'firebase_token'].forEach(function(field) {
+  ['name', 'username', 'firebase_token', 'lat', 'lng', 'last_pin_at'].forEach(function(field) {
     if( user[field] ) {
       attributeNames[`#${field}`]  = field;
       attributeValues[`:${field}`] = user[field];
