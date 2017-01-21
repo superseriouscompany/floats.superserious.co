@@ -118,11 +118,18 @@ describe("messages", function () {
 
     it("returns an error code when trying to send a message to previous convos");
   });
-
   describe("sending messages", function () {
     it("validates stuff");
 
-    it("201s on successful message creation");
+    it("201s on successful message creation", function() {
+      return factory.convo().then(function(c) {
+        return c.float.user.api.post(`/floats/${c.float.id}/convos/${c.id}/messages`)
+      }).then(function(response) {
+        expect(response.statusCode).toEqual(201, `Expected 201, got ${JSON.stringify(response.body)}`);
+        expect(response.body.id).toExist();
+        expect(response.body.created_at).toExist();
+      });
+    });
 
     it("delivers messages via push notification");
 
