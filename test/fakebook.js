@@ -7,11 +7,12 @@ const shortid    = require('shortid');
 const app        = express();
 
 let users = {};
+let seq   = +new Date;
 
 app.use(bodyParser.json());
 
 app.post('/users', function(req, res) {
-  const id          = shortid();
+  const id          = seq++;
   const accessToken = `FAKEBOOK${id}`;
 
   users[accessToken] = Object.assign(req.body, {id: id});

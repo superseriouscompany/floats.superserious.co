@@ -24,14 +24,15 @@ describe("floats api", function () {
     }
   })
   after(function() {
-    serverHandle();
-    fakebookHandle();
-    stub();
-  })
-  after(function() {
+    this.timeout(30000);
     if( process.env.LIVE ) {
       return api.delete('/flush');
     }
+  })
+  after(function() {
+    serverHandle();
+    fakebookHandle();
+    stub();
   })
 
   it("provides healthcheck", function () {
@@ -52,7 +53,7 @@ describe("floats api", function () {
     it("201s with valid facebook token", function () {
       return factory.fbUser().then(function(user) {
         expect(user.access_token).toExist(`No access token for ${JSON.stringify(user)}`);
-        return api.post('/users', {body: { facebook_access_token: user.access_token }})
+        return api.post('/users', {body: { facebook_access_token: user.access_token }});
       }).then(function(response) {
         expect(response.statusCode).toEqual(201);
         expect(response.body.access_token).toExist(`No access token found in ${JSON.stringify(response.body)}`);
