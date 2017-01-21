@@ -23,6 +23,8 @@ describe("messages", function () {
     if( !process.env.LIVE ) {
       return api.delete('/flush')
     }
+    convo   = null;
+    message = null;
   })
   after(function() {
     serverHandle();
@@ -162,10 +164,21 @@ describe("messages", function () {
         expect(messages[0].text).toEqual('where ya ass was at');
       });
     });
-  })
+  });
 
   describe("deleting messages", function() {
-    it("allows message deletion");
+    it("allows message deletion", function() {
+      return factory.convo().then(function(c) {
+        convo = c;
+        return factory.message(c.float.user, c.float.id, c.id, 'wuterr');
+      }).then(function(m) {
+        return convo.float.user.api.delete(`/floats/${convo.float.id}/convos/${convo.id}/messages/${m.id}`);
+      }).then(function(response) {
+        expect(response.statusCode).toEqual(204);
+      });
+    });
+
+    it("informs other users over websocket");
   })
 
   it("doesn't lose messages if client disconnects");

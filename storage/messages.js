@@ -8,6 +8,7 @@ const db = {
 module.exports = {
   create: create,
   findByConvo: findByConvo,
+  destroy: destroy,
 }
 
 let messages = {};
@@ -35,5 +36,14 @@ function create(floatId, convoId, userId, text) {
 function findByConvo(floatId, convoId) {
   return Promise.resolve().then(function() {
     return messages[floatId][convoId] || [];
+  })
+}
+
+function destroy(floatId, convoId, id) {
+  return Promise.resolve().then(function() {
+    messages[floatId][convoId] = _.reject(messages[floatId][convoId], function(m) {
+      return m.id == id;
+    })
+    return true;
   })
 }
