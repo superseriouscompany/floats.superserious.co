@@ -8,6 +8,7 @@ module.exports = {
   create:         create,
   findByMemberId: findByMemberId,
   destroy:        destroy,
+  leave:          leave,
 
   flush:          flush,
 }
@@ -46,6 +47,15 @@ function flush() {
 function destroy(floatId, id) {
   return Promise.resolve().then(function() {
     delete convos[id];
+    return true;
+  })
+}
+
+function leave(floatId, id, userId) {
+  return Promise.resolve().then(function() {
+    convos[id].members = _.reject(convos[id].members, function(m) {
+      return m.id === userId
+    })
     return true;
   })
 }

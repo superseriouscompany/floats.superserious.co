@@ -15,6 +15,7 @@ module.exports = function(app, webSocketServer) {
   wss = webSocketServer;
   app.post('/floats/:floatId/convos', auth, create);
   app.delete('/floats/:floatId/convos/:id', auth, destroy);
+  app.delete('/floats/:floatId/convos/:id/membership', auth, leave);
   app.get('/convos', auth, all);
 }
 
@@ -34,7 +35,17 @@ function destroy(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.sendStatus(204); }
 
   return Promise.resolve().then(function() {
-    return db.convos.destroy(req.params.floatId, req.params.id)
+    return db.convos.destroy(req.params.floatId, req.params.id);
+  }).then(function() {
+    return res.sendStatus(204);
+  }).catch(next);
+}
+
+function leave(req, res, next) {
+  if( process.env.PANIC_MODE ) { return res.sendStatus(204); }
+
+  return Promise.resolve().then(function() {
+    return db.convos.leave(req.params.floatId, req.params.id, req.userId);
   }).then(function() {
     return res.sendStatus(204);
   }).catch(next);
