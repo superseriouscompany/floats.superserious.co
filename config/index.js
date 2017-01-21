@@ -6,6 +6,7 @@ module.exports = Object.assign({
   baseUrl:       'https://superserious.ngrok.io',
   awsRegion:     'eu-west-1',
   pinsTableName: 'pinsStaging',
+  usersTableName: 'usersStaging',
   firebaseKey:   secrets.firebaseKey,
 }, require(`./${environment}`));
 
