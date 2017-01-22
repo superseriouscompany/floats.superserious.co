@@ -19,15 +19,13 @@ describe("floats api", function () {
     stub           = tinystub(4202);
   })
   afterEach(function() {
-    if( !process.env.LIVE ) {
-      return api.delete('/flush')
-    }
-  })
-  after(function() {
-    this.timeout(30000);
-    // if( process.env.LIVE ) {
-    //   return api.delete('/flush');
-    // }
+    if( process.env.LIVE ) { return; }
+
+    return api.delete('/flush').then(function() {
+      return request('http://localhost:4202', {
+        method: 'DELETE'
+      })
+    });
   })
   after(function() {
     serverHandle();
@@ -485,10 +483,9 @@ describe("floats api", function () {
         user    = values[1];
         return factory.float({user: creator, invitees: [user]})
       }).then(function(float) {
-        return float.users[0].api.post(`/floats/${float.id}/join`, {
-          headers: { 'X-Stub-Url': 'http://localhost:4202' }
-        })
+        return float.users[0].api.post(`/floats/${float.id}/join`);
       }).then(function(response) {
+        expect(stub.calls.length).toBeGreaterThan(0, `Expected notification stub to have been called`);
         expect(stub.calls[0].url).toEqual('/fcm/send');
         expect(stub.calls[0].body).toExist();
         const notification = stub.calls[0].body;

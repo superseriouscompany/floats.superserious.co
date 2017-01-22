@@ -8,8 +8,6 @@ module.exports = {
   firebase: firebase
 }
 
-console.log('gloabls', global.TEST_MODE, global.firebaseUrl);
-
 const url = process.env.NODE_ENV !== 'production' && global.TEST_MODE && global.firebaseUrl
   ? global.firebaseUrl
   : 'https://fcm.googleapis.com';
