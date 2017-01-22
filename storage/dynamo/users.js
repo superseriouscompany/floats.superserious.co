@@ -115,7 +115,7 @@ function findByFacebookId(facebookId) {
     IndexName: 'facebook_id',
     KeyConditionExpression: 'facebook_id = :facebook_id',
     ExpressionAttributeValues: {
-      ':facebook_id': facebookId
+      ':facebook_id': String(facebookId)
     },
     Limit: 1,
   }).then(function(user) {
@@ -148,7 +148,7 @@ function createFromFacebook(user) {
     user.facebook_id  = user.id;
     user.id           = null;
     user.access_token = uuid.v1();
-    user.avatar_url   = `https: //graph.facebook.com/v2.8/${user.facebook_id}/picture`
+    user.avatar_url   = `https://graph.facebook.com/v2.8/${user.facebook_id}/picture`
     return create(user).then(resolve).catch(reject);
   })
 }

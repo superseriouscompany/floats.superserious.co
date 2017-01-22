@@ -42,7 +42,7 @@ module.exports = {
       },
       {
         "AttributeName":"facebook_id",
-        "AttributeType":"N"
+        "AttributeType":"S"
       },
     ],
     "KeySchema":[

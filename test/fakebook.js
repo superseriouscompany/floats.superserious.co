@@ -15,7 +15,7 @@ app.post('/users', function(req, res) {
   const id          = seq++;
   const accessToken = `FAKEBOOK${id}`;
 
-  users[accessToken] = Object.assign(req.body, {id: id});
+  users[accessToken] = Object.assign(req.body, {id: String(id)});
   res.json({
     access_token: accessToken
   })
