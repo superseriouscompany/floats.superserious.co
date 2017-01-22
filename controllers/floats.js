@@ -5,9 +5,12 @@ const panic   = require('../services/panic');
 const log     = require('../services/log');
 const notify  = require('../services/notify');
 const error   = require('../services/error');
-const floats  = require('../storage/floats');
-const users   = require('../storage/users');
-const friends = require('../storage/friends');
+const db = {
+  floats:  require('../storage/floats'),
+  users:   require('../storage/users'),
+  convos:  require('../storage/convos'),
+  friends: require('../storage/friends'),
+}
 const _       = require('lodash');
 
 module.exports = function(app) {
@@ -36,7 +39,7 @@ function create(req, res, next) {
 
   let user, recipients;
   user = req.user;
-  return friends.all(req.userId).then(function(friends) {
+  return db.friends.all(req.userId).then(function(friends) {
     recipients = friends.filter(function(f) {
       return req.body.invitees.indexOf(f.id) !== -1;
     });
@@ -46,7 +49,7 @@ function create(req, res, next) {
       })
       throw error('Invalid invitees: not friends', {name: 'InvalidFriends', ids: badIds});
     }
-    return floats.create({
+    return db.floats.create({
       user_id: req.userId,
       title: req.body.title,
       invitees: recipients.map(function(r) { return r.id }),
@@ -72,8 +75,8 @@ function create(req, res, next) {
 function all(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.json({floats: panic.floats}); }
 
-  floats.findByInvitee(req.userId).then(function(floats) {
-    floats = floats.map(function(f) {
+  db.floats.findByInvitee(req.userId).then(function(floats) {
+    floats = db.floats.map(function(f) {
       let ret = _.pick(f, 'id', 'title', 'user', 'created_at');
       ret.attending = !!f.attendees.find(function(u) {
         return u.id == req.userId
@@ -87,8 +90,8 @@ function all(req, res, next) {
 function mine(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.json({floats: panic.myFloats}); }
 
-  floats.findByCreator(req.userId).then(function(floats) {
-    floats = floats.map(function(f) {
+  db.floats.findByCreator(req.userId).then(function(floats) {
+    floats = db.floats.map(function(f) {
       return _.pick(f, 'id', 'title', 'user', 'created_at', 'attendees', 'invitees');
     })
     return res.json({floats: floats});
@@ -99,11 +102,11 @@ function join(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.sendStatus(204); }
 
   let float, creator;
-  return floats.get(req.params.id).then(function(f) {
+  return db.floats.get(req.params.id).then(function(f) {
     float = f;
-    return floats.join(float.id, req.userId)
+    return db.floats.join(float.id, req.userId)
   }).then(function() {
-    return users.get(float.user_id);
+    return db.convos.create(float.id, req.userId, [float.user.id]);
   }).then(function(u) {
     creator = u;
     const message = `${req.user.name} would.`;
@@ -126,11 +129,11 @@ function join(req, res, next) {
 function destroy(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.sendStatus(204); }
 
-  return floats.get(req.params.id).then(function(f) {
+  return db.floats.get(req.params.id).then(function(f) {
     if( !f ) { throw error('This float was deleted.', {name: 'NotFound'}); }
     if( f.user_id != req.userId ) { throw error('Permission denied.', {name: 'Unauthorized', userId: req.userId, floatId: f.id}); }
 
-    return floats.destroy(f.id)
+    return db.floats.destroy(f.id)
   }).then(function() {
     res.sendStatus(204);
   }).catch(function(err) {

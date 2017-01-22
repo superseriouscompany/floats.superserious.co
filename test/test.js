@@ -11,6 +11,8 @@ const server   = require('../index');
 
 describe("floats api", function () {
   let serverHandle, fakebookHandle, stub;
+
+  let float, user;
   this.slow(1000);
 
   before(function() {
@@ -19,6 +21,8 @@ describe("floats api", function () {
     stub           = tinystub(4202);
   })
   afterEach(function() {
+    float = null;
+    user  = null;
     if( process.env.LIVE ) { return; }
 
     return api.delete('/flush').then(function() {
@@ -494,6 +498,36 @@ describe("floats api", function () {
         expect(notification.to).toExist();
         expect(notification.to).toEqual('lawng');
       });
+    });
+
+    it("creates a convo", function () {
+      let creator, user;
+      return Promise.all([
+        factory.user({name: 'Cliff Coyote', firebase_token: 'lawng'}),
+        factory.user({name: 'Frank Ferret'}),
+      ]).then(function(values) {
+        creator = values[0];
+        user    = values[1];
+        return factory.float({user: creator, invitees: [user]})
+      }).then(function(f) {
+        float = f;
+        return float.users[0].api.post(`/floats/${float.id}/join`);
+      }).then(function() {
+        return float.users[0].api.get('/convos')
+      }).then(function(response) {
+        const convos = response.body.convos;
+        expect(convos.length).toEqual(1, `Expected exactly one convo in ${JSON.stringify(convos)}`);
+        expect(convos[0].float_id).toEqual(float.id);
+        expect(convos[0].members).toContain(float.user.id);
+        expect(convos[0].members).toContain(float.users[0].id);
+        return float.user.api.get('/convos');
+      }).then(function(response) {
+        const convos = response.body.convos;
+        expect(convos.length).toEqual(1, `Expected exactly one convo in ${JSON.stringify(convos)}`);
+        expect(convos[0].float_id).toEqual(float.id);
+        expect(convos[0].members).toContain(float.user.id);
+        expect(convos[0].members).toContain(float.users[0].id);
+      })
     });
 
     it("409s if they've already joined", function() {
