@@ -147,7 +147,7 @@ describe("messages", function () {
         ws.on('message', function(m) {
           try {
             m = JSON.parse(m);
-            expect(m.text).toEqual('test message');
+            expect(m.text).toEqual('test message', `Expected text of test message in ${JSON.stringify(m)}`);
             expect(m.float_id).toEqual(c.float.id);
             expect(m.convo_id).toEqual(c.id);
             done();

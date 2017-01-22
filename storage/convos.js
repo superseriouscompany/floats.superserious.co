@@ -5,6 +5,7 @@ const _     = require('lodash');
 const users = require('./users');
 
 module.exports = {
+  get:            get,
   create:         create,
   findByMemberId: findByMemberId,
   destroy:        destroy,
@@ -14,6 +15,12 @@ module.exports = {
 }
 
 let convos = {};
+
+function get(floatId, id) {
+  return Promise.resolve().then(function() {
+    return convos[id];
+  })
+}
 
 function create(floatId, userId, members) {
   return Promise.resolve().then(function() {

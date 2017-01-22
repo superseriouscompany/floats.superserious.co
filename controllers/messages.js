@@ -6,6 +6,7 @@ const panic    = require('../services/panic');
 const socket   = require('../services/socket');
 const db = {
   messages: require('../storage/messages'),
+  convos:   require('../storage/convos'),
 }
 
 module.exports = function(app) {
@@ -16,14 +17,23 @@ module.exports = function(app) {
 
 function create(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.sendStatus(204); }
-  return db.messages.create(
-    req.params.floatId,
-    req.params.convoId,
-    req.userId,
-    req.body.text
-  ).then(function(m) {
-    console.log('clients are', Object.keys(socket.clients));
-
+  let convo;
+  return db.convos.get(req.params.floatId, req.params.convoId).then(function(c) {
+    convo = c;
+    return db.messages.create(
+      req.params.floatId,
+      req.params.convoId,
+      req.userId,
+      req.body.text
+    )
+  }).then(function(m) {
+    const payload = JSON.stringify(Object.assign({type: 'new_message'}, m));
+    convo.members.forEach(function(userId) {
+      socket.send(userId, payload).catch(function(err) {
+        if( err.name == 'ClientNotFound' ) { return; }
+        log.error({err: err}, 'Websocket Error');
+      });
+    })
     res.status(201).json(m);
   }).catch(next);
 }

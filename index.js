@@ -6,32 +6,32 @@ const fb         = require('./services/facebook');
 const auth       = require('./services/auth');
 const log        = require('./services/log');
 const socket     = require('./services/socket');
+const api        = express();
 const app        = express();
 
-app.use(bodyParser.json());
+api.use(bodyParser.json());
 
 // disable 304s
-app.disable('etag');
+api.disable('etag');
 
 // healthcheck
-app.get('/', function(req, res) { res.json({cool: 'nice'}); })
+api.get('/', function(req, res) { res.json({cool: 'nice'}); })
 
-// app routes
+// api routes
 const normalizedPath = require("path").join(__dirname, "controllers");
 require("fs").readdirSync(normalizedPath).forEach(function(file) {
-  require("./controllers/" + file)(app);
+  require("./controllers/" + file)(api);
 });
 
-app.use(function(err, req, res, next) {
+api.use(function(err, req, res, next) {
   log.error({err: err, message: err.message, errName: err.name, stack: err.stack}, 'Uncaught server error');
   res.status(500).json({message: 'Something went wrong.'});
 })
 
-const wrapper = express();
-wrapper.get('/', function(req, res) { res.redirect('/v1'); })
-wrapper.use('/v1', app);
+app.get('/', function(req, res) { res.redirect('/v1'); })
+app.use('/v1', api);
 
-const server = socket(wrapper);
+const server = socket.bind(app);
 if( module.parent ) {
   module.exports = function(port) {
     const ref    = server.listen(port);
