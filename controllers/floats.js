@@ -131,11 +131,14 @@ function join(req, res, next) {
 function destroy(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.sendStatus(204); }
 
+  let float;
   return db.floats.get(req.params.id).then(function(f) {
     if( !f ) { throw error('This float was deleted.', {name: 'NotFound'}); }
     if( f.user_id != req.userId ) { throw error('Permission denied.', {name: 'Unauthorized', userId: req.userId, floatId: f.id}); }
-
+    float = f;
     return db.floats.destroy(f.id)
+  }).then(function() {
+    return db.convos.destroyByFloatId(float.id);
   }).then(function() {
     res.sendStatus(204);
   }).catch(function(err) {

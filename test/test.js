@@ -576,5 +576,17 @@ describe("floats api", function () {
         expect(response.body.floats.length).toEqual(0, `Expected no floats in ${JSON.stringify(response.body.floats)}`);
       })
     });
+
+    it("deletes associated convos", function() {
+      let convo;
+      return factory.convo().then(function(c) {
+        convo = c;
+        return convo.float.user.api.delete(`/floats/${convo.float.id}`)
+      }).then(function() {
+        return convo.float.user.api.get('/convos');
+      }).then(function(response) {
+        expect(response.body.convos.length).toEqual(0);
+      })
+    });
   })
 });

@@ -5,13 +5,14 @@ const _     = require('lodash');
 const users = require('./users');
 
 module.exports = {
-  get:            get,
-  create:         create,
-  findByMemberId: findByMemberId,
-  destroy:        destroy,
-  leave:          leave,
+  get:              get,
+  create:           create,
+  findByMemberId:   findByMemberId,
+  destroyByFloatId: destroyByFloatId,
+  destroy:          destroy,
+  leave:            leave,
 
-  flush:          flush,
+  flush:            flush,
 }
 
 let convos = {};
@@ -39,6 +40,16 @@ function findByMemberId(userId) {
     return _.reject(_.values(convos), function(c) {
       !_.includes(c.members, userId);
     });
+  })
+}
+
+function destroyByFloatId(floatId) {
+  return Promise.resolve().then(function() {
+    convos = _.omitBy(convos, function(c) {
+      return c.float_id == floatId;
+    })
+
+    return true;
   })
 }
 
