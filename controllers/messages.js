@@ -19,7 +19,7 @@ module.exports = function(app) {
 
 function create(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.sendStatus(204); }
-  let convo;
+  let convo, message;
   return db.convos.get(req.params.floatId, req.params.convoId).then(function(c) {
     convo = c;
     return db.messages.create(
@@ -29,7 +29,10 @@ function create(req, res, next) {
       req.body.text
     )
   }).then(function(m) {
-    const payload = JSON.stringify(Object.assign({type: 'new_message'}, m));
+    message = m;
+    return db.convos.setLastMessage(req.params.floatId, req.params.convoId, m);
+  }).then(function() {
+    const payload = JSON.stringify(Object.assign({type: 'new_message'}, message));
     convo.members.forEach(function(userId) {
       if( userId == req.userId ) { return; }
       socket.send(userId, payload).catch(function(err) {
@@ -48,7 +51,7 @@ function create(req, res, next) {
     })
 
     return Promise.all(promises).then(function() {
-      res.status(201).json(m);
+      res.status(201).json(message);
     })
   }).catch(next);
 }

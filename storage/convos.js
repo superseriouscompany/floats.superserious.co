@@ -12,6 +12,7 @@ module.exports = {
   destroy:          destroy,
   leave:            leave,
   leaveAll:         leaveAll,
+  setLastMessage:   setLastMessage,
 
   flush:            flush,
 }
@@ -50,6 +51,13 @@ function destroyByFloatId(floatId) {
       return c.float_id == floatId;
     })
 
+    return true;
+  })
+}
+
+function setLastMessage(floatId, convoId, message) {
+  return Promise.resolve().then(function() {
+    convos[convoId].message = message;
     return true;
   })
 }

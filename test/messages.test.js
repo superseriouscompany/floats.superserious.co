@@ -183,6 +183,20 @@ describe("messages", function () {
         factory.message(c.float.user, c.float.id, c.id, 'test message');
       }).catch(done);
     });
+
+    it("updates latest message on convo", function () {
+      return factory.convo().then(function(c) {
+        convo = c;
+        return factory.message(c.float.user, c.float.id, c.id, 'Chicken Tetrazzini')
+      }).then(function() {
+        return convo.float.user.api.get('/convos')
+      }).then(function(response) {
+        const convos = response.body.convos;
+        expect(convos.length).toEqual(1, `Expected exactly one convo in ${convos}`);
+        expect(convos[0].message).toExist();
+        expect(convos[0].message.text).toEqual('Chicken Tetrazzini');
+      });
+    });
   });
 
   describe("retrieving messages", function() {
