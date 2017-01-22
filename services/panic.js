@@ -1,7 +1,7 @@
 module.exports = {
   floats: [
     {
-      id: 'PANICMODE1',
+      id: 'PANICMODE3',
       title: 'Is everything down?',
       created_at: +new Date - 1000 * 60 * 35,
       user: {
@@ -11,7 +11,7 @@ module.exports = {
       attending: false,
     },
     {
-      id: 'PANICMODE2',
+      id: 'PANICMODE4',
       title: 'Still?',
       created_at: +new Date - 1000 * 60 * 120,
       user: {
@@ -31,6 +31,7 @@ module.exports = {
         avatar_url: 'https://placekitten.com/640/640',
         name: 'You',
       },
+      invitees: ['PANICMODE1', 'PANICMODE2'],
       attendees: [
         {
           avatar_url: 'https://placekitten.com/640/640',
@@ -43,6 +44,17 @@ module.exports = {
           joined_at: +new Date,
         },
       ]
+    },
+    {
+      id: 'PANICMODE5',
+      title: 'nobody likes me',
+      created_at: +new Date - 1000 * 60,
+      user: {
+        avatar_url: 'https://placekitten.com/640/640',
+        name: 'You',
+      },
+      invitees: ['PANICMODE1', 'PANICMODE3'],
+      attendees: [],
     }
   ],
 
@@ -82,8 +94,49 @@ module.exports = {
       id: 'PANICMODE1',
       float_id: 'PANICMODE1',
       members: ['PANICMODE1', 'PANICMODE2'],
-      last_message_at: +new Date,
-      last_message_text: 'Oh no'
+      message: {
+        id: 2,
+        type: 'new_message',
+        text: 'Hello World',
+        created_at: +new Date,
+        user: {
+          id: 'PANICMODE1',
+          name: 'Andrew Sauer',
+          avatar_url: 'https://placekitten.com/640/640',
+        }
+      },
+    },
+    {
+      id: 'PANICMODE3',
+      float_id: 'PANICMODE1',
+      members: ['PANICMODE3'],
+      message: {
+        id: 2,
+        type: 'new_message',
+        text: 'Goodbye',
+        created_at: +new Date - 360000,
+        user: {
+          id: 'PANICMODE1',
+          name: 'Neil Sarkar',
+          avatar_url: 'https://placekitten.com/640/640',
+        }
+      },
+    },
+    {
+      id: 'PANICMODE4',
+      float_id: 'PANICMODE4',
+      members: ['PANICMODE3'],
+      message: {
+        id: 2,
+        type: 'new_message',
+        text: 'A message in someone else\'s float',
+        created_at: +new Date - 360000,
+        user: {
+          id: 'PANICMODE1',
+          name: 'Cheech Marin',
+          avatar_url: 'https://placekitten.com/640/640',
+        }
+      },
     },
   ],
 

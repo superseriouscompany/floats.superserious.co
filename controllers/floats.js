@@ -90,7 +90,7 @@ function mine(req, res, next) {
 
   floats.findByCreator(req.userId).then(function(floats) {
     floats = floats.map(function(f) {
-      return _.pick(f, 'id', 'title', 'user', 'created_at', 'attendees');
+      return _.pick(f, 'id', 'title', 'user', 'created_at', 'attendees', 'invitees');
     })
     return res.json({floats: floats});
   }).catch(next);
