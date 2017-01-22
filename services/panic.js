@@ -93,7 +93,7 @@ module.exports = {
     {
       id: 'PANICMODE1',
       float_id: 'PANICMODE1',
-      members: ['PANICMODE1', 'PANICMODE2'],
+      members: ['PANICMODE1', 'PANICMODE2', 'PANICMODE5'],
       message: {
         id: 2,
         type: 'new_message',
@@ -109,7 +109,7 @@ module.exports = {
     {
       id: 'PANICMODE3',
       float_id: 'PANICMODE1',
-      members: ['PANICMODE3'],
+      members: ['PANICMODE3', 'PANICMODE5'],
       message: {
         id: 2,
         type: 'new_message',
@@ -125,7 +125,7 @@ module.exports = {
     {
       id: 'PANICMODE4',
       float_id: 'PANICMODE4',
-      members: ['PANICMODE3'],
+      members: ['PANICMODE3', 'PANICMODE5'],
       message: {
         id: 2,
         type: 'new_message',
