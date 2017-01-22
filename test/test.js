@@ -518,6 +518,11 @@ describe("floats api", function () {
         expect(convos[0].float_id).toEqual(float.id);
         expect(convos[0].members).toContain(float.user.id);
         expect(convos[0].members).toContain(float.users[0].id);
+        expect(convos[0].users).toExist();
+        expect(convos[0].users.length).toEqual(2);
+        expect(convos[0].users[0].id).toEqual(float.user.id);
+        expect(convos[0].users[0].name).toEqual(float.user.name);
+        expect(convos[0].users[1].id).toEqual(float.users[0].id);
         return float.user.api.get('/convos');
       }).then(function(response) {
         const convos = response.body.convos;

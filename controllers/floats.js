@@ -117,15 +117,16 @@ function leave(req, res, next) {
 function join(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.sendStatus(204); }
 
-  let float, creator;
+  let float, creator, u;
   return db.floats.get(req.params.id).then(function(f) {
     float = f;
     return db.floats.join(float.id, req.userId)
   }).then(function() {
-    return db.convos.create(float.id, req.userId, [float.user.id]);
-  }).then(function() {
     return db.users.get(float.user.id);
-  }).then(function(u) {
+  }).then(function(user) {
+    u = user;
+    return db.convos.create(float.id, req.userId, [float.user.id], [u, req.user]);
+  }).then(function() {
     creator = u;
     const message = `${req.user.name} would.`;
 

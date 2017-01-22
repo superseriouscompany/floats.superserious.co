@@ -37,7 +37,9 @@ describe("messages", function () {
     it("validates stuff");
 
     it("201s on successful conversation creation", function() {
+      let float;
       return factory.float().then(function(f) {
+        float = f;
         return f.users[0].api.post(`/floats/${f.id}/convos`, {
           body: {
             members: [f.user.id],
@@ -68,14 +70,12 @@ describe("messages", function () {
         expect(convos.length).toEqual(1, `Expected exactly one convo in ${convos}`);
         expect(convos[0].id).toEqual(convo.id);
         expect(convos[0].float_id).toEqual(convo.float.id);
-        // expect(convos[0].name).toEqual(u0.name.split(' ')[0] + ', ' + u1.name.split(' ')[0]);
         return u1.api.get('/convos');
       }).then(function(response) {
         let convos = response.body.convos;
         expect(convos.length).toEqual(1, `Expected exactly one convo in ${convos}`);
         expect(convos[0].id).toEqual(convo.id);
         expect(convos[0].float_id).toEqual(convo.float.id);
-        // expect(convos[0].name).toEqual(u0.name.split(' ')[0] + ', ' + u1.name.split(' ')[0]);
       })
     });
 

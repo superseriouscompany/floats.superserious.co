@@ -25,12 +25,13 @@ function get(floatId, id) {
   })
 }
 
-function create(floatId, userId, members) {
+function create(floatId, userId, members, users) {
   return Promise.resolve().then(function() {
     const convo = {
       id: uuid.v1(),
       float_id: floatId,
       members: [userId].concat(members),
+      users: users,
     }
     convos[convo.id] = convo;
     return convo;
