@@ -1,3 +1,3 @@
-module.exports = process.env.NODE_ENV == 'production' || process.env.LIVE ?
-  require('./dynamo/users') :
-  require('./memory/users');
+module.exports = global.TEST_MODE && !process.env.LIVE ?
+  require('./memory/users') :
+  require('./dynamo/users');
