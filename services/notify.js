@@ -8,9 +8,13 @@ module.exports = {
   firebase: firebase
 }
 
-function firebase(deviceToken, body, stubUrl) {
-  const url = stubUrl || 'https://fcm.googleapis.com';
+console.log('gloabls', global.TEST_MODE, global.firebaseUrl);
 
+const url = process.env.NODE_ENV !== 'production' && global.TEST_MODE && global.firebaseUrl
+  ? global.firebaseUrl
+  : 'https://fcm.googleapis.com';
+
+function firebase(deviceToken, body) {
   return request.post(`${url}/fcm/send`, {
     headers: {
       'Authorization': `key=${config.firebaseKey}`,

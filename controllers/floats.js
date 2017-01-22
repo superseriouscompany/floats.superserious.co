@@ -53,9 +53,8 @@ function create(req, res, next) {
       user: _.pick(user, 'id', 'name', 'username', 'avatar_url'),
     })
   }).then(function(float) {
-    const stubUrl = process.env.NODE_ENV != 'production' && req.get('X-Stub-Url');
     const promises = recipients.map(function(r) {
-      return notify.firebase(r.firebase_token, `${user.name} floated "${req.body.title}"`, stubUrl);
+      return notify.firebase(r.firebase_token, `${user.name} floated "${req.body.title}"`);
     })
 
     return Promise.all(promises).then(function() {

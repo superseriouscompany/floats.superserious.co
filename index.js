@@ -1,9 +1,13 @@
 'use strict';
 
+if( process.env.NODE_ENV != 'production' && module.parent ) {
+  global.TEST_MODE   = true;
+  global.facebookUrl = 'http://localhost:4201';
+  global.firebaseUrl = 'http://localhost:4202';
+}
+
 const express    = require('express');
 const bodyParser = require('body-parser');
-const fb         = require('./services/facebook');
-const auth       = require('./services/auth');
 const log        = require('./services/log');
 const socket     = require('./services/socket');
 const api        = express();
@@ -32,7 +36,7 @@ app.get('/', function(req, res) { res.redirect('/v1'); })
 app.use('/v1', api);
 
 const server = socket.bind(app);
-if( module.parent ) {
+if( process.env.NODE_ENV != 'production' && module.parent ) {
   module.exports = function(port) {
     const ref    = server.listen(port);
     const handle = ref.close.bind(ref);
