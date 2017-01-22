@@ -6,14 +6,15 @@ const users = require('../users');
 const error = require('../../services/error');
 
 module.exports = {
-  create: create,
-  get: get,
+  create:        create,
+  get:           get,
   findByInvitee: findByInvitee,
   findByCreator: findByCreator,
-  join: join,
-  attendees: attendees,
-  destroy: destroy,
-  flush: flush,
+  join:          join,
+  leave:         leave,
+  attendees:     attendees,
+  destroy:       destroy,
+  flush:         flush,
 }
 
 let floats = {};
@@ -89,6 +90,18 @@ function join(floatId, userId) {
       floats[floatId].attendees.push(_.pick(user, 'id', 'avatar_url', 'name', 'username'))
       return resolve(true);
     }).catch(reject);
+  })
+}
+
+function leave(floatId, userId) {
+  return Promise.resolve().then(function() {
+    floats[floatId].attendees = _.reject(floats[floatId].attendees, function(a) {
+      return a.id == userId;
+    })
+    floats[floatId].invitees = _.reject(floats[floatId].invitees, function(id) {
+      return id == userId;
+    })
+    return true;
   })
 }
 

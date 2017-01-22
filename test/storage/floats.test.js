@@ -285,6 +285,14 @@ module.exports = function() {
       });
     });
 
+    describe(".leave", function() {
+      it("validates inputs");
+
+      it("errors if you are not an attendee");
+
+      it("removes you from attendees on success");
+    })
+
     describe(".flush", function() {
       it("clears all floats out", function() {
         let all;

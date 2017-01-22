@@ -458,9 +458,7 @@ describe("floats api", function () {
       return factory.float().then(function(float) {
         user = float.user;
         u0 = float.users[0];
-        return u0.api.post(`/floats/${float.id}/join`, {
-          headers: {'X-Stub-Url': 'http://localhost:4202'}
-        })
+        return u0.api.post(`/floats/${float.id}/join`)
       }).then(function(response) {
         expect(response.statusCode).toEqual(204);
         return u0.api.get('/floats')
@@ -547,6 +545,29 @@ describe("floats api", function () {
       }).then(h.shouldFail).catch(function(err) {
         expect(err.statusCode).toEqual(409);
       });
+    });
+  })
+
+  describe("leaving floats", function() {
+    it("400s if the float isn't there");
+
+    it("403s if you're not a member");
+
+    it("204s and removes float on success", function() {
+      let user, u0, float;
+      return factory.float().then(function(f) {
+        float = f;
+        user = float.user;
+        u0 = float.users[0];
+        return u0.api.post(`/floats/${float.id}/join`)
+      }).then(function() {
+        return u0.api.delete(`/floats/${float.id}/leave`);
+      }).then(function(response) {
+        expect(response.statusCode).toEqual(204);
+        return u0.api.get('/floats');
+      }).then(function(response) {
+        expect(response.body.floats.length).toEqual(0);
+      })
     });
   })
 

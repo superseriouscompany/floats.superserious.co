@@ -18,6 +18,7 @@ module.exports = function(app) {
   app.get('/floats/mine', auth, mine);
   app.get('/floats', auth, all);
   app.post('/floats/:id/join', auth, join);
+  app.delete('/floats/:id/leave', auth, leave);
   app.delete('/floats/:id', auth, destroy);
 }
 
@@ -95,6 +96,19 @@ function mine(req, res, next) {
       return _.pick(f, 'id', 'title', 'user', 'created_at', 'attendees', 'invitees');
     })
     return res.json({floats: floats});
+  }).catch(next);
+}
+
+function leave(req, res, next) {
+  if( process.env.PANIC_MODE ) { return res.sendStatus(204); }
+
+  let float;
+
+  return db.floats.get(req.params.id).then(function(f) {
+    float = f
+    return db.floats.leave(float.id, req.userId)
+  }).then(function() {
+    res.sendStatus(204);
   }).catch(next);
 }
 
