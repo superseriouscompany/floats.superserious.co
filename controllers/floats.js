@@ -106,11 +106,10 @@ function join(req, res, next) {
     return users.get(float.user_id);
   }).then(function(u) {
     creator = u;
-    const stubUrl = req.get('X-Stub-Url');
     const message = `${req.user.name} would.`;
 
     if( req.body.silent ) { return res.sendStatus(204); }
-    return notify.firebase(creator.firebase_token, message, stubUrl).then(function() {
+    return notify.firebase(creator.firebase_token, message).then(function() {
       res.sendStatus(204);
     });
   }).catch(function(err) {

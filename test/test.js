@@ -493,7 +493,7 @@ describe("floats api", function () {
         expect(notification.notification.body).toEqual('Frank Ferret would.');
         expect(notification.to).toExist();
         expect(notification.to).toEqual('lawng');
-      })
+      });
     });
 
     it("409s if they've already joined", function() {

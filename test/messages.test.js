@@ -139,7 +139,32 @@ describe("messages", function () {
       });
     });
 
-    it("delivers messages via push notification");
+    it("delivers messages via push notification", function() {
+      return factory.convo().then(function(c) {
+        convo = c;
+        return convo.float.users[0].api.patch(`/users/me`, {
+          body: { firebase_token: 'recipient' }
+        }).then(function() {
+          return convo.float.user.api.patch(`/users/me`, {
+            body: { name: 'Sau Pow' }
+          })
+        })
+      }).then(function() {
+        return convo.float.user.api.post(`/floats/${convo.float.id}/convos/${convo.id}/messages`, {
+          body: {
+            text: 'Hello world',
+          }
+        })
+      }).then(function(response) {
+        expect(stub.calls.length).toBeGreaterThan(0, `Expected notification stub to have been called`);
+        expect(stub.calls[0].url).toEqual('/fcm/send');
+        expect(stub.calls[0].body).toExist();
+        const notification = stub.calls[0].body;
+        expect(notification.priority).toEqual('high');
+        expect(notification.notification.body).toEqual('Sau Pow: Hello world');
+        expect(notification.to).toEqual('recipient');
+      });
+    });
 
     it("delivers messages via websocket", function(done) {
       factory.convo().then(function(c) {

@@ -4,9 +4,11 @@ const auth     = require('../services/auth');
 const log      = require('../services/log');
 const panic    = require('../services/panic');
 const socket   = require('../services/socket');
+const notify   = require('../services/notify');
 const db = {
   messages: require('../storage/messages'),
   convos:   require('../storage/convos'),
+  users:    require('../storage/users'),
 }
 
 module.exports = function(app) {
@@ -34,7 +36,17 @@ function create(req, res, next) {
         log.error({err: err}, 'Websocket Error');
       });
     })
-    res.status(201).json(m);
+
+
+    return Promise.all(convo.members.map(function(userId) {
+      return db.users.get(userId).then(function(u) {
+        return notify.firebase(u.firebase_token, `${req.user.name}: ${req.body.text}`);
+      }).catch(function(err) {
+        log.error({err: err, userId: userId}, 'Error finding member');
+      })
+    })).then(function() {
+      res.status(201).json(m);
+    })
   }).catch(next);
 }
 
