@@ -38,14 +38,16 @@ function create(req, res, next) {
       });
     })
 
-    return Promise.all(convo.members.map(function(userId) {
+    const promises = convo.members.map(function(userId) {
       if( userId == req.userId ) { return Promise.resolve(true); }
       return db.users.get(userId).then(function(u) {
         return notify.firebase(u.firebase_token, `${req.user.name}: ${req.body.text}`);
       }).catch(function(err) {
         log.error({err: err, userId: userId}, 'Error finding member');
       })
-    })).then(function() {
+    })
+
+    return Promise.all(promises).then(function() {
       res.status(201).json(m);
     })
   }).catch(next);
