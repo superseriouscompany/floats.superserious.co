@@ -192,6 +192,16 @@ describe("messages", function () {
 
     it("supports to");
 
+    it("returns empty messages", function () {
+      return factory.convo().then(function(c) {
+        convo = c;
+        return convo.float.user.api.get(`/floats/${convo.float.id}/convos/${convo.id}/messages`)
+      }).then(function(response) {
+        expect(response.statusCode).toEqual(200);
+        expect(response.body.messages.length).toEqual(0);
+      })
+    });
+
     it("returns last 20 messages by default", function() {
       return factory.convo().then(function(c) {
         convo = c;

@@ -35,7 +35,7 @@ function create(floatId, convoId, userId, text) {
 
 function findByConvo(floatId, convoId) {
   return Promise.resolve().then(function() {
-    return messages[floatId][convoId] || [];
+    return messages[floatId] && messages[floatId][convoId] || [];
   })
 }
 
