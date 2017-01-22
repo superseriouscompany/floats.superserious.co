@@ -101,6 +101,7 @@ function leave(floatId, userId) {
     floats[floatId].invitees = _.reject(floats[floatId].invitees, function(id) {
       return id == userId;
     })
+
     return true;
   })
 }

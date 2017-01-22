@@ -11,6 +11,7 @@ module.exports = {
   destroyByFloatId: destroyByFloatId,
   destroy:          destroy,
   leave:            leave,
+  leaveAll:         leaveAll,
 
   flush:            flush,
 }
@@ -69,11 +70,27 @@ function destroy(floatId, id) {
   })
 }
 
+function leaveAll(floatId, userId) {
+  return findByMemberId(userId).then(function(convos) {
+    convos = convos.filter(function(c) {
+      return c.float_id == floatId;
+    })
+
+    return Promise.all(convos.map(function(c) {
+      return leave(c.float_id, c.id, userId);
+    }))
+  })
+}
+
 function leave(floatId, id, userId) {
   return Promise.resolve().then(function() {
-    convos[id].members = _.reject(convos[id].members, function(m) {
-      return m.id === userId
+    convos[id].members = _.reject(convos[id].members, function(id) {
+      return id === userId
     })
-    return true;
+    if( convos[id].members.length == 1 ) {
+      return destroy(floatId, id)
+    } else {
+      return true;
+    }
   })
 }

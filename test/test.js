@@ -569,6 +569,22 @@ describe("floats api", function () {
         expect(response.body.floats.length).toEqual(0);
       })
     });
+
+    it("removes convos on success", function () {
+      let user, u0, float;
+      return factory.float().then(function(f) {
+        float = f;
+        user = float.user;
+        u0 = float.users[0];
+        return u0.api.post(`/floats/${float.id}/join`)
+      }).then(function() {
+        return u0.api.delete(`/floats/${float.id}/leave`);
+      }).then(function(response) {
+        return u0.api.get('/convos');
+      }).then(function(response) {
+        expect(response.body.convos.length).toEqual(0);
+      })
+    });
   })
 
   describe("deleting floats", function() {

@@ -106,7 +106,9 @@ function leave(req, res, next) {
 
   return db.floats.get(req.params.id).then(function(f) {
     float = f
-    return db.floats.leave(float.id, req.userId)
+    return db.floats.leave(req.params.id, req.userId);
+  }).then(function() {
+    return db.convos.leaveAll(float.id, req.userId);
   }).then(function() {
     res.sendStatus(204);
   }).catch(next);
