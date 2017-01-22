@@ -1,13 +1,14 @@
 'use strict';
 
-const expect   = require('expect');
-const request  = require('request-promise');
-const tinystub = require('tinystub');
-const fakebook = require('./fakebook');
-const factory  = require('./factory');
-const api      = require('./api');
-const h        = require('./helpers');
-const server   = require('../index');
+const expect    = require('expect');
+const request   = require('request-promise');
+const tinystub  = require('tinystub');
+const fakebook  = require('./fakebook');
+const factory   = require('./factory');
+const api       = require('./api');
+const h         = require('./helpers');
+const server    = require('../index');
+const WebSocket = require('ws');
 
 describe("messages", function () {
   let serverHandle, fakebookHandle, stub;
@@ -140,7 +141,23 @@ describe("messages", function () {
 
     it("delivers messages via push notification");
 
-    it("delivers messages via websocket");
+    it("delivers messages via websocket", function(done) {
+      factory.convo().then(function(c) {
+        const ws = new WebSocket(`ws://localhost:4200/?access_token=${c.float.user.access_token}`);
+        ws.on('message', function(m) {
+          try {
+            m = JSON.parse(m);
+            expect(m.text).toEqual('test message');
+            expect(m.float_id).toEqual(c.float.id);
+            expect(m.convo_id).toEqual(c.id);
+            done();
+          } catch(err) {
+            done(err);
+          }
+        })
+        factory.message(c.float.user, c.float.id, c.id, 'test message');
+      }).catch(done);
+    });
   });
 
   describe("retrieving messages", function() {

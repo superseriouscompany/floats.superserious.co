@@ -2,23 +2,11 @@
 
 const express    = require('express');
 const bodyParser = require('body-parser');
-const WebSocket  = require('ws');
 const fb         = require('./services/facebook');
 const auth       = require('./services/auth');
 const log        = require('./services/log');
+const socket     = require('./services/socket');
 const app        = express();
-
-const wss = new WebSocket.Server({ port: process.env.WEBSOCKET_PORT || 3001 });
-wss.on('connection', function(c) {
-  console.log("A client connected");
-})
-wss.on('close', function(c, reason) {
-  console.log("A client disconnected because", reason);
-})
-wss.on('message', function(m) {
-  console.log("Received message", m);
-})
-
 
 app.use(bodyParser.json());
 
@@ -31,7 +19,7 @@ app.get('/', function(req, res) { res.json({cool: 'nice'}); })
 // app routes
 const normalizedPath = require("path").join(__dirname, "controllers");
 require("fs").readdirSync(normalizedPath).forEach(function(file) {
-  require("./controllers/" + file)(app, wss);
+  require("./controllers/" + file)(app);
 });
 
 app.use(function(err, req, res, next) {
@@ -39,10 +27,11 @@ app.use(function(err, req, res, next) {
   res.status(500).json({message: 'Something went wrong.'});
 })
 
-const server = express();
-server.get('/', function(req, res) { res.redirect('/v1'); })
-server.use('/v1', app);
+const wrapper = express();
+wrapper.get('/', function(req, res) { res.redirect('/v1'); })
+wrapper.use('/v1', app);
 
+const server = socket(wrapper);
 if( module.parent ) {
   module.exports = function(port) {
     const ref    = server.listen(port);

@@ -3,14 +3,12 @@
 const auth     = require('../services/auth');
 const log      = require('../services/log');
 const panic    = require('../services/panic');
+const socket   = require('../services/socket');
 const db = {
   messages: require('../storage/messages'),
 }
 
-let wss;
-
-module.exports = function(app, webSocketServer) {
-  wss = webSocketServer;
+module.exports = function(app) {
   app.post('/floats/:floatId/convos/:convoId/messages', auth, create);
   app.get('/floats/:floatId/convos/:convoId/messages', auth, all);
   app.delete('/floats/:floatId/convos/:convoId/messages/:id', auth, destroy);
@@ -24,6 +22,8 @@ function create(req, res, next) {
     req.userId,
     req.body.text
   ).then(function(m) {
+    console.log('clients are', Object.keys(socket.clients));
+
     res.status(201).json(m);
   }).catch(next);
 }
