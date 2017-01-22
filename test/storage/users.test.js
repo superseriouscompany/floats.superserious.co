@@ -243,7 +243,7 @@ module.exports = function() {
           expect(user.id).toExist();
           expect(user.facebook_id).toEqual(1234);
           expect(user.access_token).toExist();
-          expect(user.avatar_url).toEqual('https: //graph.facebook.com/v2.8/1234/picture');
+          expect(user.avatar_url).toEqual('https://graph.facebook.com/v2.8/1234/picture');
         })
       });
     });

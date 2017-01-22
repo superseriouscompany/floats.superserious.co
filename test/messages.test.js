@@ -144,10 +144,10 @@ describe("messages", function () {
         convo = c;
         return convo.float.users[0].api.patch(`/users/me`, {
           body: { firebase_token: 'recipient' }
-        }).then(function() {
-          return convo.float.user.api.patch(`/users/me`, {
-            body: { name: 'Sau Pow' }
-          })
+        })
+      }).then(function() {
+        return convo.float.user.api.patch(`/users/me`, {
+          body: { name: 'Sau Pow' }
         })
       }).then(function() {
         return convo.float.user.api.post(`/floats/${convo.float.id}/convos/${convo.id}/messages`, {
@@ -162,13 +162,13 @@ describe("messages", function () {
         const notification = stub.calls[0].body;
         expect(notification.priority).toEqual('high');
         expect(notification.notification.body).toEqual('Sau Pow: Hello world');
-        expect(notification.to).toEqual('recipient');
+        expect(notification.to).toEqual('recipient', `Expected to recipient in ${JSON.stringify(notification)}`);
       });
     });
 
     it("delivers messages via websocket", function(done) {
       factory.convo().then(function(c) {
-        const ws = new WebSocket(`ws://localhost:4200/?access_token=${c.float.user.access_token}`);
+        const ws = new WebSocket(`ws://localhost:4200/?access_token=${c.float.users[0].access_token}`);
         ws.on('message', function(m) {
           try {
             m = JSON.parse(m);

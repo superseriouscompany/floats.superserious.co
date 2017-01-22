@@ -31,14 +31,15 @@ function create(req, res, next) {
   }).then(function(m) {
     const payload = JSON.stringify(Object.assign({type: 'new_message'}, m));
     convo.members.forEach(function(userId) {
+      if( userId == req.userId ) { return; }
       socket.send(userId, payload).catch(function(err) {
         if( err.name == 'ClientNotFound' ) { return; }
         log.error({err: err}, 'Websocket Error');
       });
     })
 
-
     return Promise.all(convo.members.map(function(userId) {
+      if( userId == req.userId ) { return Promise.resolve(true); }
       return db.users.get(userId).then(function(u) {
         return notify.firebase(u.firebase_token, `${req.user.name}: ${req.body.text}`);
       }).catch(function(err) {

@@ -495,7 +495,7 @@ describe("floats api", function () {
         const notification = stub.calls[0].body;
         expect(notification.priority).toEqual('high');
         expect(notification.notification.body).toEqual('Frank Ferret would.');
-        expect(notification.to).toExist();
+        expect(notification.to).toExist(`Expected to key in ${JSON.stringify(notification)}`);
         expect(notification.to).toEqual('lawng');
       });
     });

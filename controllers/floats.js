@@ -76,7 +76,7 @@ function all(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.json({floats: panic.floats}); }
 
   db.floats.findByInvitee(req.userId).then(function(floats) {
-    floats = db.floats.map(function(f) {
+    floats = floats.map(function(f) {
       let ret = _.pick(f, 'id', 'title', 'user', 'created_at');
       ret.attending = !!f.attendees.find(function(u) {
         return u.id == req.userId
@@ -91,7 +91,7 @@ function mine(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.json({floats: panic.myFloats}); }
 
   db.floats.findByCreator(req.userId).then(function(floats) {
-    floats = db.floats.map(function(f) {
+    floats = floats.map(function(f) {
       return _.pick(f, 'id', 'title', 'user', 'created_at', 'attendees', 'invitees');
     })
     return res.json({floats: floats});
@@ -107,6 +107,8 @@ function join(req, res, next) {
     return db.floats.join(float.id, req.userId)
   }).then(function() {
     return db.convos.create(float.id, req.userId, [float.user.id]);
+  }).then(function() {
+    return db.users.get(float.user.id);
   }).then(function(u) {
     creator = u;
     const message = `${req.user.name} would.`;

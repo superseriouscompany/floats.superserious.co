@@ -28,7 +28,7 @@ function create(floatId, convoId, userId, text) {
       float_id: floatId,
       convo_id: convoId,
     };
-    messages[floatId][convoId].push(message);
+    messages[floatId][convoId].unshift(message);
     return message;
   });
 }
