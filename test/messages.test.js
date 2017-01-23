@@ -82,6 +82,8 @@ describe("messages", function () {
     it("doesn't show conversations the user is not participating in");
 
     it("shows latest message sent");
+
+    it("sets created_at on fake message if it exists");
   })
   describe("deleting conversations", function() {
     it("validates stuff");

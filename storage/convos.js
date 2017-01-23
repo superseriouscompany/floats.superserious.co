@@ -27,11 +27,18 @@ function get(floatId, id) {
 
 function create(floatId, userId, members, users) {
   return Promise.resolve().then(function() {
+    if( users ) {
+      users = users.map(function(u) {
+        return _.pick(u, 'id', 'avatar_url', 'name');
+      })
+    }
+
     const convo = {
       id: uuid.v1(),
       float_id: floatId,
       members: [userId].concat(members),
       users: users,
+      created_at: +new Date,
     }
     convos[convo.id] = convo;
     return convo;
