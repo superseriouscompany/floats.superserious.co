@@ -48,7 +48,7 @@ function create(floatId, userId, members, users) {
 function findByMemberId(userId) {
   return Promise.resolve().then(function() {
     return _.reject(_.values(convos), function(c) {
-      !_.includes(c.members, userId);
+      return !_.includes(c.members, userId);
     });
   })
 }
