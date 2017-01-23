@@ -19,6 +19,10 @@ module.exports = function() {
         })
       });
 
+      it("throws ConflictError if id is taken");
+
+      it("throws ConflictError if facebook id is taken");
+
       it("returns user", function () {
         return users.create({}).then(function(user) {
           expect(user.id).toExist();
@@ -96,15 +100,17 @@ module.exports = function() {
         })
       });
 
+      it("throws InputError if name, username or firebase token aren't provided");
+
       it("throws UserNotFound if id is not found", function () {
-        return users.update('nerp', {}).then(h.shouldFail).catch(function(err) {
+        return users.update('nerp', {'username': 'test'}).then(h.shouldFail).catch(function(err) {
           expect(err.name).toEqual('UserNotFound');
         })
       });
 
       it("doesn't update id or created_at", function () {
         return users.create({id: 'cool', created_at: 2}).then(function(user) {
-          return users.update('cool', {id: 'nice', created_at: 3});
+          return users.update('cool', {id: 'nice', created_at: 3, username: 'test'});
         }).then(function() {
           return users.get('cool')
         }).then(function(user) {
@@ -113,14 +119,17 @@ module.exports = function() {
         })
       });
 
+      it("doesn't overwrite fields that aren't specified");
+
       it("updates user object", function() {
         return users.create({id: 'cool', created_at: 2}).then(function(user) {
-          return users.update('cool', {name: 'good', foo: 'bar'});
+          return users.update('cool', {name: 'good', username: 'test', firebase_token: 'dope'});
         }).then(function() {
           return users.get('cool')
         }).then(function(user) {
           expect(user.name).toEqual('good');
-          expect(user.foo).toEqual('bar');
+          expect(user.username).toEqual('test');
+          expect(user.firebase_token).toEqual('dope');
         })
       });
     })
@@ -139,13 +148,16 @@ module.exports = function() {
       });
 
       it("destroys user", function () {
+        let foundUserToDestroy;
         return users.create({}).then(function(u) {
           user = u;
           return users.destroy(user.id);
         }).then(function(ok) {
+          foundUserToDestroy = true;
           expect(ok).toExist();
           return users.get(user.id);
         }).then(h.shouldFail).catch(function(err) {
+          expect(foundUserToDestroy).toExist();
           expect(err.name).toEqual('UserNotFound');
         })
       });
@@ -153,12 +165,14 @@ module.exports = function() {
 
     describe(".flush", function () {
       it("destroys all users", function() {
+        this.timeout(30000);
+        this.slow(18000);
         return Promise.all([
           users.create({}),
           users.create({}),
           users.create({})
         ]).then(function() {
-          return users.flush()
+          return users.flush();
         }).then(function() {
           return users.all();
         }).then(function(all) {
@@ -175,16 +189,38 @@ module.exports = function() {
       });
 
       it("throws UserNotFound if no user has this facebook id", function () {
-        return users.findByFacebookId('nope').then(h.shouldFail).catch(function(err) {
+        return users.findByFacebookId(21).then(h.shouldFail).catch(function(err) {
           expect(err.name).toEqual('UserNotFound');
         })
       });
 
       it("returns user by facebook id", function () {
-        return users.create({name: 'Ines', facebook_id: 'fb123'}).then(function() {
-          return users.findByFacebookId('fb123')
+        return users.create({name: 'Ines', facebook_id: 123}).then(function() {
+          return users.findByFacebookId(123)
         }).then(function(user) {
           expect(user.name).toEqual('Ines');
+        })
+      });
+    });
+
+    describe(".findByAccessToken", function () {
+      it("throws InputError if access token is blank", function() {
+        return users.findByAccessToken().then(h.shouldFail).catch(function(err) {
+          expect(err.name).toEqual('InputError');
+        })
+      });
+
+      it("throws UserNotFound if no user has this access token", function () {
+        return users.findByAccessToken('nerp').then(h.shouldFail).catch(function(err) {
+          expect(err.name).toEqual('UserNotFound');
+        })
+      });
+
+      it("returns user by access token", function () {
+        return users.create({name: 'Severin', access_token: 'sev123'}).then(function() {
+          return users.findByAccessToken('sev123')
+        }).then(function(user) {
+          expect(user.name).toEqual('Severin');
         })
       });
     });
@@ -207,7 +243,7 @@ module.exports = function() {
           expect(user.id).toExist();
           expect(user.facebook_id).toEqual(1234);
           expect(user.access_token).toExist();
-          expect(user.avatar_url).toEqual('https: //graph.facebook.com/v2.8/1234/picture');
+          expect(user.avatar_url).toEqual('https://graph.facebook.com/v2.8/1234/picture');
         })
       });
     });

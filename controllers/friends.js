@@ -24,7 +24,7 @@ function nearby(req, res, next) {
     lat = user.lat;
     lng = user.lng;
     if( lat === undefined || lng === undefined ) {
-      log.warn('No pin set yet', {userId: req.userId});
+      log.warn({userId: req.userId}, 'No pin set yet');
       throw error('No pin set yet', {userId: req.userId, name: 'NoPin'});
     }
 

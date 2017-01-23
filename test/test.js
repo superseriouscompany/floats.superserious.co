@@ -11,6 +11,8 @@ const server   = require('../index');
 
 describe("floats api", function () {
   let serverHandle, fakebookHandle, stub;
+
+  let float, user;
   this.slow(1000);
 
   before(function() {
@@ -19,7 +21,15 @@ describe("floats api", function () {
     stub           = tinystub(4202);
   })
   afterEach(function() {
-    return api.delete('/flush')
+    float = null;
+    user  = null;
+    if( process.env.LIVE ) { return; }
+
+    return api.delete('/flush').then(function() {
+      return request('http://localhost:4202', {
+        method: 'DELETE'
+      })
+    });
   })
   after(function() {
     serverHandle();
@@ -45,7 +55,7 @@ describe("floats api", function () {
     it("201s with valid facebook token", function () {
       return factory.fbUser().then(function(user) {
         expect(user.access_token).toExist(`No access token for ${JSON.stringify(user)}`);
-        return api.post('/users', {body: { facebook_access_token: user.access_token }})
+        return api.post('/users', {body: { facebook_access_token: user.access_token }});
       }).then(function(response) {
         expect(response.statusCode).toEqual(201);
         expect(response.body.access_token).toExist(`No access token found in ${JSON.stringify(response.body)}`);
@@ -448,9 +458,7 @@ describe("floats api", function () {
       return factory.float().then(function(float) {
         user = float.user;
         u0 = float.users[0];
-        return u0.api.post(`/floats/${float.id}/join`, {
-          headers: {'X-Stub-Url': 'http://localhost:4202'}
-        })
+        return u0.api.post(`/floats/${float.id}/join`)
       }).then(function(response) {
         expect(response.statusCode).toEqual(204);
         return u0.api.get('/floats')
@@ -477,17 +485,51 @@ describe("floats api", function () {
         user    = values[1];
         return factory.float({user: creator, invitees: [user]})
       }).then(function(float) {
-        return float.users[0].api.post(`/floats/${float.id}/join`, {
-          headers: { 'X-Stub-Url': 'http://localhost:4202' }
-        })
+        return float.users[0].api.post(`/floats/${float.id}/join`);
       }).then(function(response) {
+        expect(stub.calls.length).toBeGreaterThan(0, `Expected notification stub to have been called`);
         expect(stub.calls[0].url).toEqual('/fcm/send');
         expect(stub.calls[0].body).toExist();
         const notification = stub.calls[0].body;
         expect(notification.priority).toEqual('high');
         expect(notification.notification.body).toEqual('Frank Ferret would.');
-        expect(notification.to).toExist();
+        expect(notification.to).toExist(`Expected to key in ${JSON.stringify(notification)}`);
         expect(notification.to).toEqual('lawng');
+      });
+    });
+
+    it("creates a convo", function () {
+      let creator, user;
+      return Promise.all([
+        factory.user({name: 'Cliff Coyote', firebase_token: 'lawng'}),
+        factory.user({name: 'Frank Ferret'}),
+      ]).then(function(values) {
+        creator = values[0];
+        user    = values[1];
+        return factory.float({user: creator, invitees: [user]})
+      }).then(function(f) {
+        float = f;
+        return float.users[0].api.post(`/floats/${float.id}/join`);
+      }).then(function() {
+        return float.users[0].api.get('/convos')
+      }).then(function(response) {
+        const convos = response.body.convos;
+        expect(convos.length).toEqual(1, `Expected exactly one convo in ${JSON.stringify(convos)}`);
+        expect(convos[0].float_id).toEqual(float.id);
+        expect(convos[0].members).toContain(float.user.id);
+        expect(convos[0].members).toContain(float.users[0].id);
+        expect(convos[0].users).toExist();
+        expect(convos[0].users.length).toEqual(2);
+        expect(convos[0].users[0].id).toEqual(float.user.id);
+        expect(convos[0].users[0].name).toEqual(float.user.name);
+        expect(convos[0].users[1].id).toEqual(float.users[0].id);
+        return float.user.api.get('/convos');
+      }).then(function(response) {
+        const convos = response.body.convos;
+        expect(convos.length).toEqual(1, `Expected exactly one convo in ${JSON.stringify(convos)}`);
+        expect(convos[0].float_id).toEqual(float.id);
+        expect(convos[0].members).toContain(float.user.id);
+        expect(convos[0].members).toContain(float.users[0].id);
       })
     });
 
@@ -508,6 +550,45 @@ describe("floats api", function () {
       }).then(h.shouldFail).catch(function(err) {
         expect(err.statusCode).toEqual(409);
       });
+    });
+  })
+
+  describe("leaving floats", function() {
+    it("400s if the float isn't there");
+
+    it("403s if you're not a member");
+
+    it("204s and removes float on success", function() {
+      let user, u0, float;
+      return factory.float().then(function(f) {
+        float = f;
+        user = float.user;
+        u0 = float.users[0];
+        return u0.api.post(`/floats/${float.id}/join`)
+      }).then(function() {
+        return u0.api.delete(`/floats/${float.id}/leave`);
+      }).then(function(response) {
+        expect(response.statusCode).toEqual(204);
+        return u0.api.get('/floats');
+      }).then(function(response) {
+        expect(response.body.floats.length).toEqual(0);
+      })
+    });
+
+    it("removes convos on success", function () {
+      let user, u0, float;
+      return factory.float().then(function(f) {
+        float = f;
+        user = float.user;
+        u0 = float.users[0];
+        return u0.api.post(`/floats/${float.id}/join`)
+      }).then(function() {
+        return u0.api.delete(`/floats/${float.id}/leave`);
+      }).then(function(response) {
+        return u0.api.get('/convos');
+      }).then(function(response) {
+        expect(response.body.convos.length).toEqual(0);
+      })
     });
   })
 
@@ -535,6 +616,18 @@ describe("floats api", function () {
         return user.api.get('/floats/mine')
       }).then(function(response) {
         expect(response.body.floats.length).toEqual(0, `Expected no floats in ${JSON.stringify(response.body.floats)}`);
+      })
+    });
+
+    it("deletes associated convos", function() {
+      let convo;
+      return factory.convo().then(function(c) {
+        convo = c;
+        return convo.float.user.api.delete(`/floats/${convo.float.id}`)
+      }).then(function() {
+        return convo.float.user.api.get('/convos');
+      }).then(function(response) {
+        expect(response.body.convos.length).toEqual(0);
       })
     });
   })

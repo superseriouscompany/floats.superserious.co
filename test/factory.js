@@ -63,6 +63,32 @@ const factory = {
       float.user = friendship.u0;
       return float;
     })
+  },
+
+  convo: function() {
+    let float;
+    return factory.float().then(function(f) {
+      float = f;
+      return f.users[0].api.post(`/floats/${f.id}/convos`, {
+        body: {
+          members: [f.user.id],
+        }
+      })
+    }).then(function(response) {
+      let convo = response.body;
+      convo.float = float;
+      return convo;
+    });
+  },
+
+  message: function(user, floatId, convoId, text) {
+    return user.api.post(`/floats/${floatId}/convos/${convoId}/messages`, {
+      body: {
+        text: text,
+      }
+    }).then(function(response) {
+      return response.body;
+    })
   }
 }
 

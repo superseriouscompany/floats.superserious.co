@@ -1,16 +1,18 @@
 'use strict';
 
 const request = require('request-promise');
-const config  = require('./config');
+const config  = require('../config');
 const log     = require('./log');
 
 module.exports = {
   firebase: firebase
 }
 
-function firebase(deviceToken, body, stubUrl) {
-  const url = stubUrl || 'https://fcm.googleapis.com';
+const url = process.env.NODE_ENV !== 'production' && global.TEST_MODE && global.firebaseUrl
+  ? global.firebaseUrl
+  : 'https://fcm.googleapis.com';
 
+function firebase(deviceToken, body) {
   return request.post(`${url}/fcm/send`, {
     headers: {
       'Authorization': `key=${config.firebaseKey}`,
