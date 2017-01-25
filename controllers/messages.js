@@ -44,7 +44,9 @@ function create(req, res, next) {
     const promises = convo.members.map(function(userId) {
       if( userId == req.userId ) { return Promise.resolve(true); }
       return db.users.get(userId).then(function(u) {
-        return notify.firebase(u.firebase_token, `${req.user.name}: ${req.body.text}`);
+        return notify.firebase(u.firebase_token, `${req.user.name}: ${req.body.text}`, {
+          convoId: req.params.convoId,
+        });
       }).catch(function(err) {
         log.error({err: err, userId: userId}, 'Error finding member');
       })
