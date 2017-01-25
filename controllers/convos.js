@@ -5,8 +5,8 @@ const auth   = require('../services/auth');
 const log    = require('../services/log');
 const panic  = require('../services/panic');
 const db = {
-  users:  require('../storage/users'),
-  convos: require('../storage/convos'),
+  users:  require('../db/users'),
+  convos: require('../db/convos'),
 }
 
 let wss;

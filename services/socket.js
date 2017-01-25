@@ -7,7 +7,7 @@ const promisify = require('bluebird').Promise.promisify;
 const log       = require('../services/log');
 const error     = require('../services/error');
 const db = {
-  users: require('../storage/users')
+  users: require('../db/users')
 }
 
 let clients = {};

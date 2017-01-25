@@ -1,6 +1,6 @@
 const auth  = require('../services/auth');
-const pins  = require('../storage/pins');
-const users = require('../storage/users');
+const pins  = require('../db/pins');
+const users = require('../db/users');
 
 module.exports = function(app) {
   app.post('/pins', auth, dropPin);

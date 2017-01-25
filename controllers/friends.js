@@ -6,8 +6,8 @@ const auth      = require('../services/auth');
 const error     = require('../services/error');
 const log       = require('../services/log');
 const panic     = require('../services/panic');
-const friends   = require('../storage/friends');
-const users     = require('../storage/users');
+const friends   = require('../db/friends');
+const users     = require('../db/users');
 
 module.exports = function(app) {
   app.get('/friends/nearby', auth, nearby);

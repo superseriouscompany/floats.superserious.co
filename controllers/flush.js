@@ -1,9 +1,9 @@
 'use strict';
 
 const db = {
-  users:  require('../storage/users'),
-  floats: require('../storage/floats'),
-  convos: require('../storage/convos'),
+  users:  require('../db/users'),
+  floats: require('../db/floats'),
+  convos: require('../db/convos'),
 }
 
 module.exports = function(app) {

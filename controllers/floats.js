@@ -6,10 +6,10 @@ const log     = require('../services/log');
 const notify  = require('../services/notify');
 const error   = require('../services/error');
 const db = {
-  floats:  require('../storage/floats'),
-  users:   require('../storage/users'),
-  convos:  require('../storage/convos'),
-  friends: require('../storage/friends'),
+  floats:  require('../db/floats'),
+  users:   require('../db/users'),
+  convos:  require('../db/convos'),
+  friends: require('../db/friends'),
 }
 const _       = require('lodash');
 

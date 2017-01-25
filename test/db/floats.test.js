@@ -1,8 +1,8 @@
 'use strict';
 
 const expect = require('expect');
-const floats = require('../../storage/floats');
-const users  = require('../../storage/users');
+const floats = require('../../db/floats');
+const users  = require('../../db/users');
 const h      = require('../helpers');
 
 module.exports = function() {

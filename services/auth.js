@@ -1,5 +1,5 @@
 const session = require('./session');
-const users   = require('../storage/users');;
+const users   = require('../db/users');;
 
 module.exports = function auth(req, res, next) {
   if( process.env.PANIC_MODE ) { return next(); }

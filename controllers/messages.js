@@ -6,9 +6,9 @@ const panic    = require('../services/panic');
 const socket   = require('../services/socket');
 const notify   = require('../services/notify');
 const db = {
-  messages: require('../storage/messages'),
-  convos:   require('../storage/convos'),
-  users:    require('../storage/users'),
+  messages: require('../db/messages'),
+  convos:   require('../db/convos'),
+  users:    require('../db/users'),
 }
 
 module.exports = function(app) {

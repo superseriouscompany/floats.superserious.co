@@ -1,5 +1,5 @@
 const expect = require('expect');
-const pins   = require('../../storage/pins');
+const pins   = require('../../db/pins');
 
 module.exports = function() {
   describe("pins", function() {

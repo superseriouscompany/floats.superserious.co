@@ -1,7 +1,7 @@
 'use strict';
 
 const expect = require('expect');
-const users  = require('../../storage/users');
+const users  = require('../../db/users');
 const h      = require('../helpers');
 
 module.exports = function() {
