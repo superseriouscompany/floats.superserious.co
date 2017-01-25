@@ -12,7 +12,7 @@ const url = process.env.NODE_ENV !== 'production' && global.TEST_MODE && global.
   ? global.firebaseUrl
   : 'https://fcm.googleapis.com';
 
-function firebase(deviceToken, body) {
+function firebase(deviceToken, body, data) {
   return request.post(`${url}/fcm/send`, {
     headers: {
       'Authorization': `key=${config.firebaseKey}`,
@@ -21,6 +21,7 @@ function firebase(deviceToken, body) {
       to: deviceToken,
       notification: { body: body },
       priority: 'high', //http://stackoverflow.com/questions/37899712/fcm-background-notifications-not-working-in-ios
+      data: data,
     },
     json: true,
   }).catch(function(err) {
