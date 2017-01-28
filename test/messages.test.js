@@ -71,7 +71,11 @@ describe("messages", function () {
         expect(response.body.convos[0].message.text).toEqual('Lawng');
       })
     });
+
+    // waiting on better float factory
+    it("automatically creates group conversation when a float is created");
   });
+
   describe("retrieving conversations", function() {
     it("checks auth");
 

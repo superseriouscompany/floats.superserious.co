@@ -80,6 +80,22 @@ function create(req, res, next) {
       });
     })
 
+    const ids = _.map(recipients, 'id');
+
+    if( recipients.length > 1 ) {
+      promises.push(
+        db.convos.create(float.id, req.userId, ids, [req.user].concat(recipients)).then(function(c) {
+          return db.messages.create(
+            float.id,
+            c.id,
+            req.userId,
+            float.title
+          ).then(function(m) {
+            return db.convos.setLastMessage(float.id, c.id, m);
+          })
+        })
+      )
+    }
     return Promise.all(promises);
   }).then(function() {
     const promises = recipients.map(function(r) {
