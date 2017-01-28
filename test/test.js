@@ -452,8 +452,6 @@ describe("floats api", function () {
         float = f;
         user = float.user;
         u0 = float.users[0];
-        return u0.api.post(`/floats/${float.id}/join`)
-      }).then(function() {
         return u0.api.delete(`/floats/${float.id}/leave`);
       }).then(function(response) {
         expect(response.statusCode).toEqual(204);
@@ -469,8 +467,6 @@ describe("floats api", function () {
         float = f;
         user = float.user;
         u0 = float.users[0];
-        return u0.api.post(`/floats/${float.id}/join`)
-      }).then(function() {
         return u0.api.delete(`/floats/${float.id}/leave`);
       }).then(function(response) {
         return u0.api.get('/convos');
