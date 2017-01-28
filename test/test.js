@@ -436,7 +436,7 @@ describe("floats api", function () {
         expect(f.user.avatar_url).toEqual(u0.avatar_url);
         expect(f.user.name).toEqual(u0.name);
         expect(f.attendees).toExist();
-        expect(f.attendees.length).toEqual(0);
+        expect(f.attendees.length).toEqual(1);
       })
     })
   })
