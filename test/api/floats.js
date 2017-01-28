@@ -17,8 +17,6 @@ module.exports = function() { describe("/floats", function() {
     user  = null;
     convo = null;
     float = null;
-    if( process.env.LIVE ) { return; }
-
     return h.clearStub();
   })
 
