@@ -54,6 +54,23 @@ describe("messages", function () {
     it("sets names on convo");
 
     it("informs users of new conversation via websocket");
+
+    it("automatically creates conversation when a float is created", function () {
+      return factory.float({title: 'Lawng'}).then(f => {
+        this.float = f;
+        return f.users[0].api.get(`/floats`)
+      }).then(response => {
+        expect(response.statusCode).toEqual(200);
+        expect(response.body.floats.length).toEqual(1);
+        const float = response.body.floats[0];
+        expect(float.attending).toEqual(true);
+        return this.float.users[0].api.get(`/convos`)
+      }).then(response => {
+        expect(response.body.convos.length).toEqual(1);
+        expect(response.body.convos[0].message).toExist();
+        expect(response.body.convos[0].message.text).toEqual('Lawng');
+      })
+    });
   });
   describe("retrieving conversations", function() {
     it("checks auth");

@@ -10,6 +10,7 @@ const db = {
   users:   require('../db/users'),
   convos:  require('../db/convos'),
   friends: require('../db/friends'),
+  messages: require('../db/messages'),
 }
 const _       = require('lodash');
 
@@ -38,7 +39,7 @@ function create(req, res, next) {
     return res.status(400).json({message: 'Your title is too long. It can only contain 140 characters.'});
   }
 
-  let user, recipients;
+  let user, recipients, float;
   user = req.user;
   return db.friends.all(req.userId).then(function(friends) {
     recipients = friends.filter(function(f) {
@@ -56,7 +57,31 @@ function create(req, res, next) {
       invitees: recipients.map(function(r) { return r.id }),
       user: _.pick(user, 'id', 'name', 'username', 'avatar_url'),
     })
-  }).then(function(float) {
+  }).then(function(f) {
+    float = f;
+    const promises = recipients.map(function(r) {
+      return db.floats.join(float.id, r.id);
+    })
+
+    return Promise.all(promises);
+  }).then(function() {
+    const promises = recipients.map(function(r) {
+      let convo;
+      return db.convos.create(float.id, r.id, [req.userId], [req.user, r]).then(function(c) {
+        convo = c;
+        return db.messages.create(
+          float.id,
+          c.id,
+          req.userId,
+          float.title
+        )
+      }).then(function(m) {
+        return db.convos.setLastMessage(float.id, convo.id, m);
+      });
+    })
+
+    return Promise.all(promises);
+  }).then(function() {
     const promises = recipients.map(function(r) {
       return notify.firebase(r.firebase_token, `${user.name} floated "${req.body.title}"`);
     })
