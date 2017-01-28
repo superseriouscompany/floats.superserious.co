@@ -1,24 +1,28 @@
+const user = {
+  name: 'Foo Barbaz',
+  avatar_url: 'https://placekitten.com/640/640'
+}
+
 module.exports = {
   floats: [
     {
       id: 'PANICMODE3',
       title: 'Is everything down?',
       created_at: +new Date - 1000 * 60 * 35,
-      user: {
-        name: 'Yep',
+      user: user,
+      attending: true,
+      attendees: [{
+        name: 'Someone',
         avatar_url: 'https://placekitten.com/640/640',
-      },
-      attending: false,
+      }]
     },
     {
       id: 'PANICMODE4',
       title: 'Still?',
       created_at: +new Date - 1000 * 60 * 120,
-      user: {
-        name: 'Wow',
-        avatar_url: 'https://placekitten.com/640/640',
-      },
+      user: user,
       attending: true,
+      attendees: [user]
     },
   ],
 
@@ -27,34 +31,17 @@ module.exports = {
       id: 'PANICMODE1',
       title: "hmm, mewbe I should work for this app",
       created_at: +new Date - 1000 * 60 * 60,
-      user: {
-        avatar_url: 'https://placekitten.com/640/640',
-        name: 'You',
-      },
+      user: user,
       invitees: ['PANICMODE1', 'PANICMODE2'],
-      attendees: [
-        {
-          avatar_url: 'https://placekitten.com/640/640',
-          name: "You kitten me?",
-          joined_at: +new Date,
-        },
-        {
-          avatar_url: 'https://placekitten.com/640/640',
-          name: "This is a catastrophe.",
-          joined_at: +new Date,
-        },
-      ]
+      attendees: [user, user]
     },
     {
       id: 'PANICMODE5',
       title: 'nobody likes me',
       created_at: +new Date - 1000 * 60,
-      user: {
-        avatar_url: 'https://placekitten.com/640/640',
-        name: 'You',
-      },
+      user: user,
       invitees: ['PANICMODE1', 'PANICMODE3'],
-      attendees: [],
+      attendees: [user, user],
     }
   ],
 
@@ -94,6 +81,7 @@ module.exports = {
       id: 'PANICMODE1',
       float_id: 'PANICMODE1',
       members: ['PANICMODE1', 'PANICMODE2', 'PANICMODE5'],
+      users: [user, user, user],
       message: {
         id: 2,
         type: 'new_message',
@@ -110,6 +98,7 @@ module.exports = {
       id: 'PANICMODE3',
       float_id: 'PANICMODE1',
       members: ['PANICMODE3', 'PANICMODE5'],
+      users: [user, user, user],
       message: {
         id: 2,
         type: 'new_message',
@@ -126,6 +115,7 @@ module.exports = {
       id: 'PANICMODE4',
       float_id: 'PANICMODE4',
       members: ['PANICMODE3', 'PANICMODE5'],
+      users: [user, user],
       message: {
         id: 2,
         type: 'new_message',
