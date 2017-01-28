@@ -12,7 +12,7 @@ const WebSocket = require('ws');
 
 describe("messages", function () {
   let serverHandle, fakebookHandle, stub;
-  let convo, message;
+  let convo, message, float;
   this.slow(1000);
 
   before(function() {
@@ -26,6 +26,7 @@ describe("messages", function () {
     }
     convo   = null;
     message = null;
+    float   = null;
   })
   after(function() {
     serverHandle();
@@ -36,25 +37,40 @@ describe("messages", function () {
   describe("creating conversations", function() {
     it("validates stuff");
 
-    it("201s on successful conversation creation", function() {
-      let float;
-      return factory.float().then(function(f) {
-        float = f;
-        return f.users[0].api.post(`/floats/${f.id}/convos`, {
-          body: {
-            members: [f.user.id],
-          }
-        })
-      }).then(function(response) {
-        expect(response.statusCode).toEqual(201);
-        expect(response.body.id).toExist();
-      });
-    });
-
     it("sets names on convo");
 
     it("informs users of new conversation via websocket");
+
+    it("automatically creates conversation when a float is created", function () {
+      return factory.float({title: 'Lawng'}).then(f => {
+        this.float = f;
+        return f.users[0].api.get(`/floats`)
+      }).then(response => {
+        expect(response.statusCode).toEqual(200);
+        expect(response.body.floats.length).toEqual(1);
+        const float = response.body.floats[0];
+        expect(float.attending).toEqual(true);
+        return this.float.users[0].api.get(`/convos`)
+      }).then(response => {
+        expect(response.body.convos.length).toEqual(1, `Expected exactly one convo in ${JSON.stringify(response.body)}`);
+        expect(response.body.convos[0].message).toExist(`Expected a message in ${JSON.stringify(response.body)}`);
+        expect(response.body.convos[0].message.text).toEqual('Lawng');
+      })
+    });
+
+    it("automatically creates group conversation when a float is created", function() {
+      return factory.float({title: 'Orgy?', invitees: [null, null, null]}).then(f => {
+        float = f;
+        return f.user.api.get('/convos')
+      }).then(response => {
+        expect(response.body.convos.length).toBeGreaterThan(0, `Expected at least one convo in ${JSON.stringify(response.body)}`);
+        const convo = response.body.convos[0];
+      })
+    });
+
+    it("automatically creates solo conversations for group when float is created");
   });
+
   describe("retrieving conversations", function() {
     it("checks auth");
 
@@ -168,6 +184,8 @@ describe("messages", function () {
       });
     });
 
+    it("delivers group messages");
+
     it("delivers messages via websocket", function(done) {
       factory.convo().then(function(c) {
         const ws = new WebSocket(`ws://localhost:4200/?access_token=${c.float.users[0].access_token}`);
@@ -208,15 +226,7 @@ describe("messages", function () {
 
     it("supports to");
 
-    it("returns empty messages", function () {
-      return factory.convo().then(function(c) {
-        convo = c;
-        return convo.float.user.api.get(`/floats/${convo.float.id}/convos/${convo.id}/messages`)
-      }).then(function(response) {
-        expect(response.statusCode).toEqual(200);
-        expect(response.body.messages.length).toEqual(0);
-      })
-    });
+    it("returns empty messages for group");
 
     it("returns last 20 messages by default", function() {
       return factory.convo().then(function(c) {
@@ -228,7 +238,7 @@ describe("messages", function () {
         expect(response.statusCode).toEqual(200);
         let messages = response.body.messages;
         expect(messages).toExist(`Expected messages key in ${JSON.stringify(response.body)}`);
-        expect(messages.length).toEqual(1, `Expected exactly one message in ${JSON.stringify(response.body)}`);
+        expect(messages.length).toEqual(2, `Expected exactly two messages in ${JSON.stringify(response.body)}`);
         expect(messages[0].text).toEqual('where ya ass was at');
       });
     });

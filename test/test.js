@@ -436,121 +436,9 @@ describe("floats api", function () {
         expect(f.user.avatar_url).toEqual(u0.avatar_url);
         expect(f.user.name).toEqual(u0.name);
         expect(f.attendees).toExist();
-        expect(f.attendees.length).toEqual(0);
+        expect(f.attendees.length).toEqual(1);
       })
     })
-  })
-
-  describe("joining floats", function() {
-    it("400s if float is not found", function() {
-      return factory.user().then(function(user) {
-        return user.api.post(`/floats/nope/join`, {
-          headers: {'X-Stub-Url': 'http://localhost:4202'}
-        })
-      }).then(h.shouldFail).catch(function(err) {
-        expect(err.statusCode).toEqual(400);
-        expect(err.response.body.debug).toEqual("Float not found");
-      })
-    });
-
-    it("allows joining a float", function () {
-      let user, u0;
-      return factory.float().then(function(float) {
-        user = float.user;
-        u0 = float.users[0];
-        return u0.api.post(`/floats/${float.id}/join`)
-      }).then(function(response) {
-        expect(response.statusCode).toEqual(204);
-        return u0.api.get('/floats')
-      }).then(function(response) {
-        const float = response.body.floats[0];
-        expect(float.attending).toEqual(true, `Expected attending true in ${float}`);
-        return user.api.get('/floats/mine')
-      }).then(function(response) {
-        const attendees = response.body.floats[0].attendees;
-        expect(attendees.length).toEqual(1, `Expected exactly 1 attendee in ${JSON.stringify(attendees)}`);
-        expect(attendees[0].name).toEqual(u0.name);
-        expect(attendees[0].avatar_url).toEqual(u0.avatar_url);
-        expect(attendees[0].id).toEqual(u0.id);
-      })
-    });
-
-    it("sends a notification to the float creator", function() {
-      let creator, user;
-      return Promise.all([
-        factory.user({name: 'Cliff Coyote', firebase_token: 'lawng'}),
-        factory.user({name: 'Frank Ferret'}),
-      ]).then(function(values) {
-        creator = values[0];
-        user    = values[1];
-        return factory.float({user: creator, invitees: [user]})
-      }).then(function(float) {
-        return float.users[0].api.post(`/floats/${float.id}/join`);
-      }).then(function(response) {
-        expect(stub.calls.length).toBeGreaterThan(0, `Expected notification stub to have been called`);
-        expect(stub.calls[0].url).toEqual('/fcm/send');
-        expect(stub.calls[0].body).toExist();
-        const notification = stub.calls[0].body;
-        expect(notification.priority).toEqual('high');
-        expect(notification.notification.body).toEqual('Frank Ferret would.');
-        expect(notification.to).toExist(`Expected to key in ${JSON.stringify(notification)}`);
-        expect(notification.to).toEqual('lawng');
-      });
-    });
-
-    it("creates a convo", function () {
-      let creator, user;
-      return Promise.all([
-        factory.user({name: 'Cliff Coyote', firebase_token: 'lawng'}),
-        factory.user({name: 'Frank Ferret'}),
-      ]).then(function(values) {
-        creator = values[0];
-        user    = values[1];
-        return factory.float({user: creator, invitees: [user]})
-      }).then(function(f) {
-        float = f;
-        return float.users[0].api.post(`/floats/${float.id}/join`);
-      }).then(function() {
-        return float.users[0].api.get('/convos')
-      }).then(function(response) {
-        const convos = response.body.convos;
-        expect(convos.length).toEqual(1, `Expected exactly one convo in ${JSON.stringify(convos)}`);
-        expect(convos[0].float_id).toEqual(float.id);
-        expect(convos[0].members).toContain(float.user.id);
-        expect(convos[0].members).toContain(float.users[0].id);
-        expect(convos[0].users).toExist();
-        expect(convos[0].users.length).toEqual(2);
-        expect(convos[0].users[0].id).toEqual(float.user.id);
-        expect(convos[0].users[0].name).toEqual(float.user.name);
-        expect(convos[0].users[1].id).toEqual(float.users[0].id);
-        return float.user.api.get('/convos');
-      }).then(function(response) {
-        const convos = response.body.convos;
-        expect(convos.length).toEqual(1, `Expected exactly one convo in ${JSON.stringify(convos)}`);
-        expect(convos[0].float_id).toEqual(float.id);
-        expect(convos[0].members).toContain(float.user.id);
-        expect(convos[0].members).toContain(float.users[0].id);
-      })
-    });
-
-    it("409s if they've already joined", function() {
-      let user, float;
-
-      return factory.float().then(function(f) {
-        float = f;
-        user = float.users[0];
-        return user.api.post(`/floats/${float.id}/join`, {
-          headers: {'X-Stub-Url': 'http://localhost:4202'}
-        })
-      }).then(function(response) {
-        expect(response.statusCode).toEqual(204);
-        return user.api.post(`/floats/${float.id}/join`, {
-          headers: {'X-Stub-Url': 'http://localhost:4202'}
-        })
-      }).then(h.shouldFail).catch(function(err) {
-        expect(err.statusCode).toEqual(409);
-      });
-    });
   })
 
   describe("leaving floats", function() {
@@ -564,8 +452,6 @@ describe("floats api", function () {
         float = f;
         user = float.user;
         u0 = float.users[0];
-        return u0.api.post(`/floats/${float.id}/join`)
-      }).then(function() {
         return u0.api.delete(`/floats/${float.id}/leave`);
       }).then(function(response) {
         expect(response.statusCode).toEqual(204);
@@ -581,8 +467,6 @@ describe("floats api", function () {
         float = f;
         user = float.user;
         u0 = float.users[0];
-        return u0.api.post(`/floats/${float.id}/join`)
-      }).then(function() {
         return u0.api.delete(`/floats/${float.id}/leave`);
       }).then(function(response) {
         return u0.api.get('/convos');

@@ -10,6 +10,7 @@ const db = {
   users:   require('../db/users'),
   convos:  require('../db/convos'),
   friends: require('../db/friends'),
+  messages: require('../db/messages'),
 }
 const _       = require('lodash');
 
@@ -17,7 +18,6 @@ module.exports = function(app) {
   app.post('/floats', auth, create);
   app.get('/floats/mine', auth, mine);
   app.get('/floats', auth, all);
-  app.post('/floats/:id/join', auth, join);
   app.delete('/floats/:id/leave', auth, leave);
   app.delete('/floats/:id', auth, destroy);
 }
@@ -38,7 +38,7 @@ function create(req, res, next) {
     return res.status(400).json({message: 'Your title is too long. It can only contain 140 characters.'});
   }
 
-  let user, recipients;
+  let user, recipients, float;
   user = req.user;
   return db.friends.all(req.userId).then(function(friends) {
     recipients = friends.filter(function(f) {
@@ -54,9 +54,48 @@ function create(req, res, next) {
       user_id: req.userId,
       title: req.body.title,
       invitees: recipients.map(function(r) { return r.id }),
+      attendees: recipients.map((r) => { return _.pick(r, 'id', 'name', 'username', 'avatar_url')}),
       user: _.pick(user, 'id', 'name', 'username', 'avatar_url'),
     })
-  }).then(function(float) {
+  }).then(function(f) {
+    float = f;
+    const isGroupFloat = recipients.length > 1;
+
+    const promises = recipients.map(function(r) {
+      let convo;
+      return db.convos.create(float.id, r.id, [req.userId], [req.user, r]).then(function(c) {
+        convo = c;
+        if( isGroupFloat ) { return true; }
+        return db.messages.create(
+          float.id,
+          c.id,
+          req.userId,
+          float.title
+        )
+      }).then(function(m) {
+        if( isGroupFloat ) { return true; }
+        return db.convos.setLastMessage(float.id, convo.id, m);
+      });
+    })
+
+    const ids = _.map(recipients, 'id');
+
+    if( isGroupFloat ) {
+      promises.push(
+        db.convos.create(float.id, req.userId, ids, [req.user].concat(recipients)).then(function(c) {
+          return db.messages.create(
+            float.id,
+            c.id,
+            req.userId,
+            float.title
+          ).then(function(m) {
+            return db.convos.setLastMessage(float.id, c.id, m);
+          })
+        })
+      )
+    }
+    return Promise.all(promises);
+  }).then(function() {
     const promises = recipients.map(function(r) {
       return notify.firebase(r.firebase_token, `${user.name} floated "${req.body.title}"`);
     })
@@ -112,37 +151,6 @@ function leave(req, res, next) {
   }).then(function() {
     res.sendStatus(204);
   }).catch(next);
-}
-
-function join(req, res, next) {
-  if( process.env.PANIC_MODE ) { return res.sendStatus(204); }
-
-  let float, creator, u;
-  return db.floats.get(req.params.id).then(function(f) {
-    float = f;
-    return db.floats.join(float.id, req.userId)
-  }).then(function() {
-    return db.users.get(float.user.id);
-  }).then(function(user) {
-    u = user;
-    return db.convos.create(float.id, req.userId, [float.user.id], [u, req.user]);
-  }).then(function() {
-    creator = u;
-    const message = `${req.user.name} would.`;
-
-    if( req.body.silent ) { return res.sendStatus(204); }
-    return notify.firebase(creator.firebase_token, message).then(function() {
-      res.sendStatus(204);
-    });
-  }).catch(function(err) {
-    if( err.name == 'FloatNotFound' ) {
-      return res.status(400).json({message: err.message, debug: 'Float not found', id: req.params.id})
-    }
-    if( err.name == 'DuplicateJoinError' ) {
-      return res.status(409).json({message: "Oops, you've already joined this float."});
-    }
-    next(err);
-  });
 }
 
 function destroy(req, res, next) {
