@@ -380,9 +380,6 @@ describe("floats api", function () {
           body: {
             invitees: [cam.id, kevin.id],
             title: 'Go to maracuja'
-          },
-          headers: {
-            'X-Stub-Url': 'http://localhost:4202'
           }
         })
       }).then(function(response) {
