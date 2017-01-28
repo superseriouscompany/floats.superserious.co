@@ -8,13 +8,12 @@ const api            = require('./api');
 const server         = require('../index');
 
 describe("api", function() {
-  let serverHandle, fakebookHandle, stub;
+  let serverHandle, fakebookHandle;
   this.slow(1000);
 
   before(function() {
     serverHandle   = server(4200);
     fakebookHandle = fakebook(4201);
-    stub           = tinystub(4202);
   })
   afterEach(function() {
     if( process.env.LIVE ) { return; }
@@ -28,10 +27,9 @@ describe("api", function() {
   after(function() {
     serverHandle();
     fakebookHandle();
-    stub();
   })
 
   require("fs").readdirSync(normalizedPath).forEach(function(file) {
-    require("./api/" + file)(stub);
+    require("./api/" + file)();
   });
 })

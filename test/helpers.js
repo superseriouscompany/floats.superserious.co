@@ -1,7 +1,10 @@
 'use strict';
 
+const request  = require('request-promise');
+
 module.exports = {
-  shouldFail: shouldFail
+  shouldFail: shouldFail,
+  clearStub:  clearStub,
 }
 
 function shouldFail(r) {
@@ -16,4 +19,10 @@ function shouldFail(r) {
   }
   err.name = 'ShouldHaveFailed';
   throw err;
+}
+
+function clearStub() {
+  return request('http://localhost:4202', {
+    method: 'DELETE'
+  })
 }
