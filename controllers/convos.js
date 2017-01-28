@@ -42,9 +42,6 @@ function all(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.status(200).json({convos: panic.convos}); }
 
   return db.convos.findByMemberId(req.userId).then(function(convos) {
-    convos = convos.map(function(convo) {
-      return convo;
-    })
     return res.status(200).json({convos: convos});
   }).catch(next);
 }
