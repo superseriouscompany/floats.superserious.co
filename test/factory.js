@@ -76,13 +76,9 @@ const factory = {
     let float;
     return factory.float().then(function(f) {
       float = f;
-      return f.users[0].api.post(`/floats/${f.id}/convos`, {
-        body: {
-          members: [f.user.id],
-        }
-      })
+      return f.users[0].api.get(`/convos`)
     }).then(function(response) {
-      let convo = response.body;
+      let convo = response.body.convos[0];
       convo.float = float;
       return convo;
     });
