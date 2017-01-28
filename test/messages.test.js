@@ -37,21 +37,6 @@ describe("messages", function () {
   describe("creating conversations", function() {
     it("validates stuff");
 
-    it("201s on successful conversation creation", function() {
-      let float;
-      return factory.float().then(function(f) {
-        float = f;
-        return f.users[0].api.post(`/floats/${f.id}/convos`, {
-          body: {
-            members: [f.user.id],
-          }
-        })
-      }).then(function(response) {
-        expect(response.statusCode).toEqual(201);
-        expect(response.body.id).toExist();
-      });
-    });
-
     it("sets names on convo");
 
     it("informs users of new conversation via websocket");
