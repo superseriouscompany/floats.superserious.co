@@ -226,15 +226,7 @@ describe("messages", function () {
 
     it("supports to");
 
-    it("returns empty messages", function () {
-      return factory.convo().then(function(c) {
-        convo = c;
-        return convo.float.user.api.get(`/floats/${convo.float.id}/convos/${convo.id}/messages`)
-      }).then(function(response) {
-        expect(response.statusCode).toEqual(200);
-        expect(response.body.messages.length).toEqual(0);
-      })
-    });
+    it("returns empty messages for group");
 
     it("returns last 20 messages by default", function() {
       return factory.convo().then(function(c) {
@@ -246,7 +238,7 @@ describe("messages", function () {
         expect(response.statusCode).toEqual(200);
         let messages = response.body.messages;
         expect(messages).toExist(`Expected messages key in ${JSON.stringify(response.body)}`);
-        expect(messages.length).toEqual(1, `Expected exactly one message in ${JSON.stringify(response.body)}`);
+        expect(messages.length).toEqual(2, `Expected exactly two messages in ${JSON.stringify(response.body)}`);
         expect(messages[0].text).toEqual('where ya ass was at');
       });
     });
