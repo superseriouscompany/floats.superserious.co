@@ -1,47 +1,13 @@
 'use strict';
 
 const expect   = require('expect');
-const request  = require('request-promise');
 const tinystub = require('tinystub');
-const fakebook = require('./fakebook');
-const factory  = require('./factory');
-const api      = require('./api');
-const h        = require('./helpers');
-const server   = require('../index');
+const factory  = require('../factory');
+const h        = require('../helpers');
+const api      = require('../api');
 
-describe("floats api", function () {
-  let serverHandle, fakebookHandle, stub;
-
-  let float, user;
-  this.slow(1000);
-
-  before(function() {
-    serverHandle   = server(4200);
-    fakebookHandle = fakebook(4201);
-    stub           = tinystub(4202);
-  })
-  afterEach(function() {
-    float = null;
-    user  = null;
-    if( process.env.LIVE ) { return; }
-
-    return api.delete('/flush').then(function() {
-      return request('http://localhost:4202', {
-        method: 'DELETE'
-      })
-    });
-  })
-  after(function() {
-    serverHandle();
-    fakebookHandle();
-    stub();
-  })
-
-  it("provides healthcheck", function () {
-    return api('/').then(function(response) {
-      expect(response.body.cool).toEqual("nice", `Unexpected healthcheck result ${JSON.stringify(response.body)}`)
-    })
-  });
+module.exports = function() { describe("/friends", function() {
+  let user, u0;
 
   describe("making friends", function() {
     it("pulls all people on the app in reverse cron order of when they joined");
@@ -56,7 +22,7 @@ describe("floats api", function () {
     it("allows removing friends");
 
     it("gets nearby friends within a 10km radius", function () {
-      let u0, u1, u2, user, accessToken;
+      let u1, u2;
 
       return Promise.all([
         factory.user(),
@@ -101,4 +67,4 @@ describe("floats api", function () {
       })
     });
   });
-});
+})}
