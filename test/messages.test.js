@@ -12,7 +12,7 @@ const WebSocket = require('ws');
 
 describe("messages", function () {
   let serverHandle, fakebookHandle, stub;
-  let convo, message;
+  let convo, message, float;
   this.slow(1000);
 
   before(function() {
@@ -26,6 +26,7 @@ describe("messages", function () {
     }
     convo   = null;
     message = null;
+    float   = null;
   })
   after(function() {
     serverHandle();
@@ -66,14 +67,23 @@ describe("messages", function () {
         expect(float.attending).toEqual(true);
         return this.float.users[0].api.get(`/convos`)
       }).then(response => {
-        expect(response.body.convos.length).toEqual(1);
-        expect(response.body.convos[0].message).toExist();
+        expect(response.body.convos.length).toEqual(1, `Expected exactly one convo in ${JSON.stringify(response.body)}`);
+        expect(response.body.convos[0].message).toExist(`Expected a message in ${JSON.stringify(response.body)}`);
         expect(response.body.convos[0].message.text).toEqual('Lawng');
       })
     });
 
-    // waiting on better float factory
-    it("automatically creates group conversation when a float is created");
+    it("automatically creates group conversation when a float is created", function() {
+      return factory.float({title: 'Orgy?', invitees: [null, null, null]}).then(f => {
+        float = f;
+        return f.user.api.get('/convos')
+      }).then(response => {
+        expect(response.body.convos.length).toBeGreaterThan(0, `Expected at least one convo in ${JSON.stringify(response.body)}`);
+        const convo = response.body.convos[0];
+      })
+    });
+
+    it("automatically creates solo conversations for group when float is created");
   });
 
   describe("retrieving conversations", function() {
@@ -187,6 +197,10 @@ describe("messages", function () {
         expect(notification.notification.body).toEqual('Sau Pow: Hello world');
         expect(notification.to).toEqual('recipient', `Expected to recipient in ${JSON.stringify(notification)}`);
       });
+    });
+
+    it("delivers group messages", function() {
+      throw new Error('nope');
     });
 
     it("delivers messages via websocket", function(done) {

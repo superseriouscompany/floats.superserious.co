@@ -56,13 +56,6 @@ function all(req, res, next) {
 
   return db.convos.findByMemberId(req.userId).then(function(convos) {
     convos = convos.map(function(convo) {
-      if( !convo.message ) {
-        convo.message = {
-          text: '',
-          user: _.pick(req.user, 'avatar_url', 'name', 'id'),
-          created_at: convo.created_at,
-        }
-      }
       return convo;
     })
     return res.status(200).json({convos: convos});

@@ -58,11 +58,14 @@ function create(req, res, next) {
       attendees: recipients.map((r) => { return _.pick(r, 'id', 'name', 'username', 'avatar_url')}),
       user: _.pick(user, 'id', 'name', 'username', 'avatar_url'),
     })
-  }).then(function() {
+  }).then(function(float) {
+    const isGroupFloat = recipients.length > 1;
+
     const promises = recipients.map(function(r) {
       let convo;
       return db.convos.create(float.id, r.id, [req.userId], [req.user, r]).then(function(c) {
         convo = c;
+        if( isGroupFloat ) { return true; }
         return db.messages.create(
           float.id,
           c.id,
@@ -70,13 +73,14 @@ function create(req, res, next) {
           float.title
         )
       }).then(function(m) {
+        if( isGroupFloat ) { return true; }
         return db.convos.setLastMessage(float.id, convo.id, m);
       });
     })
 
     const ids = _.map(recipients, 'id');
 
-    if( recipients.length > 1 ) {
+    if( isGroupFloat ) {
       promises.push(
         db.convos.create(float.id, req.userId, ids, [req.user].concat(recipients)).then(function(c) {
           return db.messages.create(
