@@ -72,9 +72,11 @@ function create(user, title, inviteeIds) {
     }
     return Promise.all(promises);
   }).then(() => {
-    return {
-      float: float,
-      recipients: recipients,
-    }
+    Object.defineProperty(float, 'recipients', {
+      enumerable: false,
+      writable: false,
+      value: recipients
+    })
+    return float;
   })
 }

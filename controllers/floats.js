@@ -39,13 +39,13 @@ function create(req, res, next) {
     return res.status(400).json({message: 'Your title is too long. It can only contain 140 characters.'});
   }
 
-  return models.floats.create(req.user, req.body.title, req.body.invitees).then((x) => {
-    const promises = x.recipients.map(function(r) {
+  return models.floats.create(req.user, req.body.title, req.body.invitees).then((float) => {
+    const promises = float.recipients.map(function(r) {
       return notify.firebase(r.firebase_token, `${req.user.name} floated "${req.body.title}"`);
     })
 
     return Promise.all(promises).then(function() {
-      return res.status(201).json(x.float);
+      return res.status(201).json(float);
     })
   }).catch(function(err) {
     if( err.name == 'InvalidFriends' ) {
