@@ -184,9 +184,7 @@ describe("messages", function () {
       });
     });
 
-    it("delivers group messages", function() {
-      throw new Error('nope');
-    });
+    it("delivers group messages");
 
     it("delivers messages via websocket", function(done) {
       factory.convo().then(function(c) {
