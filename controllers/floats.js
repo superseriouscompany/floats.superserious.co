@@ -55,15 +55,9 @@ function create(req, res, next) {
       user_id: req.userId,
       title: req.body.title,
       invitees: recipients.map(function(r) { return r.id }),
+      attendees: recipients.map((r) => { return _.pick(r, 'id', 'name', 'username', 'avatar_url')}),
       user: _.pick(user, 'id', 'name', 'username', 'avatar_url'),
     })
-  }).then(function(f) {
-    float = f;
-    const promises = recipients.map(function(r) {
-      return db.floats.join(float.id, r.id);
-    })
-
-    return Promise.all(promises);
   }).then(function() {
     const promises = recipients.map(function(r) {
       let convo;
