@@ -5,12 +5,13 @@ const panic   = require('../services/panic');
 const log     = require('../services/log');
 const notify  = require('../services/notify');
 const error   = require('../services/error');
+const models = {
+  floats: require('../models/floats'),
+}
 const db = {
   floats:  require('../db/floats'),
   users:   require('../db/users'),
   convos:  require('../db/convos'),
-  friends: require('../db/friends'),
-  messages: require('../db/messages'),
 }
 const _       = require('lodash');
 
@@ -38,70 +39,13 @@ function create(req, res, next) {
     return res.status(400).json({message: 'Your title is too long. It can only contain 140 characters.'});
   }
 
-  let user, recipients, float;
-  user = req.user;
-  return db.friends.all(req.userId).then(function(friends) {
-    recipients = friends.filter(function(f) {
-      return req.body.invitees.indexOf(f.id) !== -1;
-    });
-    if( recipients.length < req.body.invitees.length ) {
-      const badIds = _.differenceWith(req.body.invitees, recipients, function(a, b) {
-        return a == b.id;
-      })
-      throw error('Invalid invitees: not friends', {name: 'InvalidFriends', ids: badIds});
-    }
-    return db.floats.create({
-      user_id: req.userId,
-      title: req.body.title,
-      invitees: recipients.map(function(r) { return r.id }),
-      attendees: recipients.map((r) => { return _.pick(r, 'id', 'name', 'username', 'avatar_url')}),
-      user: _.pick(user, 'id', 'name', 'username', 'avatar_url'),
-    })
-  }).then(function(f) {
-    float = f;
-    const isGroupFloat = recipients.length > 1;
-
-    const promises = recipients.map(function(r) {
-      let convo;
-      return db.convos.create(float.id, r.id, [req.userId], [req.user, r]).then(function(c) {
-        convo = c;
-        if( isGroupFloat ) { return true; }
-        return db.messages.create(
-          float.id,
-          c.id,
-          req.userId,
-          float.title
-        )
-      }).then(function(m) {
-        if( isGroupFloat ) { return true; }
-        return db.convos.setLastMessage(float.id, convo.id, m);
-      });
-    })
-
-    const ids = _.map(recipients, 'id');
-
-    if( isGroupFloat ) {
-      promises.push(
-        db.convos.create(float.id, req.userId, ids, [req.user].concat(recipients)).then(function(c) {
-          return db.messages.create(
-            float.id,
-            c.id,
-            req.userId,
-            float.title
-          ).then(function(m) {
-            return db.convos.setLastMessage(float.id, c.id, m);
-          })
-        })
-      )
-    }
-    return Promise.all(promises);
-  }).then(function() {
-    const promises = recipients.map(function(r) {
-      return notify.firebase(r.firebase_token, `${user.name} floated "${req.body.title}"`);
+  return models.floats.create(req.user, req.body.title, req.body.invitees).then((x) => {
+    const promises = x.recipients.map(function(r) {
+      return notify.firebase(r.firebase_token, `${req.user.name} floated "${req.body.title}"`);
     })
 
     return Promise.all(promises).then(function() {
-      return res.status(201).json(float);
+      return res.status(201).json(x.float);
     })
   }).catch(function(err) {
     if( err.name == 'InvalidFriends' ) {
