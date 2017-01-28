@@ -1,6 +1,7 @@
 'use strict';
 
 const request = require('request-promise');
+const _       = require('lodash');
 const api     = require('./api');
 
 const fakebook = request.defaults({
@@ -43,24 +44,30 @@ const factory = {
   },
 
   float: function(body) {
-    body = Object.assign({title: 'Surf?', invitees: []}, body);
+    body = Object.assign({title: 'Surf?', user: null, invitees: [null]}, body);
 
-    let friendship;
-    return factory.friendship(body.user, body.invitees[0]).then(function(fp) {
-      friendship = fp;
-      return friendship.u0.api.post('/floats', {
+    let user, users;
+    return Promise.resolve().then(() => {
+      return body.user || factory.user()
+    }).then((u) => {
+      user = u;
+      const promises = body.invitees.map((invitee) => {
+        return factory.friendship(this.user, invitee);
+      })
+      return Promise.all(promises);
+    }).then((v) => {
+      const ids   = _.map(v, 'u1.id');
+      users  = _.map(v, 'u1');
+      return user.api.post('/floats', {
         body: {
-          invitees: [friendship.u1.id],
-          title: body.title
-        },
-        headers: {
-          'X-Stub-Url': 'http://localhost:4202'
+          invitees: ids,
+          title: body.title,
         }
       })
-    }).then(function(response) {
+    }).then((response) => {
       let float = response.body;
-      float.users = [friendship.u1];
-      float.user = friendship.u0;
+      float.users = users;
+      float.user = user;
       return float;
     })
   },
