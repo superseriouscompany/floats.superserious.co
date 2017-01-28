@@ -1,36 +1,28 @@
 'use strict';
 
 const expect    = require('expect');
-const request   = require('request-promise');
 const tinystub  = require('tinystub');
-const fakebook  = require('./fakebook');
-const factory   = require('./factory');
-const api       = require('./api');
-const h         = require('./helpers');
-const server    = require('../index');
+const factory   = require('../factory');
+const api       = require('../api');
+const h         = require('../helpers');
 const WebSocket = require('ws');
 
-describe("messages", function () {
+module.exports = function() { describe("/messages", function() {
   let serverHandle, fakebookHandle, stub;
   let convo, message, float;
-  this.slow(1000);
 
   before(function() {
-    serverHandle   = server(4200);
-    fakebookHandle = fakebook(4201);
-    stub           = tinystub(4202);
+    stub = tinystub(4202);
   })
+
   afterEach(function() {
-    if( !process.env.LIVE ) {
-      return api.delete('/flush')
-    }
     convo   = null;
     message = null;
     float   = null;
+    return h.clearStub();
   })
+
   after(function() {
-    serverHandle();
-    fakebookHandle();
     stub();
   })
 
@@ -101,6 +93,7 @@ describe("messages", function () {
 
     it("sets created_at on fake message if it exists");
   })
+
   describe("deleting conversations", function() {
     it("validates stuff");
 
@@ -116,6 +109,7 @@ describe("messages", function () {
 
     it("removes conversation from list");
   });
+
   describe("leaving conversations", function() {
     it("validates stuff");
 
@@ -131,6 +125,7 @@ describe("messages", function () {
 
     it("does not delete conversation if there are more participants");
   })
+
   describe("merging conversations", function() {
     it("validates stuff");
 
@@ -140,6 +135,7 @@ describe("messages", function () {
 
     it("returns an error code when trying to send a message to previous convos");
   });
+
   describe("sending messages", function () {
     it("validates stuff");
 
@@ -262,4 +258,4 @@ describe("messages", function () {
   it("doesn't lose messages if client disconnects");
 
   it("doesn't lose messages if server disconnects");
-})
+})}
