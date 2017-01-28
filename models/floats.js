@@ -39,35 +39,14 @@ function create(user, title, inviteeIds) {
 
     const promises = recipients.map(function(r) {
       let convo;
-      return db.convos.create(float.id, r.id, [user.id], [user, r]).then(function(c) {
-        convo = c;
-        if( isGroupFloat ) { return true; }
-        return db.messages.create(
-          float.id,
-          c.id,
-          user.id,
-          float.title
-        )
-      }).then(function(m) {
-        if( isGroupFloat ) { return true; }
-        return db.convos.setLastMessage(float.id, convo.id, m);
-      });
+      return db.convos.create(float.id, r.id, [user.id], [user, r])
     })
 
-    const ids = _.map(recipients, 'id');
 
     if( isGroupFloat ) {
+      const ids = _.map(recipients, 'id');
       promises.push(
-        db.convos.create(float.id, user.id, ids, [user].concat(recipients)).then(function(c) {
-          return db.messages.create(
-            float.id,
-            c.id,
-            user.id,
-            float.title
-          ).then(function(m) {
-            return db.convos.setLastMessage(float.id, c.id, m);
-          })
-        })
+        db.convos.create(float.id, user.id, ids, [user].concat(recipients))
       )
     }
     return Promise.all(promises);
