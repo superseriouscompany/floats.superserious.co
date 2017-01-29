@@ -19,7 +19,8 @@ api.use(bodyParser.json());
 api.disable('etag');
 
 // healthcheck
-api.get('/', function(req, res) { res.json({cool: 'nice'}); })
+api.get('/', function(req, res) { res.json({cool: 'nice'}); });
+api.get('/kill/:platform/:version', function(req, res) { return res.sendStatus(404); });
 
 // api routes
 const normalizedPath = require("path").join(__dirname, "controllers");
