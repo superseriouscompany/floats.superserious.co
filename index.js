@@ -19,7 +19,7 @@ api.use(bodyParser.json());
 api.disable('etag');
 
 // healthcheck
-api.get('/', function(req, res) { res.json({cool: 'nice'}); });
+api.get('/', function(req, res) { res.json({version: 'v1.1'}); });
 api.get('/kill/:platform/:version', function(req, res) { return res.sendStatus(404); });
 
 // api routes
@@ -33,8 +33,8 @@ api.use(function(err, req, res, next) {
   res.status(500).json({message: 'Something went wrong.'});
 })
 
-app.get('/', function(req, res) { res.redirect('/v1'); })
-app.use('/v1', api);
+app.get('/', function(req, res) { res.redirect('/v1.1'); })
+app.use('/v1.1', api);
 
 const server = socket.bind(app);
 if( process.env.NODE_ENV != 'production' && module.parent ) {
