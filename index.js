@@ -33,8 +33,7 @@ api.use(function(err, req, res, next) {
   res.status(500).json({message: 'Something went wrong.'});
 })
 
-app.get('/', function(req, res) { res.redirect('/v1.1'); })
-app.use('/v1.1', api);
+app.use('/', api);
 
 const server = socket.bind(app);
 if( process.env.NODE_ENV != 'production' && module.parent ) {
