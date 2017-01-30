@@ -45,7 +45,9 @@ function create(req, res, next) {
       if( userId == req.userId ) { return Promise.resolve(true); }
       return db.users.get(userId).then(function(u) {
         return notify.firebase(u.firebase_token, `${req.user.name}: ${req.body.text}`, {
+          type: 'messages:new',
           convoId: req.params.convoId,
+          message: message,
         });
       }).catch(function(err) {
         log.error({err: err, userId: userId}, 'Error finding member');
