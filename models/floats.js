@@ -1,6 +1,7 @@
 'use strict';
 
-const _ = require('lodash');
+const _     = require('lodash');
+const error = require('../services/error');
 const db = {
   floats:  require('../db/floats'),
   users:   require('../db/users'),
@@ -21,8 +22,8 @@ function create(user, title, inviteeIds) {
       return inviteeIds.indexOf(f.id) !== -1;
     });
     if( recipients.length < inviteeIds.length ) {
-      const badIds = _.differenceWith(inviteeIds, recipients, function(a, b) {
-        return a == b.id;
+      const badIds = _.differenceWith(recipients, inviteeIds, function(a, b) {
+        return a.id == b;
       })
       throw error('Invalid invitees: not friends', {name: 'InvalidFriends', ids: badIds});
     }

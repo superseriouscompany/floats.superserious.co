@@ -30,16 +30,23 @@ const factory = {
     u0 = u0 ? Promise.resolve(u0) : factory.user();
     u1 = u1 ? Promise.resolve(u1) : factory.user();
 
-    return Promise.all([u0, u1]).then(function(values) {
-      const u0 = values[0];
-      const u1 = values[1];
-
-      // TODO: send and accept friend request
-      return Promise.resolve({
-        key: u0 + '|' + u1,
+    return Promise.resolve().then(() => {
+      return u0 || factory.user()
+    }).then((u) => {
+      u0 = u;
+      return u1 || factory.user()
+    }).then((u) => {
+      u1 = u;
+      return factory.friendRequest({rando: u0, user: u1});
+    }).then(() => {
+      return u1.api.put(`/friend_requests/${u0.id}`)
+    }).then((response) => {
+      return u1.api.get('/friends');
+    }).then((response) => {
+      return {
         u0: u0,
         u1: u1,
-      })
+      }
     })
   },
 
@@ -52,7 +59,7 @@ const factory = {
     }).then((u) => {
       user = u;
       const promises = body.invitees.map((invitee) => {
-        return factory.friendship(this.user, invitee);
+        return factory.friendship(user, invitee);
       })
       return Promise.all(promises);
     }).then((v) => {
@@ -92,7 +99,22 @@ const factory = {
     }).then(function(response) {
       return response.body;
     })
-  }
+  },
+
+  friendRequest: function(body) {
+    body = body || {};
+    return Promise.resolve().then(() => {
+      return body.user || factory.user();
+    }).then((u) => {
+      body.user = u;
+      return body.rando || factory.user();
+    }).then((u) => {
+      body.rando = u;
+      return body.rando.api.post(`/friend_requests/${body.user.id}`)
+    }).then(() => {
+      return body;
+    })
+  },
 }
 
 module.exports = factory;

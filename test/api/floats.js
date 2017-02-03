@@ -138,6 +138,21 @@ module.exports = function() { describe("/floats", function() {
       })
     });
 
+    it("creates a float", function() {
+      return factory.friendship().then((f) => {
+        user = f.u0;
+        return user.api.post('/floats', {
+          body: {
+            invitees: [f.u1.id],
+            title: 'Test Float'
+          }
+        })
+      }).then((response) => {
+        expect(response.statusCode).toEqual(201);
+        expect(response.body.id).toExist();
+      })
+    })
+
     it("sends push notifications to all nearby friends", function() {
       let becca, cam, kevin;
       return Promise.all([
@@ -164,8 +179,6 @@ module.exports = function() { describe("/floats", function() {
           }
         })
       }).then(function(response) {
-        expect(response.statusCode).toEqual(201);
-        expect(response.body.id).toExist();
         expect(stub.calls.length).toEqual(2, `Expected 2 calls in ${JSON.stringify(stub.calls)}`);
         expect(stub.calls[0].url).toEqual('/fcm/send');
         expect(stub.calls[0].body).toExist();
