@@ -125,6 +125,12 @@ module.exports = function() { describe("/friends", function() {
         user = users[3];
 
         return Promise.all([
+          factory.friendship(user, u0),
+          factory.friendship(user, u1),
+          factory.friendship(user, u2),
+        ])
+      }).then(function() {
+        return Promise.all([
           u0.api.post('/pins', {
             // surfer's lodge
             body: { lat: 39.370423, lng: -9.328313 },

@@ -15,10 +15,10 @@ function all(userId) {
   })
 }
 
-function create(userId, rando) {
+function create(user, rando) {
   return Promise.resolve().then(function() {
-    friends[userId] = friends[userId] || []
-    friends[userId].unshift(rando);
+    friends[user.id] = friends[user.id] || []
+    friends[user.id].unshift(rando);
     return true;
   })
 }
