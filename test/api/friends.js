@@ -10,7 +10,13 @@ module.exports = function() { describe("/friends", function() {
   let user, u0;
 
   describe("making friends", function() {
-    it("pulls all people on the app in reverse cron order of when they joined");
+    it("pulls all people on the app in reverse cron order of when they joined", function() {
+      return Promise.all([
+        factory.user({name: ''}),
+        factory.user({name: ''}),
+        factory.user({name: ''}),
+      ])
+    });
     it("pulls your facebook friends");
     it("allows sending a friend request");
     it("allows canceling a sent request");

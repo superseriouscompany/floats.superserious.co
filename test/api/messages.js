@@ -45,8 +45,7 @@ module.exports = function() { describe("/messages", function() {
         return this.float.users[0].api.get(`/convos`)
       }).then(response => {
         expect(response.body.convos.length).toEqual(1, `Expected exactly one convo in ${JSON.stringify(response.body)}`);
-        expect(response.body.convos[0].message).toExist(`Expected a message in ${JSON.stringify(response.body)}`);
-        expect(response.body.convos[0].message.text).toEqual('Lawng');
+        expect(response.body.convos[0].message).toNotExist();
       })
     });
 
@@ -234,7 +233,7 @@ module.exports = function() { describe("/messages", function() {
         expect(response.statusCode).toEqual(200);
         let messages = response.body.messages;
         expect(messages).toExist(`Expected messages key in ${JSON.stringify(response.body)}`);
-        expect(messages.length).toEqual(2, `Expected exactly two messages in ${JSON.stringify(response.body)}`);
+        expect(messages.length).toEqual(1, `Expected exactly one message in ${JSON.stringify(response.body)}`);
         expect(messages[0].text).toEqual('where ya ass was at');
       });
     });

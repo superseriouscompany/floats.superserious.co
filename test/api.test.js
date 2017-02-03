@@ -26,7 +26,7 @@ describe("api", function() {
 
   it("provides healthcheck", function () {
     return api('/').then(function(response) {
-      expect(response.body.cool).toEqual("nice", `Unexpected healthcheck result ${JSON.stringify(response.body)}`);
+      expect(response.body.version).toEqual("v1.1", `Unexpected healthcheck result ${JSON.stringify(response.body)}`);
     }).catch(function(err) {
       if( err ) { console.error(err); process.exit(1); }
     })
