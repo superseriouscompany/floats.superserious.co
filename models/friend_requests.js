@@ -21,7 +21,6 @@ function create(rando, userId) {
   return db.friend_requests.find(userId, rando.id).then(() => {
     throw error('There is already a friend request', {name: 'Conflict'})
   }).catch((err) => {
-    console.log(err.name);
     if( err.name != 'FriendRequestNotFound' ) { throw err;}
     return true;
   }).then(() => {
@@ -34,11 +33,14 @@ function all(userId) {
 }
 
 function deny(userId, randoId) {
+  // TODO: block
   return db.friend_requests.destroy(userId, randoId);
 }
 
 function accept(userId, randoId) {
   return db.users.get(randoId).then((u) => {
     return models.friends.create(userId, u)
+  }).then(() => {
+    return db.friend_requests.destroy(userId, randoId);
   })
 }

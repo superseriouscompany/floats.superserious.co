@@ -112,6 +112,20 @@ module.exports = function() { describe("/friends", function() {
       })
     });
 
+    it("removes friend request from list of pending requests", function() {
+      return Promise.resolve().then(() => {
+        return factory.friendRequest()
+      }).then((fr) => {
+        user = fr.user;
+        u0 = fr.rando;
+        return user.api.put(`/friend_requests/${fr.rando.id}`)
+      }).then((response) => {
+        return user.api.get('/friend_requests')
+      }).then((response) => {
+        expect(response.body.friend_requests.length).toEqual(0, `Expected no remaining friend requests in ${JSON.stringify(response.body)}`);
+      })
+    })
+
     it("notifies the other person when you accept");
   })
 
