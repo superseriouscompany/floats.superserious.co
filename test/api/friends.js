@@ -10,13 +10,32 @@ module.exports = function() { describe("/friends", function() {
   let user, u0;
 
   describe("making friends", function() {
+    it("only returns whitelisted fields");
+
     it("pulls all people on the app in reverse cron order of when they joined", function() {
-      return Promise.all([
-        factory.user({name: ''}),
-        factory.user({name: ''}),
-        factory.user({name: ''}),
-      ])
+      return Promise.resolve().then(() => {
+        return factory.user({name: 'Neil'})
+      }).then((u) => {
+        user = u;
+        return factory.user({name: 'Kevin'})
+      }).then(() => {
+        return factory.user({name: 'Santi'})
+      }).then(() => {
+        return factory.user({name: 'Sauer'})
+      }).then(() => {
+        return user.api.get('/randos')
+      }).then((response) => {
+        expect(response.statusCode).toEqual(200);
+        expect(response.body.randos).toExist(`Expected randos in ${JSON.stringify(response.body)}`);
+        expect(response.body.randos.length).toEqual(3);
+        expect(response.body.randos[0].name).toEqual('Sauer');
+        expect(response.body.randos[1].name).toEqual('Santi');
+        expect(response.body.randos[2].name).toEqual('Kevin');
+        expect(response.body.randos[0].lat).toNotExist();
+        expect(response.body.randos[0].access_token).toNotExist();
+      })
     });
+
     it("pulls your facebook friends");
     it("allows sending a friend request");
     it("allows canceling a sent request");

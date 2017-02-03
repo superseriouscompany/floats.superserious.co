@@ -40,6 +40,10 @@ function all() {
   return Promise.resolve(_.values(users));
 }
 
+function allByCreatedAt() {
+  return Promise.resolve()
+}
+
 function update(id, user) {
   return new Promise(function(resolve, reject) {
     if( !id || !user ) { return reject(error('id or user is null', {name: 'InputError', id: id, user: user})); };
