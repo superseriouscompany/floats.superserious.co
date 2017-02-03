@@ -50,4 +50,6 @@ function approve(req, res, next) {
 
 function undo(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.sendStatus(204) }
+
+  return next(new Error('not implemented'))
 }
