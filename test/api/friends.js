@@ -57,7 +57,8 @@ module.exports = function() { describe("/friends", function() {
         expect(response.statusCode).toEqual(200);
         expect(response.body.friend_requests).toExist(`Expected to find friend_requests in ${JSON.stringify(response.body)}`);
         expect(response.body.friend_requests.length).toEqual(1, `Expected to find exactly one friend request in ${JSON.stringify(response.body)}`);
-        expect(response.body.friend_requests[0].id).toEqual(user.id);
+        expect(response.body.friend_requests[0].user.id).toEqual(user.id);
+        expect(response.body.friend_requests[0].user.access_token).toNotExist();
       })
     });
 

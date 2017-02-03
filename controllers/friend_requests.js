@@ -26,7 +26,11 @@ function create(req, res, next) {
 function all(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.json({friend_requests: panic.friendRequests}); }
 
-  next('not implemented');
+  return models.friend_requests.all(req.userId).then((requests) => {
+    return res.json({
+      friend_requests: requests
+    })
+  })
 }
 
 function approve(req, res, next) {
