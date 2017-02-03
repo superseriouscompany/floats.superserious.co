@@ -16,8 +16,8 @@ module.exports = {
   accept: accept,
 }
 
-function create(requester, userId) {
-  return db.friend_requests.create(_.pick(requester, 'name', 'avatar_url', 'id'), userId);
+function create(rando, userId) {
+  return db.friend_requests.create(_.pick(rando, 'name', 'avatar_url', 'id'), userId);
 }
 
 function all(userId) {

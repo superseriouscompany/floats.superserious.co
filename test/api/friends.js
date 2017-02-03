@@ -71,7 +71,7 @@ module.exports = function() { describe("/friends", function() {
         return factory.friendRequest()
       }).then((fr) => {
         user = fr.user;
-        return user.api.delete(`/friend_requests/${fr.requester.id}`)
+        return user.api.delete(`/friend_requests/${fr.rando.id}`)
       }).then((response) => {
         expect(response.statusCode).toEqual(204);
         return user.api.get('/friend_requests')
@@ -89,8 +89,8 @@ module.exports = function() { describe("/friends", function() {
         return factory.friendRequest()
       }).then((fr) => {
         user = fr.user;
-        u0 = fr.requester;
-        return user.api.put(`/friend_requests/${fr.requester.id}`)
+        u0 = fr.rando;
+        return user.api.put(`/friend_requests/${fr.rando.id}`)
       }).then((response) => {
         expect(response.statusCode).toEqual(204);
         return user.api.get('/friends')

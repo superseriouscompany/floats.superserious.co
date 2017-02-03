@@ -10,10 +10,10 @@ module.exports = {
 
 let friend_requests = {}
 
-function create(requester, userId) {
+function create(rando, userId) {
   return Promise.resolve().then(() => {
     friend_requests[userId] = friend_requests[userId] || [];
-    friend_requests[userId].unshift({created_at: +new Date, user: requester});
+    friend_requests[userId].unshift({created_at: +new Date, user: rando});
     return true;
   })
 }
