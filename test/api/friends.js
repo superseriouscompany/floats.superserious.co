@@ -36,7 +36,27 @@ module.exports = function() { describe("/friends", function() {
       })
     });
 
-    it("doesn't pull people you're friends with or have requested");
+    it("doesn't pull people you're friends with or have requested", function() {
+      let u1;
+      return Promise.all([
+        factory.user({name: 'Neil'}),
+        factory.user({name: 'Santi'}),
+        factory.user({name: 'Sauer'}),
+      ]).then((v) => {
+        user = v[0];
+        u0 = v[1];
+        u1 = v[2];
+
+        return Promise.all([
+          factory.friendship(user, u0),
+          factory.friendRequest({user: u1, rando: user}),
+        ])
+      }).then(() => {
+        return user.api.get('/randos')
+      }).then((response) => {
+        expect(response.body.randos.length).toEqual(0, `Expected no randos in ${JSON.stringify(response.body)}`);
+      })
+    });
 
     it("pulls your facebook friends");
 
@@ -60,6 +80,8 @@ module.exports = function() { describe("/friends", function() {
       })
     });
 
+    it("notifies the other person when you send a request");
+
     it("409s if you've already sent a friend request", function() {
       return factory.friendRequest().then((fr) => {
         return factory.friendRequest({rando: fr.rando, user: fr.user});
@@ -68,7 +90,7 @@ module.exports = function() { describe("/friends", function() {
       })
     });
 
-    it("409s if they've already sent a friend request");
+    it("201s and creates a friendship if they've already sent a friend request");
 
     it("409s if you're already friends");
 
