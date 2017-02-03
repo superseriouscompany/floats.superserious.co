@@ -7,20 +7,18 @@ const models = {
 };
 
 module.exports = function(app) {
-  app.post('/friend_requests', auth, create);
+  app.post('/friend_requests/:id', auth, create);
   app.put('/friend_requests/:id', auth, approve);
-  app.delete('/friend_requests/:id', auth, reject);
+  app.delete('/friend_requests/:id', auth, deny);
   app.get('/friend_requests', auth, all);
 }
 
 function create(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.status(201).json({id: 'PANICMODE'}); }
 
-  if( !req.body.id ) { return res.status(400).json({debug: '`id` is not present in json'}); }
-
-  return models.friend_requests.create(req.user, req.body.id).then(() => {
+  return models.friend_requests.create(req.user, req.params.id).then(() => {
     return res.sendStatus(201)
-  })
+  }).catch(next);
 }
 
 function all(req, res, next) {
@@ -30,7 +28,15 @@ function all(req, res, next) {
     return res.json({
       friend_requests: requests
     })
-  })
+  }).catch(next);
+}
+
+function deny(req, res, next) {
+  if( process.env.PANIC_MODE ) { return res.sendStatus(204); }
+
+  return models.friend_requests.deny(req.userId, req.params.id).then(() => {
+    return res.sendStatus(204);
+  }).catch(next);
 }
 
 function approve(req, res, next) {
@@ -41,10 +47,4 @@ function approve(req, res, next) {
 
 function undo(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.sendStatus(204) }
-}
-
-function reject(req, res, next) {
-  if( process.env.PANIC_MODE ) { return res.sendStatus(204); }
-
-  next('not implemented');
 }

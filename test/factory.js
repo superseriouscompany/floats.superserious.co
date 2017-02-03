@@ -92,7 +92,22 @@ const factory = {
     }).then(function(response) {
       return response.body;
     })
-  }
+  },
+
+  friendRequest: function(body) {
+    body = body || {};
+    return Promise.resolve().then(() => {
+      return body.user || factory.user();
+    }).then((u) => {
+      body.user = u;
+      return body.requester || factory.user();
+    }).then((u) => {
+      body.requester = u;
+      return body.requester.api.post(`/friend_requests/${body.user.id}`)
+    }).then(() => {
+      return body;
+    })
+  },
 }
 
 module.exports = factory;

@@ -49,7 +49,7 @@ module.exports = function() { describe("/friends", function() {
       ]).then((v) => {
         user = v[0];
         u0   = v[1];
-        return user.api.post('/friend_requests', { body: {id: v[1].id} });
+        return user.api.post(`/friend_requests/${v[1].id}`);
       }).then((response) => {
         expect(response.statusCode).toEqual(201);
         return u0.api.get('/friend_requests')
@@ -62,13 +62,35 @@ module.exports = function() { describe("/friends", function() {
       })
     });
 
+    it("410s when denying a non-existent friend request");
+
+    it("409s if you are already friends");
+
+    it("allows denying a friend request", function() {
+      return Promise.resolve().then(() => {
+        return factory.friendRequest()
+      }).then((fr) => {
+        user = fr.user;
+        return user.api.delete(`/friend_requests/${fr.requester.id}`)
+      }).then((response) => {
+        expect(response.statusCode).toEqual(204);
+        return user.api.get('/friend_requests')
+      }).then((response) => {
+        expect(response.body.friend_requests.length).toEqual(0, `Expected no friend requests in ${JSON.stringify(response.body)}`);
+      })
+    });
+
+    it("does not allow re-requesting a denied request");
+
     it("allows canceling a sent request");
     it("allows accepting a friend request");
-    it("allows denying a friend request");
+    it("notifies the other person when you accept");
   })
 
   describe("friends", function() {
-    it("allows removing friends");
+    it("allows blocking friends");
+
+    it("gets a list of all your friends");
 
     it("gets nearby friends within a 10km radius", function () {
       let u1, u2;
