@@ -10,7 +10,7 @@ const friends   = require('../db/friends');
 const users     = require('../db/users');
 
 const models = {
-  friends: require('../models/friends')
+  friends: require('../models/friends'),
 }
 
 module.exports = function(app) {
@@ -69,5 +69,7 @@ function all(req, res, next) {
 function block(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.sendStatus(204); }
 
-  next('not implemented');
+  return models.friends.block(req.userId, req.params.id).then((friends) => {
+    return res.sendStatus(204);
+  }).catch(next);
 }

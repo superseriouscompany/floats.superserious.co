@@ -8,6 +8,7 @@ const db = {
 module.exports = {
   all: all,
   create: create,
+  block: block,
 }
 
 function all(userId) {
@@ -23,4 +24,8 @@ function create(userId, rando) {
       return true;
     })
   })
+}
+
+function block(userId, friendId) {
+  return db.friends.block(userId, friendId)
 }

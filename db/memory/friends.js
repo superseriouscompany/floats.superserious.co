@@ -5,6 +5,7 @@ const users = require('../users');
 module.exports = {
   all: all,
   create: create,
+  block: block,
 }
 
 let friends = {}
@@ -20,5 +21,16 @@ function create(user, rando) {
     friends[user.id] = friends[user.id] || []
     friends[user.id].unshift(rando);
     return true;
+  })
+}
+
+function block(userId, friendId) {
+  return Promise.resolve().then(function() {
+    friends[userId] = friends[userId].map((f) => {
+      if( f.id == friendId ) {
+        f.blocked = true;
+      }
+      return f;
+    })
   })
 }
