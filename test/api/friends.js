@@ -36,11 +36,9 @@ module.exports = function() { describe("/friends", function() {
       })
     });
 
+    it("doesn't pull people you're friends with or have requested");
+
     it("pulls your facebook friends");
-
-    it("409s if you've already sent a friend request");
-
-    it("409s if you're already friends");
 
     it("allows sending and receiving a friend request", function() {
       return Promise.all([
@@ -61,6 +59,18 @@ module.exports = function() { describe("/friends", function() {
         expect(response.body.friend_requests[0].user.access_token).toNotExist();
       })
     });
+
+    it("409s if you've already sent a friend request", function() {
+      return factory.friendRequest().then((fr) => {
+        return factory.friendRequest({rando: fr.rando, user: fr.user});
+      }).then(h.shouldFail).catch((err) => {
+        expect(err.statusCode).toEqual(409);
+      })
+    });
+
+    it("409s if they've already sent a friend request");
+
+    it("409s if you're already friends");
 
     it("410s when denying a non-existent friend request");
 

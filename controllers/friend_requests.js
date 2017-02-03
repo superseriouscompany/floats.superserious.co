@@ -19,7 +19,14 @@ function create(req, res, next) {
 
   return models.friend_requests.create(req.user, req.params.id).then(() => {
     return res.sendStatus(201)
-  }).catch(next);
+  }).catch((err) => {
+    if( err.name == 'Conflict' ) {
+      return res.status(409).json({
+        message: 'There is already a pending friend request.'
+      })
+    }
+    next(err);
+  });
 }
 
 function all(req, res, next) {

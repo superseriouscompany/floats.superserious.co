@@ -1,11 +1,13 @@
 'use strict';
 
-const _ = require('lodash');
+const _     = require('lodash');
+const error = require('../../services/error');
 
 module.exports = {
   create: create,
   all: all,
   destroy: destroy,
+  find: find,
 }
 
 let friend_requests = {}
@@ -30,5 +32,15 @@ function destroy(userId, randoId) {
       return fr.user.id == randoId
     })
     return true;
+  })
+}
+
+function find(userId, randoId) {
+  return Promise.resolve().then(() => {
+    const match = (friend_requests[userId] || []).find((u) => {
+      return u.user.id == randoId
+    })
+    if( !match ) { throw error('Friend request not found', {name: 'FriendRequestNotFound'})}
+    return match;
   })
 }

@@ -1,6 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
+const error = require('../services/error');
 const models = {
   friends: require('../models/friends'),
 }
@@ -17,7 +18,15 @@ module.exports = {
 }
 
 function create(rando, userId) {
-  return db.friend_requests.create(_.pick(rando, 'name', 'avatar_url', 'id'), userId);
+  return db.friend_requests.find(userId, rando.id).then(() => {
+    throw error('There is already a friend request', {name: 'Conflict'})
+  }).catch((err) => {
+    console.log(err.name);
+    if( err.name != 'FriendRequestNotFound' ) { throw err;}
+    return true;
+  }).then(() => {
+    return db.friend_requests.create(_.pick(rando, 'name', 'avatar_url', 'id'), userId);
+  })
 }
 
 function all(userId) {
