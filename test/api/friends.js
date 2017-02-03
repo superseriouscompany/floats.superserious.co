@@ -10,7 +10,7 @@ module.exports = function() { describe("/friends", function() {
   let user, u0;
 
   describe("making friends", function() {
-    it("only returns whitelisted fields");
+    it("only returns whitelisted fields (extract from below)");
 
     it("pulls all people on the app in reverse cron order of when they joined", function() {
       return Promise.resolve().then(() => {
@@ -37,7 +37,30 @@ module.exports = function() { describe("/friends", function() {
     });
 
     it("pulls your facebook friends");
-    it("allows sending a friend request");
+
+    it("409s if you've already sent a friend request");
+
+    it("409s if you're already friends");
+
+    it("allows sending and receiving a friend request", function() {
+      return Promise.all([
+        factory.user({name: 'Neil'}),
+        factory.user({name: 'Rosemary'}),
+      ]).then((v) => {
+        user = v[0];
+        u0   = v[1];
+        return user.api.post('/friend_requests', { body: {id: v[1].id} });
+      }).then((response) => {
+        expect(response.statusCode).toEqual(201);
+        return u0.api.get('/friend_requests')
+      }).then((response) => {
+        expect(response.statusCode).toEqual(200);
+        expect(response.body.friend_requests).toExist(`Expected to find friend_requests in ${JSON.stringify(response.body)}`);
+        expect(response.body.friend_requests.length).toEqual(1, `Expected to find exactly one friend request in ${JSON.stringify(response.body)}`);
+        expect(response.body.friend_requests[0].id).toEqual(user.id);
+      })
+    });
+
     it("allows canceling a sent request");
     it("allows accepting a friend request");
     it("allows denying a friend request");
