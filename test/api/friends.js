@@ -83,7 +83,25 @@ module.exports = function() { describe("/friends", function() {
     it("does not allow re-requesting a denied request");
 
     it("allows canceling a sent request");
-    it("allows accepting a friend request");
+
+    it("allows accepting a friend request", function() {
+      return Promise.resolve().then(() => {
+        return factory.friendRequest()
+      }).then((fr) => {
+        user = fr.user;
+        u0 = fr.requester;
+        return user.api.put(`/friend_requests/${fr.requester.id}`)
+      }).then((response) => {
+        expect(response.statusCode).toEqual(204);
+        return user.api.get('/friends')
+      }).then((response) => {
+        expect(response.statusCode).toEqual(200);
+        expect(response.body.friends).toExist(`Expected friends in ${JSON.stringify(response.body)}`);
+        expect(response.body.friends.length).toEqual(1, `Expected exactly one friend in ${JSON.stringify(response.body)}`);
+        expect(response.body.friends[0].id).toEqual(u0.id, `Expected matching id in ${JSON.stringify(response.body)}`);
+      })
+    });
+
     it("notifies the other person when you accept");
   })
 

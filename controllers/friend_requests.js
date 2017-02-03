@@ -3,7 +3,8 @@
 const auth   = require('../services/auth');
 const panic  = require('../services/panic');
 const models = {
-  friend_requests: require('../models/friend_requests')
+  friend_requests: require('../models/friend_requests'),
+  friends: require('../models/friends'),
 };
 
 module.exports = function(app) {
@@ -42,7 +43,9 @@ function deny(req, res, next) {
 function approve(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.sendStatus(204); }
 
-  next('not implemented');
+  return models.friend_requests.accept(req.userId, req.params.id).then(() => {
+    return res.sendStatus(204);
+  }).catch(next);
 }
 
 function undo(req, res, next) {

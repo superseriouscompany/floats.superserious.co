@@ -9,6 +9,10 @@ const panic     = require('../services/panic');
 const friends   = require('../db/friends');
 const users     = require('../db/users');
 
+const models = {
+  friends: require('../models/friends')
+}
+
 module.exports = function(app) {
   app.get('/friends/nearby', auth, nearby);
   app.get('/friends', auth, all);
@@ -55,7 +59,11 @@ function nearby(req, res, next) {
 function all(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.json({friends: panic.friends}); }
 
-  next('not implemented');
+  return models.friends.all(req.userId).then((friends) => {
+    return res.json({
+      friends: friends,
+    })
+  }).catch(next);
 }
 
 function block(req, res, next) {
