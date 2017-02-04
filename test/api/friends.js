@@ -192,6 +192,24 @@ module.exports = function() { describe("/friends", function() {
       })
     });
 
+    it("notifies the other person when you accept their request", function() {
+      return Promise.all([
+        factory.user({name: 'Neil'}),
+        factory.user({name: 'John'}),
+      ]).then((v) => {
+        user = v[0]
+        u0   = v[1];
+        return factory.friendRequest({user: user, rando: u0})
+      }).then((fr) => {
+        return user.api.put(`/friend_requests/${u0.id}`)
+      }).then((response) => {
+        expect(response.statusCode).toEqual(204);
+        const notification = h.lastNotification(stub);
+        // TODO: check that it was delivered to the right person
+        expect(notification.body).toEqual('Neil is your friend now');
+      })
+    });
+
     it("removes friend request from list of pending requests", function() {
       return Promise.resolve().then(() => {
         return factory.friendRequest()
@@ -205,8 +223,6 @@ module.exports = function() { describe("/friends", function() {
         expect(response.body.friend_requests.length).toEqual(0, `Expected no remaining friend requests in ${JSON.stringify(response.body)}`);
       })
     })
-
-    it("notifies the other person when you accept");
   })
 
   describe("blocking", function() {

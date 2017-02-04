@@ -1,6 +1,7 @@
 'use strict';
 
-const error = require('../services/error');
+const error  = require('../services/error');
+const notify = require('../services/notify')
 const db = {
   friends: require('../db/friends'),
   users: require('../db/users'),
@@ -23,6 +24,7 @@ function get(userId, friendId) {
 }
 
 function create(userId, rando) {
+  let user;
   return get(userId, rando.id).then(() => {
     throw error('You\'re already friends.', {name: 'Conflict'})
   }).catch((err) => {
@@ -30,11 +32,16 @@ function create(userId, rando) {
     return true;
   }).then(() => {
     return db.users.get(userId)
-  }).then((user) => {
+  }).then((u) => {
+    user = u;
     return Promise.all([
       db.friends.create(user, rando),
       db.friends.create(rando, user),
     ])
+  }).then(() => {
+    return notify.firebase(rando.firebase_token, `${user.name} is your friend now`, {
+      friend: user
+    });
   }).then(() => {
     return true;
   })

@@ -63,7 +63,7 @@ function undo(randoId, userId) {
 
 function accept(userId, randoId) {
   return db.users.get(randoId).then((u) => {
-    return models.friends.create(userId, u)
+    return models.friends.create(userId, u);
   }).then(() => {
     return db.friend_requests.destroy(userId, randoId);
   })
