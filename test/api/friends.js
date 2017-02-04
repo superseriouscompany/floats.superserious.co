@@ -165,7 +165,7 @@ module.exports = function() { describe("/friends", function() {
     it("notifies the other person when you accept");
   })
 
-  describe("friends", function() {
+  describe("blocking", function() {
     it("allows blocking friends", function() {
       return factory.friendship().then((friendship) => {
         user = friendship.u0;
@@ -179,6 +179,22 @@ module.exports = function() { describe("/friends", function() {
         expect(response.body.friends[0].blocked).toExist();
       })
     });
+
+    it("doesn't show blocked people in nearby", function () {
+      return factory.user({name: 'Ben Gold'}).then((u) => {
+        return factory.friendship(null, u);
+      }).then((friendship) => {
+        user = friendship.u0;
+        u0   = friendship.u1;
+        return user.api.delete(`/friends/${u0.id}`)
+      }).then(() => {
+        return user.api.get('/friends/nearby')
+      }).then((response) => {
+        expect(response.body.friends.length).toEqual(0, `Expected no nearby friends in ${JSON.stringify(response.body)}`)
+      })
+    });
+
+    it("doesn't show messages from blocked people");
 
     it("allows unblocking friends", function () {
       return factory.friendship().then((friendship) => {

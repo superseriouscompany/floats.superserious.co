@@ -36,7 +36,7 @@ function nearby(req, res, next) {
     return friends.all(req.userId);
   }).then(function(friends) {
     friends = friends.filter(function(f) {
-      return haversine(
+      return !f.blocked && haversine(
         { latitude: f.lat, longitude: f.lng },
         { latitude: lat, longitude: lng },
         { threshold: 10 }
