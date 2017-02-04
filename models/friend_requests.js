@@ -15,6 +15,7 @@ module.exports = {
   all: all,
   deny: deny,
   accept: accept,
+  undo: undo,
 }
 
 function create(rando, userId) {
@@ -33,7 +34,10 @@ function all(userId) {
 }
 
 function deny(userId, randoId) {
-  // TODO: block
+  return db.friend_requests.destroy(userId, randoId);
+}
+
+function undo(randoId, userId) {
   return db.friend_requests.destroy(userId, randoId);
 }
 

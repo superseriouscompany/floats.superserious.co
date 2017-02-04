@@ -10,6 +10,7 @@ const models = {
 module.exports = function(app) {
   app.post('/friend_requests/:id', auth, create);
   app.put('/friend_requests/:id', auth, approve);
+  app.delete('/friend_requests/mine/:id', auth, undo);
   app.delete('/friend_requests/:id', auth, deny);
   app.get('/friend_requests', auth, all);
 }
@@ -47,16 +48,18 @@ function deny(req, res, next) {
   }).catch(next);
 }
 
+function undo(req, res, next) {
+  if( process.env.PANIC_MODE ) { return res.sendStatus(204); }
+
+  return models.friend_requests.undo(req.userId, req.params.id).then(() => {
+    return res.sendStatus(204);
+  }).catch(next);
+}
+
 function approve(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.sendStatus(204); }
 
   return models.friend_requests.accept(req.userId, req.params.id).then(() => {
     return res.sendStatus(204);
   }).catch(next);
-}
-
-function undo(req, res, next) {
-  if( process.env.PANIC_MODE ) { return res.sendStatus(204) }
-
-  return next(new Error('not implemented'))
 }

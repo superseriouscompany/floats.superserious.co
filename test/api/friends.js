@@ -112,6 +112,20 @@ module.exports = function() { describe("/friends", function() {
       })
     });
 
+    it("allows undoing a friend request", function () {
+      return Promise.resolve().then(() => {
+        return factory.friendRequest()
+      }).then((fr) => {
+        user = fr.user;
+        return fr.rando.api.delete(`/friend_requests/mine/${user.id}`)
+      }).then((response) => {
+        expect(response.statusCode).toEqual(204);
+        return user.api.get('/friend_requests')
+      }).then((response) => {
+        expect(response.body.friend_requests.length).toEqual(0, `Expected no friend requests in ${JSON.stringify(response.body)}`);
+      })
+    });
+
     it("does not allow re-requesting a denied request");
 
     it("allows canceling a sent request");
