@@ -90,7 +90,20 @@ module.exports = function() { describe("/friends", function() {
       })
     });
 
-    it("201s and creates a friendship if they've already sent a friend request");
+    it("200s and creates a friendship if they've already sent a friend request", function() {
+      return factory.friendRequest().then((fr) => {
+        user = fr.rando;
+        u0   = fr.user;
+        return fr.user.api.post(`/friend_requests/${fr.rando.id}`)
+      }).then((response) => {
+        expect(response.statusCode).toEqual(200);
+        expect(response.body.id).toExist();
+        return user.api.get('/friends')
+      }).then((response) => {
+        expect(response.body.friends.length).toEqual(1, `Expected one friend in ${JSON.stringify(response.body)}`)
+        expect(response.body.friends[0].id).toEqual(u0.id);
+      })
+    });
 
     it("409s if you're already friends");
 

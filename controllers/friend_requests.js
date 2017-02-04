@@ -18,8 +18,12 @@ module.exports = function(app) {
 function create(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.status(201).json({id: 'PANICMODE'}); }
 
-  return models.friend_requests.create(req.user, req.params.id).then(() => {
-    return res.sendStatus(201)
+  return models.friend_requests.create(req.user, req.params.id).then((friendRequest) => {
+    if( friendRequest.friendship ) {
+      return res.status(200).json(friendRequest.friendship)
+    } else {
+      return res.status(201).json(friendRequest)
+    }
   }).catch((err) => {
     if( err.name == 'Conflict' ) {
       return res.status(409).json({

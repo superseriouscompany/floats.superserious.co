@@ -19,13 +19,26 @@ module.exports = {
 }
 
 function create(rando, userId) {
-  return db.friend_requests.find(userId, rando.id).then(() => {
+  return Promise.resolve().then(() => {
+    return db.friend_requests.find(userId, rando.id)
+  }).then(() => {
     throw error('There is already a friend request', {name: 'Conflict'})
   }).catch((err) => {
     if( err.name != 'FriendRequestNotFound' ) { throw err;}
     return true;
   }).then(() => {
-    return db.friend_requests.create(_.pick(rando, 'name', 'avatar_url', 'id'), userId);
+    return db.friend_requests.find(rando.id, userId)
+  }).catch((err) => {
+    if( err.name != 'FriendRequestNotFound' ) { throw err; }
+    return false;
+  }).then((existingRequest) => {
+    if( !existingRequest ) {
+      return db.friend_requests.create(_.pick(rando, 'name', 'avatar_url', 'id'), userId);
+    }
+
+    return models.friends.create(userId, rando).then(() => {
+      return {friendship: {id: userId}}
+    })
   })
 }
 
