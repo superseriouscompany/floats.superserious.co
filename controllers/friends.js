@@ -17,6 +17,7 @@ module.exports = function(app) {
   app.get('/friends/nearby', auth, nearby);
   app.get('/friends', auth, all);
   app.delete('/friends/:id', auth, block);
+  app.put('/friends/:id', auth, unblock);
 }
 
 function nearby(req, res, next) {
@@ -70,6 +71,14 @@ function block(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.sendStatus(204); }
 
   return models.friends.block(req.userId, req.params.id).then((friends) => {
+    return res.sendStatus(204);
+  }).catch(next);
+}
+
+function unblock(req, res, next) {
+  if( process.env.PANIC_MODE ) { return res.sendStatus(204); }
+
+  return models.friends.unblock(req.userId, req.params.id).then((friends) => {
     return res.sendStatus(204);
   }).catch(next);
 }

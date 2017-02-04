@@ -166,6 +166,22 @@ module.exports = function() { describe("/friends", function() {
       })
     });
 
+    it("allows unblocking friends", function () {
+      return factory.friendship().then((friendship) => {
+        user = friendship.u0;
+        u0   = friendship.u1;
+        return user.api.delete(`/friends/${u0.id}`)
+      }).then((response) => {
+        return user.api.put(`/friends/${u0.id}`)
+      }).then((response) => {
+        expect(response.statusCode).toEqual(204);
+        return user.api.get('/friends')
+      }).then((response) => {
+        expect(response.body.friends[0].id).toEqual(u0.id);
+        expect(response.body.friends[0].blocked).toNotExist();
+      })
+    });
+
     it("gets a list of all your friends");
 
     it("gets nearby friends within a 10km radius", function () {

@@ -9,6 +9,7 @@ module.exports = {
   all: all,
   create: create,
   block: block,
+  unblock: unblock,
 }
 
 function all(userId) {
@@ -28,4 +29,8 @@ function create(userId, rando) {
 
 function block(userId, friendId) {
   return db.friends.block(userId, friendId)
+}
+
+function unblock(userId, friendId) {
+  return db.friends.unblock(userId, friendId)
 }
