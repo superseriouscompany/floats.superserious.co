@@ -90,13 +90,31 @@ module.exports = function() { describe("/friends", function() {
       })
     });
 
-    it("201s and creates a friendship if they've already sent a friend request");
+    it("200s and creates a friendship if they've already sent a friend request", function() {
+      return factory.friendRequest().then((fr) => {
+        user = fr.rando;
+        u0   = fr.user;
+        return fr.user.api.post(`/friend_requests/${fr.rando.id}`)
+      }).then((response) => {
+        expect(response.statusCode).toEqual(200);
+        expect(response.body.id).toExist();
+        return user.api.get('/friends')
+      }).then((response) => {
+        expect(response.body.friends.length).toEqual(1, `Expected one friend in ${JSON.stringify(response.body)}`)
+        expect(response.body.friends[0].id).toEqual(u0.id);
+      })
+    });
 
-    it("409s if you're already friends");
+    it("409s if you're already friends", function() {
+      return factory.friendship().then((friendship) => {
+        return friendship.u0.api.post(`/friend_requests/${friendship.u1.id}`)
+      }).then(h.shouldFail).catch((err) => {
+        expect(err.statusCode).toEqual(409)
+        expect(err.response.body.message).toEqual('You are already friends.')
+      })
+    });
 
     it("410s when denying a non-existent friend request");
-
-    it("409s if you are already friends");
 
     it("allows denying a friend request", function() {
       return Promise.resolve().then(() => {
@@ -165,7 +183,7 @@ module.exports = function() { describe("/friends", function() {
     it("notifies the other person when you accept");
   })
 
-  describe("friends", function() {
+  describe("blocking", function() {
     it("allows blocking friends", function() {
       return factory.friendship().then((friendship) => {
         user = friendship.u0;
@@ -179,6 +197,22 @@ module.exports = function() { describe("/friends", function() {
         expect(response.body.friends[0].blocked).toExist();
       })
     });
+
+    it("doesn't show blocked people in nearby", function () {
+      return factory.user({name: 'Ben Gold'}).then((u) => {
+        return factory.friendship(null, u);
+      }).then((friendship) => {
+        user = friendship.u0;
+        u0   = friendship.u1;
+        return user.api.delete(`/friends/${u0.id}`)
+      }).then(() => {
+        return user.api.get('/friends/nearby')
+      }).then((response) => {
+        expect(response.body.friends.length).toEqual(0, `Expected no nearby friends in ${JSON.stringify(response.body)}`)
+      })
+    });
+
+    it("doesn't show messages from blocked people");
 
     it("allows unblocking friends", function () {
       return factory.friendship().then((friendship) => {
