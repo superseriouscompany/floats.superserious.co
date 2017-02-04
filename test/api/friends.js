@@ -7,7 +7,19 @@ const h        = require('../helpers');
 const api      = require('../api');
 
 module.exports = function() { describe("/friends", function() {
-  let user, u0;
+  let user, u0, stub;
+
+  before(function() {
+    stub = tinystub(4202);
+  })
+
+  afterEach(function() {
+    return h.clearStub();
+  })
+
+  after(function() {
+    stub();
+  })
 
   describe("making friends", function() {
     it("only returns whitelisted fields (extract from below)");
@@ -80,7 +92,21 @@ module.exports = function() { describe("/friends", function() {
       })
     });
 
-    it("notifies the other person when you send a request");
+    it("notifies the other person when you send a request", function() {
+      return Promise.all([
+        factory.user({name: 'Neil'}),
+        factory.user({name: 'Rosemary'}),
+      ]).then((v) => {
+        user = v[0];
+        u0   = v[1];
+        return user.api.post(`/friend_requests/${v[1].id}`);
+      }).then((response) => {
+        expect(response.statusCode).toEqual(201);
+        const notification = h.lastNotification(stub);
+        // TODO: check that it was delivered to the right person
+        expect(notification.body).toEqual('Neil wants to be friends');
+      })
+    });
 
     it("409s if you've already sent a friend request", function() {
       return factory.friendRequest().then((fr) => {

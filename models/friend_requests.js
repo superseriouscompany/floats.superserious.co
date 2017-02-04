@@ -1,7 +1,7 @@
 'use strict';
 
-const _ = require('lodash');
-const error = require('../services/error');
+const _      = require('lodash');
+const error  = require('../services/error');
 const models = {
   friends: require('../models/friends'),
 }

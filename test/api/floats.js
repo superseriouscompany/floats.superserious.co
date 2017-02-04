@@ -179,13 +179,12 @@ module.exports = function() { describe("/floats", function() {
           }
         })
       }).then(function(response) {
-        expect(stub.calls.length).toEqual(2, `Expected 2 calls in ${JSON.stringify(stub.calls)}`);
+        expect(stub.calls.length).toEqual(4, `Expected 2 calls in ${JSON.stringify(stub.calls)}`);
         expect(stub.calls[0].url).toEqual('/fcm/send');
         expect(stub.calls[0].body).toExist();
         const notification = stub.calls[0].body;
         expect(notification.priority).toEqual('high');
         expect(notification.notification.body).toEqual('Becca Webster floated "Go to maracuja"');
-        expect(stub.calls.length).toEqual(2);
       })
     });
   })
