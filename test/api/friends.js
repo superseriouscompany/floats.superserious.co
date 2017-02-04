@@ -104,7 +104,7 @@ module.exports = function() { describe("/friends", function() {
         expect(response.statusCode).toEqual(201);
         const notification = h.lastNotification(stub);
         // TODO: check that it was delivered to the right person
-        expect(notification.body).toEqual('Neil wants to be friends');
+        expect(notification.body).toEqual('Neil wants to be friends.');
       })
     });
 
@@ -206,7 +206,7 @@ module.exports = function() { describe("/friends", function() {
         expect(response.statusCode).toEqual(204);
         const notification = h.lastNotification(stub);
         // TODO: check that it was delivered to the right person
-        expect(notification.body).toEqual('Neil is your friend now');
+        expect(notification.body).toEqual('Neil is your friend now.');
       })
     });
 

@@ -29,7 +29,7 @@ function create(req, res, next) {
       if( friendRequest.friendship ) {
         return notify.firebase(
           u.firebase_token,
-          `${req.user.name} is your friend now`,
+          `${req.user.name} is your friend now.`,
           { type: 'friends:new', friend: friendRequest.friendship}
         ).then(() => {
           return res.status(200).json(friendRequest.friendship);
@@ -38,7 +38,7 @@ function create(req, res, next) {
 
       return notify.firebase(
         u.firebase_token,
-        `${req.user.name} wants to be friends`,
+        `${req.user.name} wants to be friends.`,
         { type: 'friend_requests:new', friend_request: friendRequest}
       ).then(() => {
         return res.status(201).json(friendRequest);

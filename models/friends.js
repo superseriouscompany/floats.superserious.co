@@ -39,7 +39,7 @@ function create(userId, rando) {
       db.friends.create(rando, user),
     ])
   }).then(() => {
-    return notify.firebase(rando.firebase_token, `${user.name} is your friend now`, {
+    return notify.firebase(rando.firebase_token, `${user.name} is your friend now.`, {
       type: 'friends:new',
       friend: user,
     });
