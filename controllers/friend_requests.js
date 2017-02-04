@@ -27,7 +27,7 @@ function create(req, res, next) {
   }).catch((err) => {
     if( err.name == 'Conflict' ) {
       return res.status(409).json({
-        message: 'There is already a pending friend request.'
+        message: err.message,
       })
     }
     next(err);

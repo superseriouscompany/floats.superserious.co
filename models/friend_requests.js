@@ -22,15 +22,22 @@ function create(rando, userId) {
   return Promise.resolve().then(() => {
     return db.friend_requests.find(userId, rando.id)
   }).then(() => {
-    throw error('There is already a friend request', {name: 'Conflict'})
+    throw error('You have already sent this friend request.', {name: 'Conflict'})
   }).catch((err) => {
     if( err.name != 'FriendRequestNotFound' ) { throw err;}
     return true;
   }).then(() => {
-    return db.friend_requests.find(rando.id, userId)
-  }).catch((err) => {
-    if( err.name != 'FriendRequestNotFound' ) { throw err; }
-    return false;
+    return models.friends.get(userId, rando.id).then((friend) => {
+      throw error('You are already friends.', {name: 'Conflict'})
+    }).catch((err) => {
+      if( err.name != 'FriendNotFound' ) { throw err; }
+      return true;
+    })
+  }).then(() => {
+    return db.friend_requests.find(rando.id, userId).catch((err) => {
+      if( err.name != 'FriendRequestNotFound' ) { throw err; }
+      return false;
+    })
   }).then((existingRequest) => {
     if( !existingRequest ) {
       return db.friend_requests.create(_.pick(rando, 'name', 'avatar_url', 'id'), userId);

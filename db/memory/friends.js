@@ -1,12 +1,14 @@
 'use strict';
 
 const users = require('../users');
+const error = require('../../services/error');
 
 module.exports = {
   all: all,
   create: create,
   block: block,
   unblock: unblock,
+  get: get,
 }
 
 let friends = {}
@@ -44,5 +46,14 @@ function unblock(userId, friendId) {
       }
       return f;
     })
+  })
+}
+
+function get(userId, friendId) {
+  return Promise.resolve().then(function() {
+    if( !friends[userId] ) {
+      throw error('Friend not found', {name: 'FriendNotFound'});
+    }
+    return friends[userId]
   })
 }

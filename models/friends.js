@@ -10,10 +10,15 @@ module.exports = {
   create: create,
   block: block,
   unblock: unblock,
+  get: get,
 }
 
 function all(userId) {
   return db.friends.all(userId);
+}
+
+function get(userId, friendId) {
+  return db.friends.get(userId, friendId);
 }
 
 function create(userId, rando) {

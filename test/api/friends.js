@@ -105,11 +105,16 @@ module.exports = function() { describe("/friends", function() {
       })
     });
 
-    it("409s if you're already friends");
+    it("409s if you're already friends", function() {
+      return factory.friendship().then((friendship) => {
+        return friendship.u0.api.post(`/friend_requests/${friendship.u1.id}`)
+      }).then(h.shouldFail).catch((err) => {
+        expect(err.statusCode).toEqual(409)
+        expect(err.response.body.message).toEqual('You are already friends.')
+      })
+    });
 
     it("410s when denying a non-existent friend request");
-
-    it("409s if you are already friends");
 
     it("allows denying a friend request", function() {
       return Promise.resolve().then(() => {
