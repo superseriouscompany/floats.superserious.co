@@ -23,6 +23,10 @@ function create(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.status(201).json({id: 'PANICMODE'}); }
   let friendRequest;
 
+  if( req.user.id == req.params.id ) {
+    return res.status(409).json({message: "You're already friends with yourself...technically."})
+  }
+
   return models.friend_requests.create(req.user, req.params.id).then((fr) => {
     friendRequest = fr;
     return db.users.get(req.params.id).then((u) => {

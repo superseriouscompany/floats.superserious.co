@@ -116,6 +116,14 @@ module.exports = function() { describe("/friends", function() {
       })
     });
 
+    it("409s if you try to send yourself a friend request", function () {
+      return factory.user().then((u) => {
+        return u.api.post(`/friend_requests/${u.id}`)
+      }).then(h.shouldFail).catch((err) => {
+        expect(err.statusCode).toEqual(409);
+      })
+    });
+
     it("200s and creates a friendship if they've already sent a friend request", function() {
       return factory.friendRequest().then((fr) => {
         user = fr.rando;
