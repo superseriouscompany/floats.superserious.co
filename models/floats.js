@@ -94,6 +94,14 @@ function addUserToDM(user, float, convos) {
   })
 }
 
-function addUserToGroup(user, float, convo) {
-
+function addUserToGroup(user, float, convos) {
+  return Promise.resolve().then(() => {
+    const mainConvo = convos.find((c) => {
+      return c.users.length == float.attendees.length
+    })
+    if( !mainConvo ) { throw error('No group chat', {name: 'No group chat'}); }
+    return db.convos.join(float.id, mainConvo.id, user)
+  }).then(() => {
+    return db.convos.create(float.id, user.id, [float.user.id], [float.user, user])
+  })
 }
