@@ -310,6 +310,10 @@ module.exports = function() { describe("/floats", function() {
       return factory.float().then((f) => {
         float = f;
         expect(f.token).toExist();
+        return f.user.api.get('/floats/mine')
+      }).then((response) => {
+        expect(response.body.floats.length).toEqual(1, `Expected exactly one float in ${JSON.stringify(response.body)}`);
+        expect(response.body.floats[0].token).toEqual(float.token, `Expected token in ${JSON.stringify(response.body.floats[0])}`)
         return factory.user()
       }).then((u) => {
         user = u;
@@ -321,6 +325,7 @@ module.exports = function() { describe("/floats", function() {
         return user.api.get(`/floats`)
       }).then((response) => {
         expect(response.body.floats.length).toEqual(1, `Expected exactly one float in ${JSON.stringify(response.body)}`);
+        expect(response.body.floats[0].token).toEqual(float.token, `Expected token in ${JSON.stringify(response.body.floats[0])}`)
       })
     });
   })
