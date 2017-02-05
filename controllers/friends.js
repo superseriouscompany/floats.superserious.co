@@ -6,11 +6,12 @@ const auth      = require('../services/auth');
 const error     = require('../services/error');
 const log       = require('../services/log');
 const panic     = require('../services/panic');
-const friends   = require('../db/friends');
-const users     = require('../db/users');
 
 const models = {
   friends: require('../models/friends'),
+}
+const db = {
+  users: require('../db/users'),
 }
 
 module.exports = function(app) {
@@ -25,7 +26,7 @@ function nearby(req, res, next) {
 
   let lat, lng;
 
-  return users.get(req.userId).then(function(user) {
+  return db.users.get(req.userId).then(function(user) {
     lat = user.lat;
     lng = user.lng;
     if( lat === undefined || lng === undefined ) {
@@ -33,7 +34,7 @@ function nearby(req, res, next) {
       throw error('No pin set yet', {userId: req.userId, name: 'NoPin'});
     }
 
-    return friends.all(req.userId);
+    return models.friends.allUsers(req.userId);
   }).then(function(friends) {
     friends = friends.filter(function(f) {
       return !f.blocked && haversine(
