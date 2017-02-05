@@ -189,14 +189,14 @@ module.exports = function() {
       });
 
       it("throws UserNotFound if no user has this facebook id", function () {
-        return users.findByFacebookId(21).then(h.shouldFail).catch(function(err) {
+        return users.findByFacebookId('21').then(h.shouldFail).catch(function(err) {
           expect(err.name).toEqual('UserNotFound');
         })
       });
 
       it("returns user by facebook id", function () {
-        return users.create({name: 'Ines', facebook_id: 123}).then(function() {
-          return users.findByFacebookId(123)
+        return users.create({name: 'Ines', facebook_id: '123'}).then(function() {
+          return users.findByFacebookId('123')
         }).then(function(user) {
           expect(user.name).toEqual('Ines');
         })
@@ -239,9 +239,9 @@ module.exports = function() {
       });
 
       it("populates avatar, facebook_id and access_token", function () {
-        return users.createFromFacebook({id: 1234}).then(function(user) {
+        return users.createFromFacebook({id: '1234'}).then(function(user) {
           expect(user.id).toExist();
-          expect(user.facebook_id).toEqual(1234);
+          expect(user.facebook_id).toEqual('1234');
           expect(user.access_token).toExist();
           expect(user.avatar_url).toEqual('https://graph.facebook.com/v2.8/1234/picture');
         })

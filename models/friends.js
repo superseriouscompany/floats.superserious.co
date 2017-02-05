@@ -13,6 +13,7 @@ module.exports = {
   block: block,
   unblock: unblock,
   get: get,
+  allUsers: allUsers,
 }
 
 function all(userId) {
@@ -54,4 +55,22 @@ function block(userId, friendId) {
 
 function unblock(userId, friendId) {
   return db.friends.unblock(userId, friendId)
+}
+
+function allUsers(userId, showBlocked) {
+  return Promise.resolve().then(() => {
+    return all(userId)
+  }).then((friends) => {
+    if( !showBlocked ) {
+      friends = friends.filter((f) => {
+        return !f.blocked
+      })
+    }
+
+    if( !friends.length ) { return [] }
+
+    return db.users.batchGet(friends.map((f) => {
+      return f.friend_id
+    }))
+  })
 }

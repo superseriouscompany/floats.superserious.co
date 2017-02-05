@@ -11,6 +11,7 @@ module.exports = {
   create: create,
   update: update,
   get: get,
+  batchGet: batchGet,
   findByFacebookId: findByFacebookId,
   findByAccessToken: findByAccessToken,
   createFromFacebook: createFromFacebook,
@@ -42,6 +43,21 @@ function get(id) {
   }).then(function(user) {
     if( !user.Item ) { throw error('user not found', {name: 'UserNotFound', id: id})}
     return user.Item;
+  })
+}
+
+function batchGet(ids) {
+  if( !ids || !ids.length ) { return Promise.reject(error('ids are null or empty', {name: 'InputError'})); }
+
+  let params = { RequestItems: {} };
+  params.RequestItems[config.usersTableName] = {
+    Keys: ids.map(function(id) {
+      return {id: id}
+    }),
+  }
+
+  return client.batchGet(params).then((result) => {
+    return result.Responses[config.usersTableName]
   })
 }
 

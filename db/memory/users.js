@@ -8,6 +8,7 @@ module.exports = {
   create: create,
   update: update,
   get: get,
+  batchGet: batchGet,
   findByFacebookId: findByFacebookId,
   findByAccessToken: findByAccessToken,
   createFromFacebook: createFromFacebook,
@@ -33,6 +34,14 @@ function get(id) {
     if( !id )        { return reject(error('id is null', {name: 'InputError'})); }
     if( !users[id] ) { return reject(error('user not found', {name: 'UserNotFound', id: id}))}
     resolve(users[id]);
+  })
+}
+
+function batchGet(ids) {
+  return Promise.resolve().then(() => {
+    return _.values(users).filter((u) => {
+      return _.includes(ids, u.id)
+    })
   })
 }
 

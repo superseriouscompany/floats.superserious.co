@@ -25,7 +25,7 @@ function all(userId) {
     return users.filter((u) => {
       if( u.id == userId ) { return false; }
       for( var i = 0; i < friends.length; i++ ) {
-        if( friends[i].id == u.id ) { return false; }
+        if( friends[i].friend_id == u.id ) { return false; }
       }
       for( var i = 0; i < friendRequests.length; i++ ) {
         if( friendRequests[i].user.id == u.id ) { return false; }
