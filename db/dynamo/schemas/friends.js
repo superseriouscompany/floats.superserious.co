@@ -1,15 +1,15 @@
 const config = require('../../../config');
 
 module.exports = {
-  "TableName": config.pinsTableName,
+  "TableName": config.friendsTableName,
   "AttributeDefinitions":[
     {
       "AttributeName":"user_id",
       "AttributeType":"S"
     },
     {
-      "AttributeName":"created_at",
-      "AttributeType":"N"
+      "AttributeName":"friend_id",
+      "AttributeType":"S"
     },
   ],
   "KeySchema":[
@@ -18,12 +18,12 @@ module.exports = {
       "KeyType":"HASH"
     },
     {
-      "AttributeName":"created_at",
+      "AttributeName":"friend_id",
       "KeyType":"RANGE"
-    },
+    }
   ],
   "ProvisionedThroughput": {
-    "ReadCapacityUnits":1,
+    "ReadCapacityUnits":5,
     "WriteCapacityUnits":5
   },
 }

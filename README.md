@@ -22,4 +22,10 @@ This is the floats api.
 
 ## Testing
 
+In-memory (fast)
+
     $ npm test
+
+Against live db (slow)
+
+    $ npm run livetest

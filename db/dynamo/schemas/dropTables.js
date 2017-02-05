@@ -2,6 +2,10 @@ const client  = require('../client').lowLevel;
 const schemas = require('./schemas');
 const _       = require('lodash');
 
+if( process.env.NODE_ENV == 'production' ) {
+  return console.error("Won't automatically drop all prod tables");
+}
+
 _.map(_.values(schemas), 'TableName').forEach(function(tableName) {
   client.deleteTable({TableName: tableName}, function(err, ok) {
     if( err ) {

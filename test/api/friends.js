@@ -188,7 +188,7 @@ module.exports = function() { describe("/friends", function() {
         expect(response.statusCode).toEqual(200);
         expect(response.body.friends).toExist(`Expected friends in ${JSON.stringify(response.body)}`);
         expect(response.body.friends.length).toEqual(1, `Expected exactly one friend in ${JSON.stringify(response.body)}`);
-        expect(response.body.friends[0].id).toEqual(u0.id, `Expected matching id in ${JSON.stringify(response.body)}`);
+        expect(response.body.friends[0].friend_id).toEqual(u0.id, `Expected matching id in ${JSON.stringify(response.body)}`);
       })
     });
 
