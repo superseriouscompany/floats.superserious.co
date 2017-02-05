@@ -6,8 +6,10 @@ const db = {
   floats:  require('../db/floats'),
   users:   require('../db/users'),
   convos:  require('../db/convos'),
-  friends: require('../db/friends'),
   messages: require('../db/messages'),
+}
+const models = {
+  friends: require('../models/friends'),
 }
 
 module.exports = {
@@ -17,9 +19,9 @@ module.exports = {
 function create(user, title, inviteeIds) {
   let recipients, float;
 
-  return db.friends.all(user.id).then(function(friends) {
+  return models.friends.allUsers(user.id).then(function(friends) {
     recipients = friends.filter(function(f) {
-      return inviteeIds.indexOf(f.friend_id) !== -1;
+      return inviteeIds.indexOf(f.id) !== -1;
     });
     if( recipients.length < inviteeIds.length ) {
       const badIds = _.differenceWith(recipients, inviteeIds, function(a, b) {

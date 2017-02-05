@@ -36,7 +36,7 @@ function create(user, rando) {
 function block(userId, friendId) {
   return Promise.resolve().then(function() {
     friends[userId] = friends[userId].map((f) => {
-      if( f.id == friendId ) {
+      if( f.friend_id == friendId ) {
         f.blocked = true;
       }
       return f;
@@ -47,7 +47,7 @@ function block(userId, friendId) {
 function unblock(userId, friendId) {
   return Promise.resolve().then(function() {
     friends[userId] = friends[userId].map((f) => {
-      if( f.id == friendId ) {
+      if( f.friend_id == friendId ) {
         f.blocked = false;
       }
       return f;

@@ -236,7 +236,7 @@ module.exports = function() { describe("/friends", function() {
         return user.api.get('/friends')
       }).then((response) => {
         expect(response.body.friends[0].friend_id).toEqual(u0.id);
-        expect(response.body.friends[0].blocked).toExist();
+        expect(response.body.friends[0].blocked).toExist(`Expected blocked to be true in ${JSON.stringify(response.body.friends[0])}`);
       })
     });
 
