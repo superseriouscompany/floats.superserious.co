@@ -58,6 +58,16 @@ module.exports = function() { describe("/users", function() {
         })
       })
     });
+
+    it("deletes floats");
+
+    it("deletes friendships");
+
+    it("deletes friend requests");
+
+    it("leaves groups");
+
+    it("ends dms");
   })
 
   describe("updating self", function() {
