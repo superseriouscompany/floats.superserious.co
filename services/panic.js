@@ -4,6 +4,17 @@ const user = {
 }
 
 module.exports = {
+  float: {
+    id: 'PANICMODE3',
+    title: 'Halp',
+    created_at: +new Date - 1000 * 60 * 35,
+    user: user,
+    attending: true,
+    attendees: [{
+      name: 'Someone',
+      avatar_url: 'https://placekitten.com/640/640',
+    }]
+  },
   floats: [
     {
       id: 'PANICMODE3',

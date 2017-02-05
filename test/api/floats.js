@@ -300,4 +300,24 @@ module.exports = function() { describe("/floats", function() {
       })
     });
   })
+
+  describe("joining float", function() {
+
+    it("400s if float not found");
+    it("403s if token is invalid");
+
+    it("allows joining a valid shared float", function () {
+      return factory.float().then((f) => {
+        float = f;
+        return factory.user()
+      }).then((u) => {
+        user = u;
+        return u.api.post(`/floats/${float.id}/join/${float.token}`)
+      }).then((response) => {
+        expect(response.statusCode).toEqual(201);
+        expect(response.body.id).toEqual(float.id);
+        expect(response.body.title).toEqual(float.title);
+      })
+    });
+  })
 })}

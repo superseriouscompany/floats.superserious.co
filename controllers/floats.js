@@ -19,6 +19,7 @@ module.exports = function(app) {
   app.post('/floats', auth, create);
   app.get('/floats/mine', auth, mine);
   app.get('/floats', auth, all);
+  app.post('/floats/:id/join/:token', auth, join);
   app.delete('/floats/:id/leave', auth, leave);
   app.delete('/floats/:id', auth, destroy);
 }
@@ -82,6 +83,14 @@ function mine(req, res, next) {
       return _.pick(f, 'id', 'title', 'user', 'created_at', 'attendees', 'invitees');
     })
     return res.json({floats: floats});
+  }).catch(next);
+}
+
+function join(req, res, next) {
+  if( process.env.PANIC_MODE ) { return res.status(201).json(panic.float)}
+
+  models.floats.join(req.user, req.params.id, req.params.token).then((float) => {
+    return res.status(201).json(float)
   }).catch(next);
 }
 

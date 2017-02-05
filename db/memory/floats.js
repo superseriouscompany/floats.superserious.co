@@ -10,9 +10,9 @@ module.exports = {
   get:           get,
   findByInvitee: findByInvitee,
   findByCreator: findByCreator,
-  join:          join,
   leave:         leave,
   attendees:     attendees,
+  addAttendee:   addAttendee,
   destroy:       destroy,
   flush:         flush,
 }
@@ -34,6 +34,7 @@ function create(float) {
     return users.get(float.user.id).then(function() {
       float.id         = float.id || uuid.v1();
       float.created_at = float.created_at || +new Date;
+      float.token      = float.token || uuid.v1();
       float.attendees  = float.attendees || [];
       floats[float.id] = float;
       resolve(float);
@@ -71,25 +72,19 @@ function findByCreator(userId) {
   })
 }
 
-function join(floatId, userId) {
-  return new Promise(function(resolve, reject) {
-    if( !floatId ) { return reject(error('floatId not provided', {name: 'InputError'})); }
-    if( !userId )  { return reject(error('userId not provided', {name: 'InputError'})); }
-    if( !floats[floatId] ) { return reject(error('Float not found', {name: 'FloatNotFound', id: floatId })); }
+function addAttendee(floatId, user) {
+  return Promise.resolve().then(() => {
+    if( !floatId ) { throw error('floatId not provided', {name: 'InputError'}); }
+    if( !user )  { throw error('user not provided', {name: 'InputError'}); }
+    if( !floats[floatId] ) { throw error('Float not found', {name: 'FloatNotFound', id: floatId }); }
 
-    users.get(userId).then(function(user) {
-      const match = floats[floatId].invitees.find(function(id) {
-        return user.id == id
-      })
-      if( !match ) { return reject(error('You were not invited to this float.', {name: 'NotInvited'})) }
-      const conflict = floats[floatId].attendees.find(function(a) {
-        return a.id === userId
-      })
-      if( conflict ) { return reject(error('Float has already been joined.', {name: 'DuplicateJoinError'})); }
+    const conflict = floats[floatId].attendees.find(function(a) {
+      return a.id === user.id
+    })
+    if( conflict ) { throw error('Float has already been joined.', {name: 'DuplicateJoinError'}); }
 
-      floats[floatId].attendees.push(_.pick(user, 'id', 'avatar_url', 'name', 'username'))
-      return resolve(true);
-    }).catch(reject);
+    floats[floatId].attendees.push(_.pick(user, 'id', 'avatar_url', 'name', 'username'))
+    return floats[floatId];
   })
 }
 

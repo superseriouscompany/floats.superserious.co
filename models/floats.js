@@ -14,6 +14,7 @@ const models = {
 
 module.exports = {
   create: create,
+  join: join,
 }
 
 function create(user, title, inviteeIds) {
@@ -60,5 +61,14 @@ function create(user, title, inviteeIds) {
       value: recipients
     })
     return float;
+  })
+}
+
+function join(user, floatId, floatToken) {
+  return Promise.resolve().then(() => {
+    return db.floats.get(floatId);
+  }).then((float) => {
+    if( float.token != floatToken ) { throw error('Invalid float token', {name: 'InvalidToken'}); }
+    return db.floats.addAttendee(floatId, user);
   })
 }
