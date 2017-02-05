@@ -8,8 +8,10 @@ module.exports = {
   get:              get,
   create:           create,
   findByMemberId:   findByMemberId,
+  findByFloatId:    findByFloatId,
   destroyByFloatId: destroyByFloatId,
   destroy:          destroy,
+  join:             join,
   leave:            leave,
   leaveAll:         leaveAll,
   setLastMessage:   setLastMessage,
@@ -50,6 +52,14 @@ function findByMemberId(userId) {
     return _.reject(_.values(convos), function(c) {
       return !_.includes(c.members, userId);
     });
+  })
+}
+
+function findByFloatId(floatId) {
+  return Promise.resolve().then(() => {
+    return _.values(convos).filter((c) => {
+      return c.float_id == floatId
+    })
   })
 }
 
@@ -95,6 +105,17 @@ function leaveAll(floatId, userId) {
     return Promise.all(convos.map(function(c) {
       return leave(c.float_id, c.id, userId);
     }))
+  })
+}
+
+function join(floatId, id, user) {
+  return Promise.resolve().then(() => {
+    return get(floatId, id)
+  }).then((convo) => {
+    convo.members    = convo.members.concat(user.id);
+    convo.users      = convo.users.concat(_.pick(user, 'id', 'avatar_url', 'name'));
+    convos[convo.id] = convo;
+    return true;
   })
 }
 

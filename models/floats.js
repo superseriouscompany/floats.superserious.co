@@ -46,7 +46,6 @@ function create(user, title, inviteeIds) {
       return db.convos.create(float.id, r.id, [user.id], [user, r])
     })
 
-
     if( isGroupFloat ) {
       const ids = _.map(recipients, 'id');
       promises.push(
@@ -65,10 +64,18 @@ function create(user, title, inviteeIds) {
 }
 
 function join(user, floatId, floatToken) {
+  let float;
   return Promise.resolve().then(() => {
     return db.floats.get(floatId);
-  }).then((float) => {
+  }).then((f) => {
+    float = f;
     if( float.token != floatToken ) { throw error('Invalid float token', {name: 'InvalidToken'}); }
     return db.floats.addAttendee(floatId, user);
+  }).then(() => {
+    return db.convos.findByFloatId(floatId);
+  }).then((convos) => {
+    return db.convos.join(floatId, convos[0].id, user);
+  }).then(() => {
+    return float;
   })
 }
