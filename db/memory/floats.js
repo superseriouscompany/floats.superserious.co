@@ -84,6 +84,7 @@ function addAttendee(floatId, user) {
     if( conflict ) { throw error('Float has already been joined.', {name: 'DuplicateJoinError'}); }
 
     floats[floatId].attendees.push(_.pick(user, 'id', 'avatar_url', 'name', 'username'))
+    floats[floatId].invitees.push(user.id)
     return floats[floatId];
   })
 }
