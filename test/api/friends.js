@@ -304,8 +304,8 @@ module.exports = function() { describe("/friends", function() {
             body: { lat: 39.345404, lng: -9.363375 },
           }),
           u2.api.post('/pins', {
-            // lisbon
-            body: { lat: 38.710198, lng: -9.143254 },
+            // paris
+            body: { lat: 48.8566, lng: 2.3522 },
           }),
           user.api.post('/pins', {
             // ilha do baleal

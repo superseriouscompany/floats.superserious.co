@@ -2,6 +2,7 @@
 
 const expect   = require('expect');
 const tinystub = require('tinystub');
+const _        = require('lodash');
 const factory  = require('../factory');
 const h        = require('../helpers');
 const api      = require('../api');
@@ -310,23 +311,125 @@ module.exports = function() { describe("/floats", function() {
       return factory.float().then((f) => {
         float = f;
         expect(f.token).toExist();
-        return f.user.api.get('/floats/mine')
+        return f.user.api.get('/floats/mine');
       }).then((response) => {
         expect(response.body.floats.length).toEqual(1, `Expected exactly one float in ${JSON.stringify(response.body)}`);
         expect(response.body.floats[0].token).toEqual(float.token, `Expected token in ${JSON.stringify(response.body.floats[0])}`)
         return factory.user()
       }).then((u) => {
         user = u;
-        return u.api.post(`/floats/${float.id}/join/${float.token}`)
+        return u.api.post(`/floats/${float.id}/join/${float.token}`);
       }).then((response) => {
         expect(response.statusCode).toEqual(201);
         expect(response.body.id).toEqual(float.id);
         expect(response.body.title).toEqual(float.title);
-        return user.api.get(`/floats`)
+        return user.api.get(`/floats`);
       }).then((response) => {
         expect(response.body.floats.length).toEqual(1, `Expected exactly one float in ${JSON.stringify(response.body)}`);
         expect(response.body.floats[0].token).toEqual(float.token, `Expected token in ${JSON.stringify(response.body.floats[0])}`)
       })
-    });
+    })
+
+    describe("joining a dm", function() {
+      it("adds new user to main chat", function () {
+        return Promise.all([
+          factory.float(),
+          factory.user(),
+        ]).then((v) => {
+          float = v[0];
+          user  = v[1];
+          return user.api.post(`/floats/${float.id}/join/${float.token}`);
+        }).then(() => {
+          return user.api.get('/convos')
+        }).then((response) => {
+          expect(response.body.convos.length).toBeGreaterThan(0, `Expected at least one convo in ${JSON.stringify(response.body)}`);
+          const convo = response.body.convos[0];
+          expect(convo.float_id).toEqual(float.id);
+          expect(convo.members).toInclude(float.user.id);
+          expect(convo.members).toInclude(float.users[0].id);
+        })
+      });
+
+      it("creates dms for both users", function () {
+        return Promise.all([
+          factory.float(),
+          factory.user(),
+        ]).then((v) => {
+          float = v[0];
+          user  = v[1];
+          return user.api.post(`/floats/${float.id}/join/${float.token}`);
+        }).then(() => {
+          return user.api.get('/convos')
+        }).then((response) => {
+          expect(response.body.convos.length).toEqual(2, `Expected exactly two convos in ${JSON.stringify(response.body)}`)
+          const groupChat = response.body.convos[0].users.length == 3 ? response.body.convos[0] : response.body.convos[1];
+          const dm = response.body.convos[0].users.length == 3 ? response.body.convos[1] : response.body.convos[0];
+          expect(groupChat.id).toNotEqual(dm.id);
+          expect(groupChat.members.length).toEqual(3);
+          expect(groupChat.members).toInclude(user.id);
+          expect(dm.users.length).toEqual(2);
+          expect(dm.members).toInclude(user.id);
+          return float.users[0].api.get('/convos')
+        }).then((response) => {
+          expect(response.body.convos.length).toEqual(2, `Expected exactly two convos in ${JSON.stringify(response.body)}`)
+          const groupChat = response.body.convos[0].users.length == 3 ? response.body.convos[0] : response.body.convos[1];
+          const dm = response.body.convos[0].users.length == 3 ? response.body.convos[1] : response.body.convos[0];
+          expect(groupChat.members).toInclude(float.users[0].id);
+          expect(groupChat.members).toInclude(float.users[0].id);
+          expect(dm.users.length).toEqual(2);
+          expect(dm.members).toInclude(float.users[0].id);
+        })
+      })
+    })
+
+    describe("joining a group", function() {
+      it("adds user to group chat", function() {
+        return Promise.all([
+          factory.float({invitees:[null, null, null]}),
+          factory.user(),
+        ]).then((v) => {
+          float = v[0];
+          user  = v[1];
+          return user.api.post(`/floats/${float.id}/join/${float.token}`);
+        }).then(() => {
+          return user.api.get('/convos')
+        }).then((response) => {
+          expect(response.body.convos.length).toBeGreaterThan(0, `Expected at least one convo in ${JSON.stringify(response.body)}`);
+          const groupChat = response.body.convos.find((c) => {
+            return c.users.length == float.attendees.length + 2
+          })
+          expect(groupChat).toExist(`Expected group chat in ${JSON.stringify(response.body)}`);
+          expect(groupChat.float_id).toEqual(float.id);
+          const userIds = _.map(groupChat.users, 'id');
+          expect(userIds).toInclude(float.user.id, 'Expected float creator in group chat ids');
+          expect(userIds).toInclude(float.users[0].id, 'Expected first user in group chat ids');
+          expect(userIds).toInclude(float.users[1].id, 'Expected second user in group chat ids');
+          expect(userIds).toInclude(user.id, 'Expected user who joined to be in group chat');
+        })
+      })
+
+      it("creates dm for user", function () {
+        return Promise.all([
+          factory.float({invitees:[null, null, null]}),
+          factory.user(),
+        ]).then((v) => {
+          float = v[0];
+          user  = v[1];
+          return user.api.post(`/floats/${float.id}/join/${float.token}`);
+        }).then(() => {
+          return user.api.get('/convos')
+        }).then((response) => {
+          expect(response.body.convos.length).toEqual(2, `Expected at least one convo in ${JSON.stringify(response.body)}`);
+          const dm = response.body.convos.find((c) => {
+            return c.users.length == 2
+          })
+          expect(dm).toExist(`Expected dm in ${JSON.stringify(response.body)}`);
+          expect(dm.float_id).toEqual(float.id);
+          const userIds = _.map(dm.users, 'id');
+          expect(userIds).toInclude(float.user.id, 'Expected float creator in dm ids');
+          expect(userIds).toInclude(user.id, 'Expected user who joined to be in dm');
+        })
+      });
+    })
   })
 })}

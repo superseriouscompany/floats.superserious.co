@@ -42,10 +42,8 @@ function create(user, title, inviteeIds) {
     const isGroupFloat = recipients.length > 1;
 
     const promises = recipients.map(function(r) {
-      let convo;
       return db.convos.create(float.id, r.id, [user.id], [user, r])
     })
-
 
     if( isGroupFloat ) {
       const ids = _.map(recipients, 'id');
@@ -65,10 +63,45 @@ function create(user, title, inviteeIds) {
 }
 
 function join(user, floatId, floatToken) {
+  let float;
   return Promise.resolve().then(() => {
     return db.floats.get(floatId);
-  }).then((float) => {
+  }).then((f) => {
+    float = f;
     if( float.token != floatToken ) { throw error('Invalid float token', {name: 'InvalidToken'}); }
     return db.floats.addAttendee(floatId, user);
+  }).then(() => {
+    return db.convos.findByFloatId(floatId);
+  }).then((convos) => {
+    if( convos.length == 1 ) {
+      return addUserToDM(user, float, convos);
+    } else {
+      return addUserToGroup(user, float, convos);
+    }
+  }).then(() => {
+    return float;
+  })
+}
+
+function addUserToDM(user, float, convos) {
+  return Promise.resolve().then(() => {
+    return db.convos.join(float.id, convos[0].id, user);
+  }).then(() => {
+    const promises = float.attendees.map(function(r) {
+      return db.convos.create(float.id, r.id, [float.user.id], [float.user, r])
+    })
+    return Promise.all(promises);
+  })
+}
+
+function addUserToGroup(user, float, convos) {
+  return Promise.resolve().then(() => {
+    const mainConvo = convos.find((c) => {
+      return c.users.length == float.attendees.length
+    })
+    if( !mainConvo ) { throw error('No group chat', {name: 'No group chat'}); }
+    return db.convos.join(float.id, mainConvo.id, user)
+  }).then(() => {
+    return db.convos.create(float.id, user.id, [float.user.id], [float.user, user])
   })
 }
