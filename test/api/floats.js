@@ -396,7 +396,6 @@ module.exports = function() { describe("/floats", function() {
         }).then((response) => {
           expect(response.body.convos.length).toBeGreaterThan(0, `Expected at least one convo in ${JSON.stringify(response.body)}`);
           const groupChat = response.body.convos.find((c) => {
-            console.log(c.users.length, float.attendees.length);
             return c.users.length == float.attendees.length + 2
           })
           expect(groupChat).toExist(`Expected group chat in ${JSON.stringify(response.body)}`);
@@ -408,6 +407,29 @@ module.exports = function() { describe("/floats", function() {
           expect(userIds).toInclude(user.id, 'Expected user who joined to be in group chat');
         })
       })
+
+      it("creates dm for user", function () {
+        return Promise.all([
+          factory.float({invitees:[null, null, null]}),
+          factory.user(),
+        ]).then((v) => {
+          float = v[0];
+          user  = v[1];
+          return user.api.post(`/floats/${float.id}/join/${float.token}`);
+        }).then(() => {
+          return user.api.get('/convos')
+        }).then((response) => {
+          expect(response.body.convos.length).toEqual(2, `Expected at least one convo in ${JSON.stringify(response.body)}`);
+          const dm = response.body.convos.find((c) => {
+            return c.users.length == 2
+          })
+          expect(dm).toExist(`Expected dm in ${JSON.stringify(response.body)}`);
+          expect(dm.float_id).toEqual(float.id);
+          const userIds = _.map(dm.users, 'id');
+          expect(userIds).toInclude(float.user.id, 'Expected float creator in dm ids');
+          expect(userIds).toInclude(user.id, 'Expected user who joined to be in dm');
+        })
+      });
     })
   })
 })}
