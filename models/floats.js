@@ -69,6 +69,7 @@ function join(user, floatId, floatToken) {
   }).then((f) => {
     float = f;
     if( float.token != floatToken ) { throw error('Invalid float token', {name: 'InvalidToken'}); }
+    if( float.user.id == user.id ) { throw error('You created the float.', {name: 'DuplicateJoinError'})}
     return db.floats.addAttendee(floatId, user);
   }).then(() => {
     return db.convos.findByFloatId(floatId);

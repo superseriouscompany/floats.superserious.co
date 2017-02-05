@@ -330,6 +330,30 @@ module.exports = function() { describe("/floats", function() {
       })
     })
 
+    it("409s if you're already in the float", function () {
+      return factory.float().then((f) => {
+        float = f;
+      }).then((response) => {
+        return factory.user()
+      }).then((u) => {
+        user = u;
+        return u.api.post(`/floats/${float.id}/join/${float.token}`);
+      }).then(() => {
+        return user.api.post(`/floats/${float.id}/join/${float.token}`);
+      }).then(h.shouldFail).catch((err) => {
+        expect(err.statusCode).toEqual(409);
+      })
+    });
+
+    it("409s if it's your float", function () {
+      return factory.float().then((f) => {
+        float = f;
+        return float.user.api.post(`/floats/${float.id}/join/${float.token}`);
+      }).then(h.shouldFail).catch((err) => {
+        expect(err.statusCode).toEqual(409);
+      })
+    });
+
     describe("joining a dm", function() {
       it("adds new user to main chat", function () {
         return Promise.all([

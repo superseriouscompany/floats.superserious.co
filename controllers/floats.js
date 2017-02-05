@@ -91,7 +91,10 @@ function join(req, res, next) {
 
   models.floats.join(req.user, req.params.id, req.params.token).then((float) => {
     return res.status(201).json(float)
-  }).catch(next);
+  }).catch((err) => {
+    if( err.name == 'DuplicateJoinError' ) { return res.status(409).json({message: "You're already in this float."}); }
+    next(err);
+  });
 }
 
 function leave(req, res, next) {
