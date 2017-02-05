@@ -127,7 +127,7 @@ module.exports = function() { describe("/friends", function() {
         return user.api.get('/friends')
       }).then((response) => {
         expect(response.body.friends.length).toEqual(1, `Expected one friend in ${JSON.stringify(response.body)}`)
-        expect(response.body.friends[0].id).toEqual(u0.id);
+        expect(response.body.friends[0].friend_id).toEqual(u0.id);
       })
     });
 
@@ -235,7 +235,7 @@ module.exports = function() { describe("/friends", function() {
         expect(response.statusCode).toEqual(204)
         return user.api.get('/friends')
       }).then((response) => {
-        expect(response.body.friends[0].id).toEqual(u0.id);
+        expect(response.body.friends[0].friend_id).toEqual(u0.id);
         expect(response.body.friends[0].blocked).toExist();
       })
     });
@@ -267,7 +267,7 @@ module.exports = function() { describe("/friends", function() {
         expect(response.statusCode).toEqual(204);
         return user.api.get('/friends')
       }).then((response) => {
-        expect(response.body.friends[0].id).toEqual(u0.id);
+        expect(response.body.friends[0].friend_id).toEqual(u0.id);
         expect(response.body.friends[0].blocked).toNotExist();
       })
     });
@@ -316,13 +316,13 @@ module.exports = function() { describe("/friends", function() {
         return user.api.get('/friends/nearby');
       }).then(function(response) {
         expect(response.body.friends).toExist(`No friends in ${JSON.stringify(response.body)}`);
+        expect(response.body.friends.length).toEqual(2, `Found the wrong number of nearby friends in ${JSON.stringify(response.body)}`);
         const u0Match = response.body.friends.find(function(f) { return f.id == u0.id});
         expect(u0Match).toExist(`Didn't find ${u0.id} in ${JSON.stringify(response.body)}`);
         const u1Match = response.body.friends.find(function(f) { return f.id == u1.id});
         expect(u1Match).toExist(`Didn't find ${u1.id} in ${JSON.stringify(response.body)}`);
         const u2Match = response.body.friends.find(function(f) { return f.id == u2.id});
         expect(u2Match).toNotExist(`Found out of range user in nearby friends`);
-        expect(response.body.friends.length).toEqual(2, `Found the wrong number of nearby friends in ${JSON.stringify(response.body)}`);
       })
     });
   });

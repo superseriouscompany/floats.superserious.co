@@ -22,7 +22,13 @@ function all(userId) {
 function create(user, rando) {
   return Promise.resolve().then(function() {
     friends[user.id] = friends[user.id] || []
-    friends[user.id].unshift(rando);
+    friends[user.id].unshift({
+      user_id:    user.id,
+      friend_id:  rando.id,
+      avatar_url: rando.avatar_url,
+      name:       rando.name,
+      created_at: +new Date,
+    });
     return true;
   })
 }

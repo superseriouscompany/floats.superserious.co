@@ -19,7 +19,7 @@ function create(user, title, inviteeIds) {
 
   return db.friends.all(user.id).then(function(friends) {
     recipients = friends.filter(function(f) {
-      return inviteeIds.indexOf(f.id) !== -1;
+      return inviteeIds.indexOf(f.friend_id) !== -1;
     });
     if( recipients.length < inviteeIds.length ) {
       const badIds = _.differenceWith(recipients, inviteeIds, function(a, b) {
