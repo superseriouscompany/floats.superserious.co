@@ -57,10 +57,16 @@ function unblock(userId, friendId) {
   return db.friends.unblock(userId, friendId)
 }
 
-function allUsers(userId) {
+function allUsers(userId, showBlocked) {
   return Promise.resolve().then(() => {
     return all(userId)
   }).then((friends) => {
+    if( !showBlocked ) {
+      friends = friends.filter((f) => {
+        return !f.blocked
+      })
+    }
+
     return db.users.batchGet(friends.map((f) => {
       return f.friend_id
     }))
