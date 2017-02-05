@@ -42,7 +42,6 @@ function create(user, title, inviteeIds) {
     const isGroupFloat = recipients.length > 1;
 
     const promises = recipients.map(function(r) {
-      let convo;
       return db.convos.create(float.id, r.id, [user.id], [user, r])
     })
 
@@ -74,8 +73,27 @@ function join(user, floatId, floatToken) {
   }).then(() => {
     return db.convos.findByFloatId(floatId);
   }).then((convos) => {
-    return db.convos.join(floatId, convos[0].id, user);
+    if( convos.length == 1 ) {
+      return addUserToDM(user, float, convos);
+    } else {
+      return addUserToGroup(user, float, convos);
+    }
   }).then(() => {
     return float;
   })
+}
+
+function addUserToDM(user, float, convos) {
+  return Promise.resolve().then(() => {
+    return db.convos.join(float.id, convos[0].id, user);
+  }).then(() => {
+    const promises = float.attendees.map(function(r) {
+      return db.convos.create(float.id, r.id, [float.user.id], [float.user, r])
+    })
+    return Promise.all(promises);
+  })
+}
+
+function addUserToGroup(user, float, convo) {
+
 }

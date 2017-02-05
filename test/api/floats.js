@@ -347,5 +347,38 @@ module.exports = function() { describe("/floats", function() {
         expect(convo.members).toInclude(float.users[0].id);
       })
     });
+
+    it("creates dms for both users", function () {
+      return Promise.all([
+        factory.float(),
+        factory.user(),
+      ]).then((v) => {
+        float = v[0];
+        user  = v[1];
+        return user.api.post(`/floats/${float.id}/join/${float.token}`);
+      }).then(() => {
+        return user.api.get('/convos')
+      }).then((response) => {
+        expect(response.body.convos.length).toEqual(2, `Expected exactly two convos in ${JSON.stringify(response.body)}`)
+        const groupChat = response.body.convos[0].users.length == 3 ? response.body.convos[0] : response.body.convos[1];
+        const dm = response.body.convos[0].users.length == 3 ? response.body.convos[1] : response.body.convos[0];
+        expect(groupChat.id).toNotEqual(dm.id);
+        expect(groupChat.members.length).toEqual(3);
+        expect(groupChat.members).toInclude(user.id);
+        expect(dm.users.length).toEqual(2);
+        expect(dm.members).toInclude(user.id);
+        return float.users[0].api.get('/convos')
+      }).then((response) => {
+        expect(response.body.convos.length).toEqual(2, `Expected exactly two convos in ${JSON.stringify(response.body)}`)
+        const groupChat = response.body.convos[0].users.length == 3 ? response.body.convos[0] : response.body.convos[1];
+        const dm = response.body.convos[0].users.length == 3 ? response.body.convos[1] : response.body.convos[0];
+        expect(groupChat.members).toInclude(float.users[0].id);
+        expect(groupChat.members).toInclude(float.users[0].id);
+        expect(dm.users.length).toEqual(2);
+        expect(dm.members).toInclude(float.users[0].id);
+      })
+    });
+
+    it("works for a group")
   })
 })}
