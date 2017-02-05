@@ -5,11 +5,11 @@ const config = require('../../config');
 const client = require('./client');
 
 module.exports = {
-  all: all,
-  create: create,
-  block: block,
+  all:     all,
+  create:  create,
+  block:   block,
   unblock: unblock,
-  get: get,
+  get:     get,
 }
 
 let friends = [];
@@ -17,8 +17,8 @@ let friends = [];
 function all(userId) {
   if( !userId ) { return Promise.reject(error('userId is null', {name: 'InputError'})); }
   return client.query({
-    TableName: config.friendsTableName,
-    KeyConditionExpression: 'user_id = :userId',
+    TableName:                 config.friendsTableName,
+    KeyConditionExpression:    'user_id = :userId',
     ExpressionAttributeValues: {':userId': userId}
   }).then(function(result) {
     return result.Items;
@@ -26,7 +26,7 @@ function all(userId) {
 }
 
 function create(user, rando) {
-  if( !user ) { return Promise.reject(error('user is null', {name: 'InputError'})); }
+  if( !user )  { return Promise.reject(error('user is null', {name: 'InputError'})); }
   if( !rando ) { return Promise.reject(error('rando is null', {name: 'InputError'})); }
 
   const friend = {
@@ -38,7 +38,7 @@ function create(user, rando) {
   }
   return client.put({
     TableName: config.friendsTableName,
-    Item: friend,
+    Item:      friend,
   }).then(function() {
     return friend;
   })
@@ -91,7 +91,7 @@ function get(userId, friendId) {
   return client.get({
     TableName: config.friendsTableName,
     Key: {
-      user_id: userId,
+      user_id:   userId,
       friend_id: friendId,
     },
   }).then(function(friendship) {
