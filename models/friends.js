@@ -67,6 +67,8 @@ function allUsers(userId, showBlocked) {
       })
     }
 
+    if( !friends.length ) { return [] }
+
     return db.users.batchGet(friends.map((f) => {
       return f.friend_id
     }))
