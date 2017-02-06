@@ -40,7 +40,7 @@ function nearby(req, res, next) {
       return !f.blocked && haversine(
         { latitude: f.lat, longitude: f.lng },
         { latitude: lat, longitude: lng },
-        { threshold: 100 }
+        { threshold: 25 }
       )
     })
 
