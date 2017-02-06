@@ -9,6 +9,13 @@ const session = require('../services/session');
 const panic   = require('../services/panic');
 const _       = require('lodash');
 
+const models = {
+  friends: require('../models/friends')
+}
+const db = {
+  floats: require('../db/floats')
+}
+
 module.exports = function(app, l) {
   app.post('/users', createUser);
   app.get('/users/me', auth, getUser);
@@ -67,11 +74,29 @@ function deleteUser(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.sendStatus(204); }
 
   let user;
-  users.get(req.userId).then(function(u) {
-    user = u;
-    return users.destroy(u.id);
+
+  return Promise.resolve().then(() => {
+    return db.floats.findByCreator(req.userId)
+  }).then((floats) => {
+    return Promise.all(floats.map((f) => {
+      return db.floats.destroy(f.id)
+    }))
+  }).then(() => {
+    return db.floats.findByInvitee(req.userId)
+  }).then((floats) => {
+    return Promise.all(floats.map((f) => {
+      return db.floats.leave(f.id, req.userId);
+    }))
+  }).then(() => {
+    return models.friends.all(req.userId)
+  }).then((friends) => {
+    return Promise.all(friends.map((f) => {
+      return models.friends.destroy(req.userId, f.friend_id)
+    }))
+  }).then(() => {
+    return users.destroy(req.userId);
   }).then(function() {
     res.sendStatus(204);
-    return session.destroy(user.access_token);
+    return session.destroy(req.user.access_token);
   }).catch(next);
 }

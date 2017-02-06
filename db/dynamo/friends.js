@@ -10,6 +10,7 @@ module.exports = {
   block:   block,
   unblock: unblock,
   get:     get,
+  destroy: destroy,
 }
 
 let friends = [];
@@ -41,6 +42,16 @@ function create(user, rando) {
     Item:      friend,
   }).then(function() {
     return friend;
+  })
+}
+
+function destroy(userId, friendId) {
+  return client.delete({
+    TableName: config.friendsTableName,
+    Key: {
+      user_id:   userId,
+      friend_id: friendId,
+    },
   })
 }
 

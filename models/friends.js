@@ -10,6 +10,7 @@ const db = {
 module.exports = {
   all: all,
   create: create,
+  destroy: destroy,
   block: block,
   unblock: unblock,
   get: get,
@@ -47,6 +48,13 @@ function create(userId, rando) {
   }).then(() => {
     return true;
   })
+}
+
+function destroy(userId, friendId) {
+  return Promise.all([
+    db.friends.destroy(userId, friendId),
+    db.friends.destroy(friendId, userId),
+  ])
 }
 
 function block(userId, friendId) {

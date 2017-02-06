@@ -1,5 +1,6 @@
 'use strict';
 
+const _     = require('lodash');
 const users = require('../users');
 const error = require('../../services/error');
 
@@ -9,6 +10,7 @@ module.exports = {
   block: block,
   unblock: unblock,
   get: get,
+  destroy: destroy,
 }
 
 let friends = {}
@@ -30,6 +32,12 @@ function create(user, rando) {
       created_at: +new Date,
     });
     return true;
+  })
+}
+
+function destroy(userId, friendId) {
+  friends[userId] = _.reject(friends[userId], (f) => {
+    return f.friend_id == friendId
   })
 }
 

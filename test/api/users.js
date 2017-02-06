@@ -4,9 +4,17 @@ const expect   = require('expect');
 const factory  = require('../factory');
 const h        = require('../helpers');
 const api      = require('../api');
+const tinystub     = require('tinystub');
 
 module.exports = function() { describe("/users", function() {
-  let user, fbToken;
+  let user, fbToken, stub;
+
+  before(function() {
+    stub = tinystub(4202)
+  })
+  after(function() {
+    stub();
+  })
 
   afterEach(function() {
     user = null;
@@ -59,15 +67,45 @@ module.exports = function() { describe("/users", function() {
       })
     });
 
-    it("deletes floats");
+    it("deletes floats", function() {
+      let float;
+      return factory.float().then((f) => {
+        float = f;
+        return float.user.api.delete('/users/me')
+      }).then(() => {
+        return float.users[0].api.get('/floats')
+      }).then((response) => {
+        expect(response.body.floats.length).toEqual(0, `Expected deleted accounts float to be deleted. ${JSON.stringify(response.body)}`)
+      })
+    });
 
-    it("deletes friendships");
+    it("leaves floats", function() {
+      let float;
+      return factory.float().then((f) => {
+        float = f;
+        return float.users[0].api.delete('/users/me')
+      }).then(() => {
+        return float.user.api.get('/floats/mine')
+      }).then((response) => {
+        expect(response.body.floats.length).toEqual(1, `Expected exactly one float in. ${JSON.stringify(response.body)}`)
+        expect(response.body.floats[0].invitees.length).toEqual(0, `Expected deleting account to leave the float`);
+      })
+    });
+
+    it("deletes friendships", function() {
+      let u0;
+      return factory.friendship().then((f) => {
+        user = f.u0;
+        u0   = f.u1;
+        return user.api.delete('/users/me');
+      }).then(() => {
+        return u0.api.get('/friends')
+      }).then((response) => {
+        expect(response.body.friends.length).toEqual(0);
+      })
+    });
 
     it("deletes friend requests");
-
-    it("leaves groups");
-
-    it("ends dms");
   })
 
   describe("updating self", function() {
