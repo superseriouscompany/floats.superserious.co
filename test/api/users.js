@@ -105,7 +105,18 @@ module.exports = function() { describe("/users", function() {
       })
     });
 
-    it("deletes friend requests");
+    it("deletes friend requests", function() {
+      let u0;
+      return factory.friendRequest().then((fr) => {
+        user = fr.user;
+        u0   = fr.rando;
+        return u0.api.delete('/users/me');
+      }).then(() => {
+        return user.api.get('/friend_requests')
+      }).then((response) => {
+        expect(response.body.friend_requests.length).toEqual(0);
+      })
+    });
   })
 
   describe("updating self", function() {

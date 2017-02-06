@@ -13,7 +13,8 @@ const models = {
   friends: require('../models/friends')
 }
 const db = {
-  floats: require('../db/floats')
+  floats:          require('../db/floats'),
+  friend_requests: require('../db/friend_requests'),
 }
 
 module.exports = function(app, l) {
@@ -92,6 +93,12 @@ function deleteUser(req, res, next) {
   }).then((friends) => {
     return Promise.all(friends.map((f) => {
       return models.friends.destroy(req.userId, f.friend_id)
+    }))
+  }).then(() => {
+    return db.friend_requests.from(req.userId)
+  }).then((friendRequests) => {
+    return Promise.all(friendRequests.map((f) => {
+      return db.friend_requests.destroy(f.user.id, req.userId);
     }))
   }).then(() => {
     return users.destroy(req.userId);
