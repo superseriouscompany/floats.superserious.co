@@ -26,7 +26,7 @@ module.exports = function(app) {
 
 function create(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.status(201).json({id: 'PANICMODE'}); }
-
+  console.log('hit controller');
   if( !req.body.invitees || !req.body.invitees.length ) {
     return res.status(400).json({debug: '`invitees` array must contain at least one user id'});
   }
@@ -40,6 +40,7 @@ function create(req, res, next) {
     return res.status(400).json({message: 'Your title is too long. It can only contain 140 characters.'});
   }
 
+  console.log('gonna create');
   return models.floats.create(req.user, req.body.title, req.body.invitees).then((float) => {
     const promises = float.recipients.map(function(r) {
       return notify.firebase(r.firebase_token, `${req.user.name} floated "${req.body.title}"`, {

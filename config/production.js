@@ -4,4 +4,5 @@ module.exports = {
   pinsTableName:    'floatsPins',
   usersTableName:   'floatsUsers',
   friendsTableName: 'floatsFriends',
+  floatsTableName:  'floatsFloats',
 }
