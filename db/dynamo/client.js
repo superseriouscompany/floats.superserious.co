@@ -1,7 +1,7 @@
 const config    = require('../../config');
 const promisify = require('bluebird').Promise.promisify;
-const client    = new config.AWS.DynamoDB.DocumentClient();
-const lowLevel  = new config.AWS.DynamoDB();
+const lowLevel  = new config.AWS.DynamoDB({endpoint: new config.AWS.Endpoint('http://localhost:8000')});
+const client    = new config.AWS.DynamoDB.DocumentClient({endpoint: new config.AWS.Endpoint('http://localhost:8000')});
 
 client.get      = promisify(client.get, {context:      client});
 client.delete   = promisify(client.delete, {context:   client});
@@ -63,4 +63,4 @@ function waitForCreation(tableName, cb) {
 }
 
 module.exports = client;
-module.exports.lowLevel = new config.AWS.DynamoDB();
+module.exports.lowLevel = lowLevel;

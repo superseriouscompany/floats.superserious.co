@@ -30,7 +30,6 @@ function create(user, title, inviteeIds) {
       })
       throw error('Invalid invitees: not friends', {name: 'InvalidFriends', ids: badIds});
     }
-    console.log('hitting db');
     return db.floats.create({
       user_id:   user.id,
       title:     title,
@@ -39,7 +38,6 @@ function create(user, title, inviteeIds) {
       user:      _.pick(user, 'id', 'name', 'username', 'avatar_url'),
     })
   }).then(function(f) {
-    console.log('got em');
     float = f;
     const isGroupFloat = recipients.length > 1;
 
