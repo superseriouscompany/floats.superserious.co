@@ -84,7 +84,10 @@ function all() {
 }
 
 function findByInvitee(userId) {
-  return db.members.findByUserId(userId).then((members) => {
+  return Promise.resolve().then(() => {
+    if( !userId ) { throw error('userId not provided', {name: 'InputError'}); }
+    return db.members.findByUserId(userId);
+  }).then((members) => {
     if( !members.length ) { return [] }
 
     let params = { RequestItems: {} };
@@ -94,10 +97,10 @@ function findByInvitee(userId) {
       }),
     }
 
-    return client.batchGet(params).then((result) => {
-      if( !result.Responses ) { throw error('Unexpected dynamo response', {response: result})}
-      return result.Responses[config.floatsTableName];
-    })
+    return client.batchGet(params)
+  }).then((result) => {
+    if( !result.Responses ) { throw error('Unexpected dynamo response', {response: result})}
+    return result.Responses[config.floatsTableName];
   })
 }
 

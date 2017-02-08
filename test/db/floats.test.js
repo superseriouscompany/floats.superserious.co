@@ -139,8 +139,8 @@ module.exports = function() {
 
       it("returns floats that the person was invited to", function () {
         return Promise.all([
-          createFloat({title: 'surlo', invitees: ['chuck']}),
-          createFloat({title: 'soccer', invitees: ['chuck']}),
+          createFloat({title: 'surlo', attendees: [{id: 'chuck'}], invitees: ['chuck']}),
+          createFloat({title: 'soccer', attendees: [{id: 'chuck'}], invitees: ['chuck']}),
         ]).then(function() {
           return floats.findByInvitee('chuck');
         }).then(function(all) {
