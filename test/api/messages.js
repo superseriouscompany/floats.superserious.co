@@ -223,7 +223,7 @@ module.exports = function() { describe("/messages", function() {
 
     it("returns empty messages for group");
 
-    it("returns last 20 messages by default", function() {
+    it("returns created messages", function() {
       return factory.convo().then(function(c) {
         convo = c;
         return factory.message(c.float.user, c.float.id, c.id, 'where ya ass was at');
@@ -235,6 +235,24 @@ module.exports = function() { describe("/messages", function() {
         expect(messages).toExist(`Expected messages key in ${JSON.stringify(response.body)}`);
         expect(messages.length).toEqual(1, `Expected exactly one message in ${JSON.stringify(response.body)}`);
         expect(messages[0].text).toEqual('where ya ass was at');
+      });
+    });
+
+    it("returns messages in creation order", function() {
+      return factory.convo().then(function(c) {
+        convo = c;
+        return factory.message(convo.float.user, convo.float.id, convo.id, 'weeks ago');
+      }).then(function(m) {
+        return factory.message(convo.float.user, convo.float.id, convo.id, 'literally right now');
+      }).then(() => {
+        return convo.float.user.api.get(`/floats/${convo.float.id}/convos/${convo.id}/messages`);
+      }).then(function(response) {
+        expect(response.statusCode).toEqual(200);
+        let messages = response.body.messages;
+        expect(messages).toExist(`Expected messages key in ${JSON.stringify(response.body)}`);
+        expect(messages.length).toEqual(2, `Expected exactly one message in ${JSON.stringify(response.body)}`);
+        expect(messages[0].text).toEqual('literally right now');
+        expect(messages[1].text).toEqual('weeks ago');
       });
     });
   });
