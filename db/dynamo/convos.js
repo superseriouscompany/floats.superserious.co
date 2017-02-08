@@ -25,8 +25,6 @@ module.exports = {
   flush:            flush,
 }
 
-let convos = {};
-
 function get(floatId, id) {
   return Promise.resolve().then(function() {
     if( !floatId || !id ) { throw error('Empty floatId or id', {floatId: floatId, id: id, name: 'InputError'}); }
@@ -98,18 +96,28 @@ function findByMemberId(userId) {
 
 function findByFloatId(floatId) {
   return Promise.resolve().then(() => {
-    return _.values(convos).filter((c) => {
-      return c.float_id == floatId
+    return client.query({
+      TableName: config.convosTableName,
+      KeyConditionExpression: 'float_id = :float_id',
+      ExpressionAttributeValues: {
+        ':float_id': floatId
+      }
     })
+  }).then(result => {
+    return result.Items;
   })
 }
 
 function destroyByFloatId(floatId) {
+  // TODO: batch delete properly
   return Promise.resolve().then(function() {
-    convos = _.omitBy(convos, function(c) {
-      return c.float_id == floatId;
+    return findByFloatId(floatId)
+  }).then((convos) => {
+    const promises = convos.map(c => {
+      return destroy(floatId, c.id);
     })
-
+    return Promise.all(promises)
+  }).then(() => {
     return true;
   })
 }

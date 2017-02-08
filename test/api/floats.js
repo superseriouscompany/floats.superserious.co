@@ -297,7 +297,7 @@ module.exports = function() { describe("/floats", function() {
       }).then(function() {
         return convo.float.user.api.get('/convos');
       }).then(function(response) {
-        expect(response.body.convos.length).toEqual(0);
+        expect(response.body.convos.length).toEqual(0, `Expected no convos after deleting float ${JSON.stringify(response.body.convos)}`);
       })
     });
   })
