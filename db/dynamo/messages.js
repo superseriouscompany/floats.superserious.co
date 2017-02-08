@@ -14,7 +14,6 @@ module.exports = {
   destroy: destroy,
 }
 
-let messages = {};
 let inc = 1;
 
 function create(floatId, convoId, userId, text) {
@@ -41,15 +40,24 @@ function create(floatId, convoId, userId, text) {
 
 function findByConvo(floatId, convoId) {
   return Promise.resolve().then(function() {
-    return messages[floatId] && messages[floatId][convoId] || [];
+    return client.query({
+      TableName: config.messagesTableName,
+      KeyConditionExpression: 'convo_id = :convo_id',
+      ExpressionAttributeValues: { ':convo_id': convoId },
+      ScanIndexForward: false,
+    })
+  }).then((result) => {
+    return result.Items
   })
 }
 
 function destroy(floatId, convoId, id) {
   return Promise.resolve().then(function() {
-    messages[floatId][convoId] = _.reject(messages[floatId][convoId], function(m) {
-      return m.id == id;
+    return client.delete({
+      TableName: config.messagesTableName,
+      Key: { convo_id: convoId, id: Number(id) },
     })
-    return true;
+  }).then((ok) => {
+    return true
   })
 }
