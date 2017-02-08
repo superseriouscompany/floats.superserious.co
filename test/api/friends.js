@@ -52,10 +52,13 @@ module.exports = function() { describe("/friends", function() {
 
     it("doesn't pull people you're friends with or have requested", function() {
       let u1;
+
+      const name1 = `Esteban ${Math.random()}`;
+      const name2 = `Lynda ${Math.random()}`;
       return Promise.all([
         factory.user({name: 'Neil'}),
-        factory.user({name: 'Esteban'}),
-        factory.user({name: 'Lynda'}),
+        factory.user({name: name1}),
+        factory.user({name: name2}),
       ]).then((v) => {
         user = v[0];
         u0 = v[1];
@@ -69,8 +72,8 @@ module.exports = function() { describe("/friends", function() {
         return user.api.get('/randos')
       }).then((response) => {
         const names = _.map(response.body.randos, 'name');
-        expect(names).toNotInclude('Esteban');
-        expect(names).toNotInclude('Lynda');
+        expect(names).toNotInclude(name1);
+        expect(names).toNotInclude(name2);
       })
     });
 

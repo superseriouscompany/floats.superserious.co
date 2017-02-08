@@ -124,8 +124,14 @@ function destroyByFloatId(floatId) {
 
 function setLastMessage(floatId, convoId, message) {
   return Promise.resolve().then(function() {
-    convos[convoId].message = message;
-    return true;
+    return client.update({
+      TableName:                 config.convosTableName,
+      Key:                       { float_id: floatId, id: convoId },
+      ConditionExpression:       'attribute_exists(id)',
+      UpdateExpression:          'set #message = :message',
+      ExpressionAttributeValues: { ':message': message },
+      ExpressionAttributeNames:  { '#message': 'message' },
+    })
   })
 }
 
