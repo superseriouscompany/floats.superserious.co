@@ -152,6 +152,26 @@ module.exports = function() { describe("/messages", function() {
       });
     });
 
+    it("generates sequential ids", function () {
+      return factory.convo().then(function(c) {
+        convo = c;
+        return convo.float.user.api.post(`/floats/${convo.float.id}/convos/${convo.id}/messages`, {
+          body: {
+            text: 'Hello world',
+          }
+        })
+      }).then((response) => {
+        expect(response.body.id).toEqual(2);
+        return convo.float.user.api.post(`/floats/${convo.float.id}/convos/${convo.id}/messages`, {
+          body: {
+            text: 'How ya doin',
+          }
+        })
+      }).then((response) => {
+        expect(response.body.id).toEqual(3);
+      })
+    });
+
     it("delivers messages via push notification", function() {
       return factory.convo().then(function(c) {
         convo = c;

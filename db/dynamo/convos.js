@@ -46,6 +46,7 @@ function create(floatId, userId, members, users) {
     members: [userId].concat(members),
     users: users,
     created_at: +new Date,
+    counter: 1,
   }
 
   return Promise.resolve().then(function() {

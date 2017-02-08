@@ -14,27 +14,36 @@ module.exports = {
   destroy: destroy,
 }
 
-let inc = 1;
-
 function create(floatId, convoId, userId, text) {
   return Promise.resolve().then(function() {
     return db.users.get(userId)
   }).then(function(user) {
-    const message = {
-      id:         inc++,
-      user:       _.pick(user, 'id', 'avatar_url', 'name'),
-      text:       text,
-      created_at: +new Date,
-      float_id:   floatId,
-      convo_id:   convoId,
-    };
+    return client.update({
+      TableName: config.convosTableName,
+      Key: { float_id: floatId, id: convoId },
+      UpdateExpression: 'set #counter = #counter + :inc',
+      ExpressionAttributeValues: { ':inc': 1 },
+      ExpressionAttributeNames:  { '#counter': 'counter' },
+      ReturnValues: 'ALL_NEW',
+    }).then(function(response) {
+      return response.Attributes.counter;
+    }).then((id) => {
+      const message = {
+        id:         id,
+        user:       _.pick(user, 'id', 'avatar_url', 'name'),
+        text:       text,
+        created_at: +new Date,
+        float_id:   floatId,
+        convo_id:   convoId,
+      };
 
-    return client.put({
-      TableName: config.messagesTableName,
-      Item:      message
-    }).then(() => {
-      return message;
-    })
+      return client.put({
+        TableName: config.messagesTableName,
+        Item:      message
+      }).then(() => {
+        return message;
+      })
+    });
   });
 }
 
