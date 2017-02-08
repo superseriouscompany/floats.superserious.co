@@ -113,19 +113,32 @@ function findByCreator(userId) {
 }
 
 function addAttendee(floatId, user) {
+  let float;
   return Promise.resolve().then(() => {
     if( !floatId ) { throw error('floatId not provided', {name: 'InputError'}); }
     if( !user )  { throw error('user not provided', {name: 'InputError'}); }
-    if( !floats[floatId] ) { throw error('Float not found', {name: 'FloatNotFound', id: floatId }); }
-
-    const conflict = floats[floatId].attendees.find(function(a) {
+    return get(floatId)
+  }).then((f) => {
+    float = f;
+    const conflict = float.attendees.find(function(a) {
       return a.id === user.id
     })
     if( conflict ) { throw error('Float has already been joined.', {name: 'DuplicateJoinError'}); }
 
-    floats[floatId].attendees.push(_.pick(user, 'id', 'avatar_url', 'name', 'username'))
-    floats[floatId].invitees.push(user.id)
-    return floats[floatId];
+    return db.members.batchCreate([{float_id: floatId, user_id: user.id}])
+  }).then(() => {
+    const attendees = float.attendees.concat(_.pick(user, 'id', 'avatar_url', 'name', 'username'));
+    const invitees  = float.invitees.concat(user.id);
+
+    return client.update({
+      TableName:                 config.floatsTableName,
+      Key:                       { id: floatId },
+      ConditionExpression:       'attribute_exists(id)',
+      UpdateExpression:          'set attendees = :attendees, invitees = :invitees',
+      ExpressionAttributeValues: { ':attendees': attendees, ':invitees': invitees},
+    })
+  }).then((ok) => {
+    return true
   })
 }
 
@@ -159,9 +172,9 @@ function leave(floatId, userId) {
 }
 
 function attendees(float) {
-  return new Promise(function(resolve, reject) {
+  return Promise.resolve().then(() => {
     if( !float || !float.id ) { return reject(error('float not provided', {name: 'InputError', float: float})); }
-    resolve(float.attendees);
+    return float.attendees;
   })
 }
 
@@ -172,7 +185,7 @@ function destroy(floatId) {
   }).then((float) => {
     return Promise.all(float.attendees.map((a) => {
       return db.members.destroy(a.id, float.id)
-    })
+    }))
   }).then(() => {
     return client.delete({
       TableName: config.floatsTableName,
