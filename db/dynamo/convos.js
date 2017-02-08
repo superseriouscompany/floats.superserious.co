@@ -3,6 +3,7 @@
 const uuid   = require('uuid');
 const _      = require('lodash');
 const client = require('./client');
+const schema = require('./schemas/convos');
 const error  = require('../../services/error');
 const config = require('../../config');
 const db = {
@@ -35,7 +36,7 @@ function get(floatId, id) {
       Key: { float_id: floatId, id: id }
     })
   }).then((response) => {
-    return response.Items
+    return response.Item
   })
 }
 
@@ -123,15 +124,18 @@ function setLastMessage(floatId, convoId, message) {
 function flush() {
   if( process.env.NODE_ENV == 'production' ) return Promise.reject('Production Safeguard :)');
 
-  return Promise.resolve().then(function() {
-    convos = {};
+  return client.truncate(config.convosTableName, schema).then(() => {
     return true;
-  })
+  });
 }
 
 function destroy(floatId, id) {
   return Promise.resolve().then(function() {
-    delete convos[id];
+    return client.delete({
+      TableName: config.convosTableName,
+      Key: { id: id, float_id: floatId}
+    })
+  }).then(() => {
     return true;
   })
 }
@@ -160,14 +164,31 @@ function join(floatId, id, user) {
 }
 
 function leave(floatId, id, userId) {
-  return Promise.resolve().then(function() {
-    convos[id].members = _.reject(convos[id].members, function(id) {
-      return id === userId
+  return get(floatId, id).then(function(convo) {
+    const members = _.reject(convo.members, function(m) {
+      return m.id == userId;
     })
-    if( convos[id].members.length == 1 ) {
-      return destroy(floatId, id)
-    } else {
-      return true;
+    const users = _.reject(convo.users, function(u) {
+      return u.id == userId;
+    })
+
+    return Promise.all([
+      client.update({
+        TableName:                 config.convosTableName,
+        Key:                       { id: id, float_id: floatId },
+        ConditionExpression:       'attribute_exists(id)',
+        UpdateExpression:          'set #members = :members, #users = :users',
+        ExpressionAttributeValues: { ':members': members, ':users':   users},
+        ExpressionAttributeNames:  { '#members': 'members', '#users': 'users'}
+      }),
+      db.members.destroy(userId, id)
+    ])
+  }).then(function(ok) {
+    return true;
+  }).catch(function(err) {
+    if( err.name == 'ConditionalCheckFailedException' ) {
+      throw error('No convo found', {name: 'ConvoNotFound', floatId: floatId, id: id});
     }
-  })
+    throw err;
+  });
 }
