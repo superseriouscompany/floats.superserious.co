@@ -1,3 +1,3 @@
-module.exports = true || global.TEST_MODE && !process.env.LIVE ?
+module.exports = global.TEST_MODE && !process.env.LIVE ?
   require('./memory/floats') :
   require('./dynamo/floats');

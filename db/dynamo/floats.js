@@ -23,7 +23,6 @@ module.exports = {
 let floats = {};
 
 function create(float) {
-  console.log('called dynamo create');
   return Promise.resolve().then(() => {
     if( !float ) { throw error('float not provided', {name: 'InputError'}); }
     if( !float.invitees ) { throw error('invitees not provided', {name: 'ValidationError'}); }
@@ -83,13 +82,15 @@ function findByInvitee(userId) {
 }
 
 function findByCreator(userId) {
-  return new Promise(function(resolve, reject) {
-    if( !userId ) { return reject(error('userId not provided', {name: 'InputError'})); }
-    const fs = _.values(floats).filter(function(f) {
-      return f.user.id == userId
-    })
-
-    resolve(fs);
+  return client.query({
+    TableName: config.floatsTableName,
+    IndexName: 'user_id',
+    KeyConditionExpression: 'user_id = :user_id',
+    ExpressionAttributeValues: {
+      ':user_id': userId
+    }
+  }).then((results) => {
+    return results.Items;
   })
 }
 
