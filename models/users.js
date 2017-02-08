@@ -13,8 +13,19 @@ const db = {
 }
 
 module.exports = {
+  get: get,
   update: update,
   destroy: destroy,
+}
+
+function get(id, profile) {
+  return db.users.get(id).then((user) => {
+    if( profile == 'limited' ) {
+      user.hasFirebaseToken = !!user.firebase_token;
+      user = _.pick(user, 'id', 'name', 'avatar_url', 'created_at', 'username', 'hasFirebaseToken');
+    }
+    return user;
+  })
 }
 
 function update(userId, fields) {

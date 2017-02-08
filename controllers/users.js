@@ -55,11 +55,8 @@ function createUser(req, res, next) {
 function getUser(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.json(panic.user) }
 
-  return users.get(req.userId).then(function(user) {
-    if( !user ) { throw error('User not found', {userId: req.userId, name: 'NotFound'}) }
-    let json = _.pick(user, 'id', 'name', 'avatar_url', 'created_at', 'username');
-    json.hasFirebaseToken = !!user.firebase_token;
-    return res.json(json);
+  return models.users.get(req.userId, 'limited').then((user) => {
+    res.json(user)
   }).catch(next);
 }
 
