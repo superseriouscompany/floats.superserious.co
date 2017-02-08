@@ -3,6 +3,7 @@
 const _       = require('lodash');
 const fb      = require('../services/facebook');
 const session = require('../services/session');
+const uuid    = require('uuid');
 
 const models = {
   friends: require('../models/friends'),
@@ -38,7 +39,7 @@ function createFromFacebook(facebookAccessToken) {
   }).catch(function(err) {
     if( err.name == 'UserNotFound' ) {
       let user;
-      return db.users.createFromFacebook(fbUser).then(function(u) {
+      return fieldsFromFacebook(fbUser).then(function(u) {
         user = u;
         return session.create(user.access_token, user.id).then(() => {
           return _.pick(user, fields);
@@ -48,6 +49,16 @@ function createFromFacebook(facebookAccessToken) {
 
     throw err;
   })
+}
+
+function fieldsFromFacebook(fbUser) {
+  let user = Object.assign({}, fbUser, {
+    facebook_id:  fbUser.id,
+    id:           null,
+    access_token: uuid.v1(),
+    avatar_url:   `https://graph.facebook.com/v2.8/${fbUser.facebook_id}/picture`,
+  })
+  return db.users.create(user);
 }
 
 function get(id, profile) {

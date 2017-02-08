@@ -14,7 +14,6 @@ module.exports = {
   batchGet: batchGet,
   findByFacebookId: findByFacebookId,
   findByAccessToken: findByAccessToken,
-  createFromFacebook: createFromFacebook,
   all: all,
   destroy: destroy,
   flush: flush,
@@ -153,18 +152,5 @@ function findByAccessToken(accessToken) {
   }).then(function(user) {
     if( !user.Items.length ) { throw error('No user found', {name: 'UserNotFound'}); }
     return user.Items[0];
-  })
-}
-
-function createFromFacebook(user) {
-  return new Promise(function(resolve, reject) {
-    if( !user ) { return reject(error('user is null', {name: 'InputError'})); }
-    if( !user.id ) { return reject(error('user id is null', {name: 'InputError', user: user}))}
-
-    user.facebook_id  = user.id;
-    user.id           = null;
-    user.access_token = uuid.v1();
-    user.avatar_url   = `https://graph.facebook.com/v2.8/${user.facebook_id}/picture`
-    return create(user).then(resolve).catch(reject);
   })
 }
