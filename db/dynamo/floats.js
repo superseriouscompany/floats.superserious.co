@@ -165,10 +165,15 @@ function attendees(float) {
   })
 }
 
+// TODO: read memberships from delete operation return values
 function destroy(floatId) {
   return Promise.resolve().then(() => {
-    if( !floatId ) { throw error('floatId not provided', {name: 'InputError'}); }
-
+    return get(floatId)
+  }).then((float) => {
+    return Promise.all(float.attendees.map((a) => {
+      return db.members.destroy(a.id, float.id)
+    })
+  }).then(() => {
     return client.delete({
       TableName: config.floatsTableName,
       Key: { id: floatId },
