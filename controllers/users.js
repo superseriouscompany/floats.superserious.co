@@ -10,7 +10,8 @@ const panic   = require('../services/panic');
 const _       = require('lodash');
 
 const models = {
-  friends: require('../models/friends')
+  friends: require('../models/friends'),
+  users:   require('../models/users'),
 }
 const db = {
   floats:          require('../db/floats'),
@@ -74,35 +75,7 @@ function updateUser(req, res, next) {
 function deleteUser(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.sendStatus(204); }
 
-  let user;
-
-  return Promise.resolve().then(() => {
-    return db.floats.findByCreator(req.userId)
-  }).then((floats) => {
-    return Promise.all(floats.map((f) => {
-      return db.floats.destroy(f.id)
-    }))
-  }).then(() => {
-    return db.floats.findByInvitee(req.userId)
-  }).then((floats) => {
-    return Promise.all(floats.map((f) => {
-      return db.floats.leave(f.id, req.userId);
-    }))
-  }).then(() => {
-    return models.friends.all(req.userId)
-  }).then((friends) => {
-    return Promise.all(friends.map((f) => {
-      return models.friends.destroy(req.userId, f.friend_id)
-    }))
-  }).then(() => {
-    return db.friend_requests.from(req.userId)
-  }).then((friendRequests) => {
-    return Promise.all(friendRequests.map((f) => {
-      return db.friend_requests.destroy(f.user.id, req.userId);
-    }))
-  }).then(() => {
-    return users.destroy(req.userId);
-  }).then(function() {
+  return models.users.destroy(req.userId).then(() => {
     res.sendStatus(204);
     return session.destroy(req.user.access_token);
   }).catch(next);
