@@ -5,6 +5,9 @@ const _      = require('lodash');
 const client = require('./client');
 const error  = require('../../services/error');
 const config = require('../../config');
+const db = {
+  members: require('./members')
+}
 
 module.exports = {
   get:              get,
@@ -37,24 +40,40 @@ function get(floatId, id) {
 }
 
 function create(floatId, userId, members, users) {
+  const id = uuid.v1();
+  const convo = {
+    id: id,
+    float_id: floatId,
+    members: [userId].concat(members),
+    users: users,
+    created_at: +new Date,
+  }
+
   return Promise.resolve().then(function() {
-    if( users ) {
-      users = users.map(function(u) {
-        return _.pick(u, 'id', 'avatar_url', 'name');
-      })
+    if( !floatId || !userId || !members || !users ) {
+      throw error('Invalid input', {name: 'InputError', floatId: floatId, userId: userId, members: members, users: users})
     }
 
-    const convo = {
-      id: uuid.v1(),
-      float_id: floatId,
-      members: [userId].concat(members),
-      users: users,
-      created_at: +new Date,
-    }
+    const memberJoins = users.map((u) => {
+      return {
+        convo_id: id,
+        float_id: floatId,
+        user_id:  u.id
+      }
+    })
+
+    return db.members.batchCreate(membersJoins)
+  }).then(() => {
+    users = users.map(function(u) {
+      return _.pick(u, 'id', 'avatar_url', 'name');
+    })
+
     return client.put({
       TableName: config.convosTableName,
       Item: convo,
     })
+  }).then(() => {
+    return convo
   })
 }
 

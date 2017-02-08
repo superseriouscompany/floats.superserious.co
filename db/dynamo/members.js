@@ -10,26 +10,26 @@ module.exports = {
 }
 
 // TODO: actually use batchPut
-function batchCreate(invitees) {
-  return Promise.all(invitees.map((m) => {
+function batchCreate(members) {
+  return Promise.all(members.map((m) => {
     return client.put({
-      TableName: config.inviteesTableName,
+      TableName: config.membersTableName,
       Item: m,
     });
   }))
 }
 
 // TODO: add batchDestroy
-function destroy(userId, floatId) {
+function destroy(userId, convoId) {
   return client.delete({
-    TableName: config.inviteesTableName,
+    TableName: config.membersTableName,
     ConditionExpression: 'attribute_exists(user_id)',
-    Key: { user_id: userId, float_id: floatId },
+    Key: { user_id: userId, convo_id: convoId },
   }).then(function(ok) {
     return ok;
   }).catch(function(err) {
     if( err.name == 'ConditionalCheckFailedException' ) {
-      throw error('No invitee found', {name: 'InviteeNotFound', userId: userId, floatId: floatId})
+      throw error('No invitee found', {name: 'MemberNotFound', userId: userId, convoId: convoId})
     }
     throw err;
   })
@@ -37,7 +37,7 @@ function destroy(userId, floatId) {
 
 function findByUserId(userId) {
   return client.query({
-    TableName: config.inviteesTableName,
+    TableName: config.membersTableName,
     KeyConditionExpression: 'user_id = :user_id',
     ExpressionAttributeValues: {
       ':user_id': userId
