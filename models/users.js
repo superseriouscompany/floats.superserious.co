@@ -1,7 +1,8 @@
 'use strict';
 
-const _  = require('lodash');
-const fb = require('../services/facebook');
+const _       = require('lodash');
+const fb      = require('../services/facebook');
+const session = require('../services/session');
 
 const models = {
   friends: require('../models/friends'),
@@ -13,9 +14,40 @@ const db = {
 }
 
 module.exports = {
+  createFromFacebook: createFromFacebook,
   get: get,
   update: update,
   destroy: destroy,
+}
+
+function createFromFacebook(facebookAccessToken) {
+  let fbUser;
+  const fields = ['id', 'access_token', 'name', 'avatar_url', 'created_at', 'username'];
+  return fb.me(facebookAccessToken).then(function(fu) {
+    fbUser = fu;
+    return db.users.findByFacebookId(fbUser.id)
+  }).then(function(user) {
+    user = _.pick(user, fields);
+    Object.defineProperty(user, 'metadata', {
+      enumerable: false,
+      writable: false,
+      value: { existed: true }
+    })
+
+    return user;
+  }).catch(function(err) {
+    if( err.name == 'UserNotFound' ) {
+      let user;
+      return db.users.createFromFacebook(fbUser).then(function(u) {
+        user = u;
+        return session.create(user.access_token, user.id).then(() => {
+          return _.pick(user, fields);
+        })
+      });
+    }
+
+    throw err;
+  })
 }
 
 function get(id, profile) {

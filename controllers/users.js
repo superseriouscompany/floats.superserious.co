@@ -1,13 +1,8 @@
 'use strict';
 
-const log     = require('../services/log');
-const fb      = require('../services/facebook');
 const auth    = require('../services/auth');
-const error   = require('../services/auth');
-const users   = require('../db/users');
-const session = require('../services/session');
 const panic   = require('../services/panic');
-const _       = require('lodash');
+const session = require('../services/session');
 
 const models = {
   friends: require('../models/friends'),
@@ -32,24 +27,10 @@ function createUser(req, res, next) {
     return res.status(403).json({error: 'Please provide `facebook_access_token` in json body'});
   }
 
-  let fbUser;
-  const fields = ['id', 'access_token', 'name', 'avatar_url', 'created_at', 'username'];
-  return fb.me(req.body.facebook_access_token).then(function(fu) {
-    fbUser = fu;
-    return users.findByFacebookId(fbUser.id)
-  }).then(function(user) {
-    return res.status(200).json(_.pick(user, fields));
-  }).catch(function(err) {
-    if( err.name == 'UserNotFound' ) {
-      return users.createFromFacebook(fbUser).then(function(user) {
-        return session.create(user.access_token, user.id).then(function(ok) {
-          res.status(201).json(_.pick(user, fields));
-        })
-      });
-    }
-
-    next(err);
-  }).catch(next);
+  return models.users.createFromFacebook(req.body.facebook_access_token).then((user) => {
+    const status = user.metadata && user.metadata.existed ? 200 : 201;
+    return res.status(status).json(user);
+  }).catch(next)
 }
 
 function getUser(req, res, next) {
