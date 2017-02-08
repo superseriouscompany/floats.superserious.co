@@ -105,13 +105,17 @@ function findByInvitee(userId) {
 }
 
 function findByCreator(userId) {
-  return client.query({
-    TableName: config.floatsTableName,
-    IndexName: 'user_id',
-    KeyConditionExpression: 'user_id = :user_id',
-    ExpressionAttributeValues: {
-      ':user_id': userId
-    }
+  return Promise.resolve().then(() => {
+    if( !userId ) { throw error('userId not provided', {name: 'InputError'}); }
+
+    return client.query({
+      TableName: config.floatsTableName,
+      IndexName: 'user_id',
+      KeyConditionExpression: 'user_id = :user_id',
+      ExpressionAttributeValues: {
+        ':user_id': userId
+      }
+    })
   }).then((results) => {
     return results.Items;
   })

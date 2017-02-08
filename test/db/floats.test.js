@@ -163,9 +163,9 @@ module.exports = function() {
           user = u;
 
           return Promise.all([
-            createFloat({title: 'first', user: { id: user.id }}),
-            createFloat({title: 'second', user: { id: user.id }}),
-            createFloat({title: 'third', user: { id: user.id }}),
+            createFloat({title: 'first', user: { id: user.id }, user_id: user.id}),
+            createFloat({title: 'second', user: { id: user.id }, user_id: user.id}),
+            createFloat({title: 'third', user: { id: user.id }, user_id: user.id}),
           ])
         }).then(function() {
           return floats.findByCreator(user.id)
