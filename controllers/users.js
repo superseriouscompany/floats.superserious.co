@@ -66,9 +66,8 @@ function getUser(req, res, next) {
 function updateUser(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.sendStatus(204); }
 
-  const fields = _.pick(req.body, 'name', 'username', 'firebase_token');
-  users.update(req.userId, fields).then(function() {
-    res.sendStatus(204);
+  return models.users.update(req.userId, req.body).then(() => {
+    res.sendStatus(204)
   }).catch(next);
 }
 

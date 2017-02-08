@@ -1,6 +1,8 @@
 'use strict';
 
+const _  = require('lodash');
 const fb = require('../services/facebook');
+
 const models = {
   friends: require('../models/friends'),
 }
@@ -11,7 +13,13 @@ const db = {
 }
 
 module.exports = {
+  update: update,
   destroy: destroy,
+}
+
+function update(userId, fields) {
+  fields = _.pick(fields, 'name', 'username', 'firebase_token');
+  return db.users.update(userId, fields)
 }
 
 function destroy(userId) {
