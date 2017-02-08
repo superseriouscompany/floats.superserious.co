@@ -4,11 +4,12 @@ const config = require('../../config');
 const client = require('./client');
 
 module.exports = {
-  batchCreate: batchCreate,
+  batchCreate:  batchCreate,
   findByUserId: findByUserId,
+  destroy:      destroy,
 }
 
-// FIXME: actually use batchPut
+// TODO: actually use batchPut
 function batchCreate(members) {
   return Promise.all(members.map((m) => {
     return client.put({
@@ -16,6 +17,21 @@ function batchCreate(members) {
       Item: m,
     });
   }))
+}
+
+function destroy(userId, floatId) {
+  return client.delete({
+    TableName: config.membersTableName,
+    ConditionExpression: 'attribute_exists(user_id)',
+    Key: { user_id: userId, float_id: floatId },
+  }).then(function(ok) {
+    return ok;
+  }).catch(function(err) {
+    if( err.name == 'ConditionalCheckFailedException' ) {
+      throw error('No membership found', {name: 'MemberNotFound', userId: userId, floatId: floatId})
+    }
+    throw err;
+  })
 }
 
 function findByUserId(userId) {

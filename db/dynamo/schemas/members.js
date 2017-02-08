@@ -7,12 +7,20 @@ module.exports = {
       "AttributeName":"user_id",
       "AttributeType":"S"
     },
+    {
+      "AttributeName":"float_id",
+      "AttributeType":"S"
+    },
   ],
   "KeySchema":[
     {
       "AttributeName":"user_id",
-      "KeyType":"HASH"
+      "KeyType":"HASH",
     },
+    {
+      "AttributeName":"float_id",
+      "KeyType":"RANGE",
+    }
   ],
   "ProvisionedThroughput": {
     "ReadCapacityUnits":5,

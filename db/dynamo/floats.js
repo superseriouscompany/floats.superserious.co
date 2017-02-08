@@ -61,7 +61,6 @@ function create(float) {
 function get(id) {
   return Promise.resolve().then(() => {
     if( !id ) { throw error('id not provided', {name: 'InputError'}); }
-    if( !floats[id] ) { throw error('Float not found', {name: 'FloatNotFound', id: id }); }
 
     return client.get({
       TableName: config.floatsTableName,
@@ -83,6 +82,8 @@ function all() {
 
 function findByInvitee(userId) {
   return db.members.findByUserId(userId).then((members) => {
+    if( !members.length ) { return [] }
+
     let params = { RequestItems: {} };
     params.RequestItems[config.floatsTableName] = {
       Keys: members.map(function(m) {
@@ -128,16 +129,32 @@ function addAttendee(floatId, user) {
 }
 
 function leave(floatId, userId) {
-  return Promise.resolve().then(function() {
-    floats[floatId].attendees = _.reject(floats[floatId].attendees, function(a) {
+  return get(floatId).then(function(float) {
+    const attendees = _.reject(float.attendees, function(a) {
       return a.id == userId;
     })
-    floats[floatId].invitees = _.reject(floats[floatId].invitees, function(id) {
+    const invitees = _.reject(float.invitees, function(id) {
       return id == userId;
     })
 
+    return Promise.all([
+      client.update({
+        TableName:                 config.floatsTableName,
+        Key:                       { id: floatId },
+        ConditionExpression:       'attribute_exists(id)',
+        UpdateExpression:          'set attendees = :attendees, invitees = :invitees',
+        ExpressionAttributeValues: { ':attendees': attendees, ':invitees': invitees},
+      }),
+      db.members.destroy(userId, floatId)
+    ])
+  }).then(function(ok) {
     return true;
-  })
+  }).catch(function(err) {
+    if( err.name == 'ConditionalCheckFailedException' ) {
+      throw error('No float found', {name: 'FloatNotFound', id: id});
+    }
+    throw err;
+  });
 }
 
 function attendees(float) {
