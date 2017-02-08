@@ -8,6 +8,7 @@ const client = require('./client');
 const schema = require('./schemas/schemas').floats;
 const db = {
   members: require('./members'),
+  users:   require('./users'),
 }
 
 module.exports = {
@@ -37,11 +38,12 @@ function create(float) {
     if( float.title.length < 3 ) { throw error('title is too short', {name: 'SizeError'}); }
     if( float.title.length > 140 ) { throw error('title is too long', {name: 'SizeError'}); }
 
+    return db.users.get(float.user.id)
+  }).then((userExists) => {
     float.id         = float.id || uuid.v1();
     float.created_at = float.created_at || +new Date;
     float.token      = float.token || uuid.v1();
     float.attendees  = float.attendees || [];
-
     return client.put({
       TableName: config.floatsTableName,
       Item: float,
