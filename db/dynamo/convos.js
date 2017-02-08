@@ -62,7 +62,7 @@ function create(floatId, userId, members, users) {
       }
     })
 
-    return db.members.batchCreate(membersJoins)
+    return db.members.batchCreate(memberJoins)
   }).then(() => {
     users = users.map(function(u) {
       return _.pick(u, 'id', 'avatar_url', 'name');
@@ -78,10 +78,20 @@ function create(floatId, userId, members, users) {
 }
 
 function findByMemberId(userId) {
-  return Promise.resolve().then(function() {
-    return _.reject(_.values(convos), function(c) {
-      return !_.includes(c.members, userId);
-    });
+  return db.members.findByUserId(userId).then((members) => {
+    if( !members.length ) { return [] }
+
+    let params = { RequestItems: {} };
+    params.RequestItems[config.convosTableName] = {
+      Keys: members.map(function(m) {
+        return {float_id: m.float_id, id: m.convo_id}
+      }),
+    }
+
+    return client.batchGet(params).then((result) => {
+      if( !result.Responses ) { throw error(`Unexpected dynamo response ${JSON.stringify(result)}`, {cool: result})}
+      return result.Responses[config.convosTableName];
+    })
   })
 }
 
