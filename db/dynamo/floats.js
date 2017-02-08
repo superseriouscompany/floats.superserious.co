@@ -3,9 +3,11 @@
 const config = require('../../config');
 const uuid   = require('uuid');
 const _      = require('lodash');
-const users  = require('../users');
 const error  = require('../../services/error');
 const client = require('./client');
+const db = {
+  members: require('./members'),
+}
 
 module.exports = {
   create:        create,
@@ -44,6 +46,14 @@ function create(float) {
       Item: float,
     })
   }).then(() => {
+    const members = float.attendees.map((a) => {
+      return {
+        float_id: float.id,
+        user_id:  a.id,
+      }
+    })
+    return db.members.batchCreate(members)
+  }).then(() => {
     return float;
   });
 }
@@ -72,12 +82,18 @@ function all() {
 }
 
 function findByInvitee(userId) {
-  return new Promise(function(resolve, reject) {
-    if( !userId ) { return reject(error('userId not provided', {name: 'InputError'})); }
-    const all = _.values(floats).filter(function(f) {
-      return _.includes(f.invitees, userId);
+  return db.members.findByUserId(userId).then((members) => {
+    let params = { RequestItems: {} };
+    params.RequestItems[config.floatsTableName] = {
+      Keys: members.map(function(m) {
+        return {id: m.float_id}
+      }),
+    }
+
+    return client.batchGet(params).then((result) => {
+      if( !result.Responses ) { throw error('Unexpected dynamo response', {response: result})}
+      return result.Responses[config.floatsTableName];
     })
-    resolve(all);
   })
 }
 
