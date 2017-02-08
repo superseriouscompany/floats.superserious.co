@@ -6,4 +6,6 @@ module.exports = {
   friends: require('./friends'),
 
   floats: require('./floats'),
+
+  members: require('./members'),
 }

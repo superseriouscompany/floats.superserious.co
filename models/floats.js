@@ -30,6 +30,7 @@ function create(user, title, inviteeIds) {
       })
       throw error('Invalid invitees: not friends', {name: 'InvalidFriends', ids: badIds});
     }
+
     return db.floats.create({
       user_id:   user.id,
       title:     title,

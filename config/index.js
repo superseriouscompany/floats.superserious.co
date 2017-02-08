@@ -9,6 +9,7 @@ module.exports = Object.assign({
   usersTableName:   'usersStaging',
   friendsTableName: 'friendsStaging',
   floatsTableName:  'floatsStaging',
+  membersTableName: 'membersStaging',
   firebaseKey:      secrets.firebaseKey,
 }, require(`./${environment}`));
 
