@@ -1,3 +1,3 @@
-module.exports = false ?
-  require('./dynamo/pins') :
-  require('./memory/pins');
+module.exports = global.TEST_MODE && !process.env.LIVE ?
+  require('./memory/pins') :
+  require('./dynamo/pins');
