@@ -1,11 +1,15 @@
 module.exports = {
-  pins: require('./pins'),
+  pins:     require('./pins'),
 
-  users: require('./users'),
+  users:    require('./users'),
 
-  friends: require('./friends'),
+  friends:  require('./friends'),
 
-  floats: require('./floats'),
+  floats:   require('./floats'),
 
-  members: require('./members'),
+  invitees: require('./invitees'),
+
+  convos:   require('./convos'),
+
+  members:  require('./members'),
 }

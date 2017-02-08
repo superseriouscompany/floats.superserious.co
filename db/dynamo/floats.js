@@ -7,7 +7,7 @@ const error  = require('../../services/error');
 const client = require('./client');
 const schema = require('./schemas/schemas').floats;
 const db = {
-  members: require('./members'),
+  invitees: require('./invitees'),
   users:   require('./users'),
 }
 
@@ -49,13 +49,13 @@ function create(float) {
       Item: float,
     })
   }).then(() => {
-    const members = float.attendees.map((a) => {
+    const invitees = float.attendees.map((a) => {
       return {
         float_id: float.id,
         user_id:  a.id,
       }
     })
-    return db.members.batchCreate(members)
+    return db.invitees.batchCreate(invitees)
   }).then(() => {
     return float;
   });
@@ -86,13 +86,13 @@ function all() {
 function findByInvitee(userId) {
   return Promise.resolve().then(() => {
     if( !userId ) { throw error('userId not provided', {name: 'InputError'}); }
-    return db.members.findByUserId(userId);
-  }).then((members) => {
-    if( !members.length ) { return [] }
+    return db.invitees.findByUserId(userId);
+  }).then((invitees) => {
+    if( !invitees.length ) { return [] }
 
     let params = { RequestItems: {} };
     params.RequestItems[config.floatsTableName] = {
-      Keys: members.map(function(m) {
+      Keys: invitees.map(function(m) {
         return {id: m.float_id}
       }),
     }
@@ -134,7 +134,7 @@ function addAttendee(floatId, user) {
     })
     if( conflict ) { throw error('Float has already been joined.', {name: 'DuplicateJoinError'}); }
 
-    return db.members.batchCreate([{float_id: floatId, user_id: user.id}])
+    return db.invitees.batchCreate([{float_id: floatId, user_id: user.id}])
   }).then(() => {
     const attendees = float.attendees.concat(_.pick(user, 'id', 'avatar_url', 'name', 'username'));
     const invitees  = float.invitees.concat(user.id);
@@ -168,7 +168,7 @@ function leave(floatId, userId) {
         UpdateExpression:          'set attendees = :attendees, invitees = :invitees',
         ExpressionAttributeValues: { ':attendees': attendees, ':invitees': invitees},
       }),
-      db.members.destroy(userId, floatId)
+      db.invitees.destroy(userId, floatId)
     ])
   }).then(function(ok) {
     return true;
@@ -193,7 +193,7 @@ function destroy(floatId) {
     return get(floatId)
   }).then((float) => {
     return Promise.all(float.attendees.map((a) => {
-      return db.members.destroy(a.id, float.id)
+      return db.invitees.destroy(a.id, float.id)
     }))
   }).then(() => {
     return client.delete({

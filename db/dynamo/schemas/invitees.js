@@ -1,14 +1,14 @@
 const config = require('../../../config');
 
 module.exports = {
-  "TableName": config.membersTableName,
+  "TableName": config.inviteesTableName,
   "AttributeDefinitions":[
     {
       "AttributeName":"user_id",
       "AttributeType":"S"
     },
     {
-      "AttributeName":"convo_id",
+      "AttributeName":"float_id",
       "AttributeType":"S"
     },
   ],
@@ -18,7 +18,7 @@ module.exports = {
       "KeyType":"HASH",
     },
     {
-      "AttributeName":"convo_id",
+      "AttributeName":"float_id",
       "KeyType":"RANGE",
     }
   ],
