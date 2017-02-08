@@ -161,14 +161,38 @@ function leaveAll(floatId, userId) {
 }
 
 function join(floatId, id, user) {
+  let convo;
   return Promise.resolve().then(() => {
+    if( !floatId || !id || !user ) { throw error('Input is null', {name: 'InputError', floatId: floatId, id: id, user: user})}
     return get(floatId, id)
-  }).then((convo) => {
-    convo.members    = convo.members.concat(user.id);
-    convo.users      = convo.users.concat(_.pick(user, 'id', 'avatar_url', 'name'));
-    convos[convo.id] = convo;
+  }).then(function(c) {
+    convo = c;
+    const conflict = convo.users.find(function(u) {
+      return u.id === user.id
+    })
+    if( conflict ) { throw error('Convo has already been joined.', {name: 'DuplicateJoinError'}); }
+
+    return db.members.batchCreate([{float_id: floatId, convo_id: convo.id, user_id: user.id}])
+  }).then(() => {
+    const members = convo.members.concat(user.id);
+    const users   = convo.users.concat(_.pick(user, 'id', 'avatar_url', 'name'));
+
+    return client.update({
+      TableName:                 config.convosTableName,
+      Key:                       { id: id, float_id: floatId },
+      ConditionExpression:       'attribute_exists(id)',
+      UpdateExpression:          'set #members = :members, #users = :users',
+      ExpressionAttributeValues: { ':members': members, ':users':   users},
+      ExpressionAttributeNames:  { '#members': 'members', '#users': 'users'}
+    })
+  }).then(function(ok) {
     return true;
-  })
+  }).catch(function(err) {
+    if( err.name == 'ConditionalCheckFailedException' ) {
+      throw error('No convo found', {name: 'ConvoNotFound', floatId: floatId, id: id});
+    }
+    throw err;
+  });
 }
 
 function leave(floatId, id, userId) {
