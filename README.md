@@ -4,7 +4,8 @@ This is the floats api.
 
 ## Requirements
 
-    $ brew install node
+1. node
+1. docker
 
 ## Installation
 

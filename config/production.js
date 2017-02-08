@@ -9,4 +9,5 @@ module.exports = {
   convosTableName:    'floatsConvos',
   membersTableName:   'floatsMembers',
   messagesTableName:  'floatsMessages',
+  dynamoEndpoint:     null,
 }

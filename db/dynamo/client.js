@@ -1,7 +1,7 @@
 const config    = require('../../config');
 const promisify = require('bluebird').Promise.promisify;
-const lowLevel  = new config.AWS.DynamoDB({endpoint: new config.AWS.Endpoint('http://localhost:8000')});
-const client    = new config.AWS.DynamoDB.DocumentClient({endpoint: new config.AWS.Endpoint('http://localhost:8000')});
+const lowLevel  = new config.AWS.DynamoDB(config.dynamoEndpoint);
+const client    = new config.AWS.DynamoDB.DocumentClient(config.dynamoEndpoint);
 
 client.get      = promisify(client.get, {context:      client});
 client.delete   = promisify(client.delete, {context:   client});
