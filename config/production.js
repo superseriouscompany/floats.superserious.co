@@ -8,4 +8,5 @@ module.exports = {
   inviteesTableName:  'floatsInvitees',
   convosTableName:    'floatsConvos',
   membersTableName:   'floatsMembers',
+  messagesTableName:  'floatsMessages',
 }

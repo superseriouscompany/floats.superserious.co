@@ -12,6 +12,7 @@ module.exports = Object.assign({
   inviteesTableName:  'inviteesStaging',
   convosTableName:    'convosStaging',
   membersTableName:   'membersStaging',
+  messagesTableName:  'messagesStaging',
   firebaseKey:        secrets.firebaseKey,
 }, require(`./${environment}`));
 
