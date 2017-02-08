@@ -1,6 +1,9 @@
 'use strict';
 
+const _      = require('lodash');
 const client = require('./client');
+const config = require('../../config');
+const error  = require('../../services/error');
 const db = {
   users: require('./users'),
 }
@@ -19,17 +22,17 @@ function create(floatId, convoId, userId, text) {
     return db.users.get(userId)
   }).then(function(user) {
     const message = {
-      id: inc++,
-      user: _.pick(user, 'id', 'avatar_url', 'name'),
-      text: text,
+      id:         inc++,
+      user:       _.pick(user, 'id', 'avatar_url', 'name'),
+      text:       text,
       created_at: +new Date,
-      float_id: floatId,
-      convo_id: convoId,
+      float_id:   floatId,
+      convo_id:   convoId,
     };
 
     return client.put({
       TableName: config.messagesTableName,
-      Item: message
+      Item:      message
     }).then(() => {
       return message;
     })

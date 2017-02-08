@@ -21,12 +21,12 @@ function create(floatId, convoId, userId, text) {
     messages[floatId] = messages[floatId] || {};
     messages[floatId][convoId] = messages[floatId][convoId] || [];
     const message = {
-      id: inc++,
-      user: _.pick(user, 'id', 'avatar_url', 'name'),
-      text: text,
+      id:         inc++,
+      user:       _.pick(user, 'id', 'avatar_url', 'name'),
+      text:       text,
       created_at: +new Date,
-      float_id: floatId,
-      convo_id: convoId,
+      float_id:   floatId,
+      convo_id:   convoId,
     };
     messages[floatId][convoId].unshift(message);
     return message;
