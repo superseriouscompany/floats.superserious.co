@@ -19,10 +19,6 @@ module.exports = function() {
         })
       });
 
-      it("throws ConflictError if id is taken");
-
-      it("throws ConflictError if facebook id is taken");
-
       it("returns user", function () {
         return users.create({}).then(function(user) {
           expect(user.id).toExist();
@@ -100,8 +96,6 @@ module.exports = function() {
         })
       });
 
-      it("throws InputError if name, username or firebase token aren't provided");
-
       it("throws UserNotFound if id is not found", function () {
         return users.update('nerp', {'username': 'test'}).then(h.shouldFail).catch(function(err) {
           expect(err.name).toEqual('UserNotFound');
@@ -118,8 +112,6 @@ module.exports = function() {
           expect(user.created_at).toEqual(2);
         })
       });
-
-      it("doesn't overwrite fields that aren't specified");
 
       it("updates user object", function() {
         return users.create({id: 'cool', created_at: 2}).then(function(user) {
