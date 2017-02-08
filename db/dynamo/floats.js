@@ -5,6 +5,7 @@ const uuid   = require('uuid');
 const _      = require('lodash');
 const error  = require('../../services/error');
 const client = require('./client');
+const schema = require('./schemas/schemas').floats;
 const db = {
   members: require('./members'),
 }
@@ -165,16 +166,19 @@ function attendees(float) {
 }
 
 function destroy(floatId) {
-  return new Promise(function(resolve, reject) {
-    if( !floatId ) { return reject(error('floatId not provided', {name: 'InputError'})); }
-    if( !floats[floatId] ) { return reject(error('Float not found', {name: 'FloatNotFound', id: floatId })); }
-    delete floats[floatId];
-    resolve(true);
+  return Promise.resolve().then(() => {
+    if( !floatId ) { throw error('floatId not provided', {name: 'InputError'}); }
+
+    return client.delete({
+      TableName: config.floatsTableName,
+      Key: { id: floatId },
+    })
+  }).then((ok) => {
+    return true;
   })
 }
 
 function flush() {
   if( process.env.NODE_ENV == 'production' ) { return Promise.reject('Not in prod'); }
-  floats = {};
-  return Promise.resolve(true);
+  return client.truncate(config.floatsTableName, schema);
 }

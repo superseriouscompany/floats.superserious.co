@@ -19,6 +19,7 @@ function batchCreate(members) {
   }))
 }
 
+// TODO: add batchDestroy
 function destroy(userId, floatId) {
   return client.delete({
     TableName: config.membersTableName,
