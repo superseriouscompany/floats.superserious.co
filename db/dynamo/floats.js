@@ -97,10 +97,10 @@ function findByInvitee(userId) {
       }),
     }
 
-    return client.batchGet(params)
-  }).then((result) => {
-    if( !result.Responses ) { throw error('Unexpected dynamo response', {response: result})}
-    return result.Responses[config.floatsTableName];
+    return client.batchGet(params).then((result) => {
+      if( !result.Responses ) { throw error(`Unexpected dynamo response ${JSON.stringify(result)}`, {cool: result})}
+      return result.Responses[config.floatsTableName];
+    })
   })
 }
 
