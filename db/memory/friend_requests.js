@@ -33,7 +33,7 @@ function from(userId) {
     for( var key in friend_requests ) {
       friend_requests[key].forEach((fr) => {
         if( fr.user.id == userId ) {
-          matches.push({user: {id: key}})
+          matches.push({user_id: key})
         }
       })
     }
