@@ -58,11 +58,17 @@ function destroy(userId, friendId) {
 }
 
 function block(userId, friendId) {
-  return db.friends.update(userId, friendId, { blocked: true })
+  return Promise.all([
+    db.friends.update(userId, friendId, { blocked: true }),
+    db.friends.update(friendId, userId, { blockee: true }),
+  ])
 }
 
 function unblock(userId, friendId) {
-  return db.friends.update(userId, friendId, { blocked: false })
+  return Promise.all([
+    db.friends.update(userId, friendId, { blocked: false }),
+    db.friends.update(friendId, userId, { blockee: false }),
+  ])
 }
 
 function allUsers(userId, showBlocked) {

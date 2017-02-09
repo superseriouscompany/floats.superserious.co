@@ -216,28 +216,5 @@ module.exports = function() {
         })
       });
     });
-
-    describe(".createFromFacebook", function () {
-      it("throws InputError if user doesn't exist", function () {
-        return users.createFromFacebook().then(h.shouldFail).catch(function(err) {
-          expect(err.name).toEqual('InputError');
-        })
-      });
-
-      it("throws InputError if user id doesn't exist", function () {
-        return users.createFromFacebook({}).then(h.shouldFail).catch(function(err) {
-          expect(err.name).toEqual('InputError');
-        })
-      });
-
-      it("populates avatar, facebook_id and access_token", function () {
-        return users.createFromFacebook({id: '1234'}).then(function(user) {
-          expect(user.id).toExist();
-          expect(user.facebook_id).toEqual('1234');
-          expect(user.access_token).toExist();
-          expect(user.avatar_url).toEqual('https://graph.facebook.com/v2.8/1234/picture');
-        })
-      });
-    });
   })
 }

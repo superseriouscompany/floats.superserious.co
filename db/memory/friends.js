@@ -8,8 +8,6 @@ module.exports = {
   all: all,
   create: create,
   update: update,
-  block: block,
-  unblock: unblock,
   get: get,
   destroy: destroy,
 }
