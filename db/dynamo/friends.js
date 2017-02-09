@@ -61,7 +61,7 @@ function update(userId, friendId, values) {
   let attributeNames   = {};
   let attributeValues  = {};
   ['blocked', 'blockee'].forEach(function(field) {
-    if( values[field] ) {
+    if( values[field] !== undefined ) {
       attributeNames[`#${field}`]  = field;
       attributeValues[`:${field}`] = values[field];
       updateExpression += `#${field} = :${field},`
