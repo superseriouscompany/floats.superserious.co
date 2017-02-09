@@ -52,6 +52,25 @@ module.exports = function() { describe("/users", function() {
         expect(response.body.access_token).toExist(`No access token found in ${JSON.stringify(response.body)}`);
       });
     });
+
+    it("returns proper fields", function () {
+      const fields = ['id', 'access_token', 'name', 'created_at', 'avatar_url'];
+      return factory.fbUser({name: 'Randy Newman'}).then(function(user) {
+        fbToken = user.access_token;
+        return api.post('/users', {body: { facebook_access_token: fbToken }});
+      }).then(function(response) {
+        fields.forEach((f) => {
+          expect(response.body[f]).toExist(`Expected to find ${f} in ${JSON.stringify(response.body)}`);
+        })
+        expect(Object.keys(response.body).length).toEqual(fields.length, `Expected exactly 5 fields in ${Object.keys(response.body)}`)
+        return api.post('/users', {body: { facebook_access_token: fbToken }});
+      }).then(function(response) {
+        fields.forEach((f) => {
+          expect(response.body[f]).toExist(`Expected to find ${f} in ${JSON.stringify(response.body)}`);
+        })
+        expect(Object.keys(response.body).length).toEqual(fields.length, `Expected exactly 5 fields in ${Object.keys(response.body)}`)
+      });
+    });
   });
 
   describe("deleting account", function() {

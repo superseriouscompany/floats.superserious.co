@@ -7,8 +7,7 @@ const error = require('../../services/error');
 module.exports = {
   all: all,
   create: create,
-  block: block,
-  unblock: unblock,
+  update: update,
   get: get,
   destroy: destroy,
 }
@@ -41,22 +40,11 @@ function destroy(userId, friendId) {
   })
 }
 
-function block(userId, friendId) {
-  return Promise.resolve().then(function() {
+function update(userId, friendId, values) {
+  return Promise.resolve().then(() => {
     friends[userId] = friends[userId].map((f) => {
       if( f.friend_id == friendId ) {
-        f.blocked = true;
-      }
-      return f;
-    })
-  })
-}
-
-function unblock(userId, friendId) {
-  return Promise.resolve().then(function() {
-    friends[userId] = friends[userId].map((f) => {
-      if( f.friend_id == friendId ) {
-        f.blocked = false;
+        Object.assign(f, values);
       }
       return f;
     })

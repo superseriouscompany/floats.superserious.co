@@ -19,10 +19,6 @@ module.exports = function() {
         })
       });
 
-      it("throws ConflictError if id is taken");
-
-      it("throws ConflictError if facebook id is taken");
-
       it("returns user", function () {
         return users.create({}).then(function(user) {
           expect(user.id).toExist();
@@ -100,8 +96,6 @@ module.exports = function() {
         })
       });
 
-      it("throws InputError if name, username or firebase token aren't provided");
-
       it("throws UserNotFound if id is not found", function () {
         return users.update('nerp', {'username': 'test'}).then(h.shouldFail).catch(function(err) {
           expect(err.name).toEqual('UserNotFound');
@@ -118,8 +112,6 @@ module.exports = function() {
           expect(user.created_at).toEqual(2);
         })
       });
-
-      it("doesn't overwrite fields that aren't specified");
 
       it("updates user object", function() {
         return users.create({id: 'cool', created_at: 2}).then(function(user) {
@@ -221,29 +213,6 @@ module.exports = function() {
           return users.findByAccessToken('sev123')
         }).then(function(user) {
           expect(user.name).toEqual('Severin');
-        })
-      });
-    });
-
-    describe(".createFromFacebook", function () {
-      it("throws InputError if user doesn't exist", function () {
-        return users.createFromFacebook().then(h.shouldFail).catch(function(err) {
-          expect(err.name).toEqual('InputError');
-        })
-      });
-
-      it("throws InputError if user id doesn't exist", function () {
-        return users.createFromFacebook({}).then(h.shouldFail).catch(function(err) {
-          expect(err.name).toEqual('InputError');
-        })
-      });
-
-      it("populates avatar, facebook_id and access_token", function () {
-        return users.createFromFacebook({id: '1234'}).then(function(user) {
-          expect(user.id).toExist();
-          expect(user.facebook_id).toEqual('1234');
-          expect(user.access_token).toExist();
-          expect(user.avatar_url).toEqual('https://graph.facebook.com/v2.8/1234/picture');
         })
       });
     });

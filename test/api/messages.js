@@ -125,16 +125,6 @@ module.exports = function() { describe("/messages", function() {
     it("does not delete conversation if there are more participants");
   })
 
-  describe("merging conversations", function() {
-    it("validates stuff");
-
-    it("creates a new conversation that includes both sets of members");
-
-    it("broadcasts a message to all users participating in both conversations");
-
-    it("returns an error code when trying to send a message to previous convos");
-  });
-
   describe("sending messages", function () {
     it("validates stuff");
 

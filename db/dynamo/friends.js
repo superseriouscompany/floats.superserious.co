@@ -7,8 +7,7 @@ const client = require('./client');
 module.exports = {
   all:     all,
   create:  create,
-  block:   block,
-  unblock: unblock,
+  update:  update,
   get:     get,
   destroy: destroy,
 }
@@ -53,6 +52,39 @@ function destroy(userId, friendId) {
       friend_id: friendId,
     },
   })
+}
+
+function update(userId, friendId, values) {
+  if( !userId || !friendId ) { return Promise.reject(error('userId or friendId is null', {name: 'InputError', userId: userId, friendId: friendId})); };
+
+  let updateExpression = 'set';
+  let attributeNames   = {};
+  let attributeValues  = {};
+  ['blocked', 'blockee'].forEach(function(field) {
+    if( values[field] !== undefined ) {
+      attributeNames[`#${field}`]  = field;
+      attributeValues[`:${field}`] = values[field];
+      updateExpression += `#${field} = :${field},`
+    }
+  })
+  if( !Object.keys(attributeValues).length )  { return Promise.reject(error('none provided of: blocked, blockee', {name: 'InputError', userId: userId, friendId: friendId, values: values}))}
+  updateExpression = updateExpression.substring(0,updateExpression.length - 1);
+
+  return client.update({
+    TableName:                 config.friendsTableName,
+    Key:                       { user_id: userId, friend_id: friendId },
+    ConditionExpression:       'attribute_exists(user_id) and attribute_exists(friend_id)',
+    UpdateExpression:          updateExpression,
+    ExpressionAttributeValues: attributeValues,
+    ExpressionAttributeNames:  attributeNames,
+  }).then(function(ok) {
+    return true;
+  }).catch(function(err) {
+    if( err.name == 'ConditionalCheckFailedException' ) {
+      throw error('No friend found', {name: 'FriendNotFound', userId: userId, friendId: friendId});
+    }
+    throw err;
+  });
 }
 
 function block(userId, friendId) {

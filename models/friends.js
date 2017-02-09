@@ -58,11 +58,17 @@ function destroy(userId, friendId) {
 }
 
 function block(userId, friendId) {
-  return db.friends.block(userId, friendId)
+  return Promise.all([
+    db.friends.update(userId, friendId, { blocked: true }),
+    db.friends.update(friendId, userId, { blockee: true }),
+  ])
 }
 
 function unblock(userId, friendId) {
-  return db.friends.unblock(userId, friendId)
+  return Promise.all([
+    db.friends.update(userId, friendId, { blocked: false }),
+    db.friends.update(friendId, userId, { blockee: false }),
+  ])
 }
 
 function allUsers(userId, showBlocked) {
@@ -71,7 +77,7 @@ function allUsers(userId, showBlocked) {
   }).then((friends) => {
     if( !showBlocked ) {
       friends = friends.filter((f) => {
-        return !f.blocked
+        return !f.blocked && !f.blockee
       })
     }
 
