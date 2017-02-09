@@ -99,7 +99,7 @@ function destroy(userId) {
     return db.friend_requests.from(userId)
   }).then((friendRequests) => {
     return Promise.all(friendRequests.map((f) => {
-      return db.friend_requests.destroy(f.user.id, userId);
+      return db.friend_requests.destroy(f.user_id, userId);
     }))
   }).then(() => {
     return db.users.destroy(userId);

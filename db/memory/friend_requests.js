@@ -7,7 +7,7 @@ module.exports = {
   create: create,
   all: all,
   destroy: destroy,
-  find: find,
+  get: get,
   from: from,
 }
 
@@ -33,7 +33,7 @@ function from(userId) {
     for( var key in friend_requests ) {
       friend_requests[key].forEach((fr) => {
         if( fr.user.id == userId ) {
-          matches.push({user: {id: key}})
+          matches.push({user_id: key})
         }
       })
     }
@@ -50,7 +50,7 @@ function destroy(userId, randoId) {
   })
 }
 
-function find(userId, randoId) {
+function get(userId, randoId) {
   return Promise.resolve().then(() => {
     const match = (friend_requests[userId] || []).find((u) => {
       return u.user.id == randoId

@@ -30,3 +30,10 @@ In-memory (fast)
 Against live db (slow)
 
     $ npm run livetest
+
+## Adding a new dynamodb table, e.g. `poops`
+
+1. Add schema to `schemas/poops.js` (see others for examples)
+1. Add key to `schemas/schema.js`
+1. Add table names to `config/index.js` and `config/production.js`
+1. Run `npm run createTables`
