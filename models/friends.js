@@ -58,11 +58,11 @@ function destroy(userId, friendId) {
 }
 
 function block(userId, friendId) {
-  return db.friends.block(userId, friendId)
+  return db.friends.update(userId, friendId, { blocked: true })
 }
 
 function unblock(userId, friendId) {
-  return db.friends.unblock(userId, friendId)
+  return db.friends.update(userId, friendId, { blocked: false })
 }
 
 function allUsers(userId, showBlocked) {
