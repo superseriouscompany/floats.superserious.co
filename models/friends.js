@@ -77,7 +77,7 @@ function allUsers(userId, showBlocked) {
   }).then((friends) => {
     if( !showBlocked ) {
       friends = friends.filter((f) => {
-        return !f.blocked
+        return !f.blocked && !f.blockee
       })
     }
 
