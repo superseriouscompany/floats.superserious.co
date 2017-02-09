@@ -7,7 +7,7 @@ module.exports = {
   create: create,
   all: all,
   destroy: destroy,
-  find: find,
+  get: get,
   from: from,
 }
 
@@ -50,7 +50,7 @@ function destroy(userId, randoId) {
   })
 }
 
-function find(userId, randoId) {
+function get(userId, randoId) {
   return Promise.resolve().then(() => {
     const match = (friend_requests[userId] || []).find((u) => {
       return u.user.id == randoId

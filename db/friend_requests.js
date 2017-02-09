@@ -1,3 +1,3 @@
-module.exports = false ?
-  require('./dynamo/friend_requests') :
-  require('./memory/friend_requests');
+module.exports = global.TEST_MODE && !process.env.LIVE ?
+  require('./memory/friend_requests') :
+  require('./dynamo/friend_requests');

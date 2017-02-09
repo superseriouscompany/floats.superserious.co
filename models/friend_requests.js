@@ -20,7 +20,7 @@ module.exports = {
 
 function create(rando, userId) {
   return Promise.resolve().then(() => {
-    return db.friend_requests.find(userId, rando.id)
+    return db.friend_requests.get(userId, rando.id)
   }).then(() => {
     throw error('You have already sent this friend request.', {name: 'Conflict'})
   }).catch((err) => {
@@ -34,7 +34,7 @@ function create(rando, userId) {
       return true;
     })
   }).then(() => {
-    return db.friend_requests.find(rando.id, userId).catch((err) => {
+    return db.friend_requests.get(rando.id, userId).catch((err) => {
       if( err.name != 'FriendRequestNotFound' ) { throw err; }
       return false;
     })
