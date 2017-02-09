@@ -98,7 +98,7 @@ function deleteUser(req, res, next) {
     return db.friend_requests.from(req.userId)
   }).then((friendRequests) => {
     return Promise.all(friendRequests.map((f) => {
-      return db.friend_requests.destroy(f.user.id, req.userId);
+      return db.friend_requests.destroy(f.user_id, req.userId);
     }))
   }).then(() => {
     return users.destroy(req.userId);

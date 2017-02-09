@@ -28,7 +28,7 @@ function all(userId) {
         if( friends[i].friend_id == u.id ) { return false; }
       }
       for( var i = 0; i < friendRequests.length; i++ ) {
-        if( friendRequests[i].user.id == u.id ) { return false; }
+        if( friendRequests[i].user_id == u.id ) { return false; }
       }
       return true;
     }).sort((a,b) => {
