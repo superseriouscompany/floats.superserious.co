@@ -139,8 +139,8 @@ module.exports = function() {
 
       it("returns floats that the person was invited to", function () {
         return Promise.all([
-          createFloat({title: 'surlo', invitees: ['chuck']}),
-          createFloat({title: 'soccer', invitees: ['chuck']}),
+          createFloat({title: 'surlo', attendees: [{id: 'chuck'}], invitees: ['chuck']}),
+          createFloat({title: 'soccer', attendees: [{id: 'chuck'}], invitees: ['chuck']}),
         ]).then(function() {
           return floats.findByInvitee('chuck');
         }).then(function(all) {
@@ -163,9 +163,9 @@ module.exports = function() {
           user = u;
 
           return Promise.all([
-            createFloat({title: 'first', user: { id: user.id }}),
-            createFloat({title: 'second', user: { id: user.id }}),
-            createFloat({title: 'third', user: { id: user.id }}),
+            createFloat({title: 'first', user: { id: user.id }, user_id: user.id}),
+            createFloat({title: 'second', user: { id: user.id }, user_id: user.id}),
+            createFloat({title: 'third', user: { id: user.id }, user_id: user.id}),
           ])
         }).then(function() {
           return floats.findByCreator(user.id)

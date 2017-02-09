@@ -3,12 +3,18 @@ const secrets     = require('./secrets');
 const environment = process.env.NODE_ENV || 'development';
 
 module.exports = Object.assign({
-  baseUrl:          'https://superserious.ngrok.io',
-  awsRegion:        'eu-west-1',
-  pinsTableName:    'pinsStaging',
-  usersTableName:   'usersStaging',
-  friendsTableName: 'friendsStaging',
-  firebaseKey:      secrets.firebaseKey,
+  baseUrl:            'https://superserious.ngrok.io',
+  awsRegion:          'eu-west-1',
+  pinsTableName:      'pinsStaging',
+  usersTableName:     'usersStaging',
+  friendsTableName:   'friendsStaging',
+  floatsTableName:    'floatsStaging',
+  inviteesTableName:  'inviteesStaging',
+  convosTableName:    'convosStaging',
+  membersTableName:   'membersStaging',
+  messagesTableName:  'messagesStaging',
+  firebaseKey:        secrets.firebaseKey,
+  dynamoEndpoint:     {endpoint: new AWS.Endpoint('http://localhost:8000')},
 }, require(`./${environment}`));
 
 AWS.config.update({

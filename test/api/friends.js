@@ -2,6 +2,7 @@
 
 const expect   = require('expect');
 const tinystub = require('tinystub');
+const _        = require('lodash');
 const factory  = require('../factory');
 const h        = require('../helpers');
 const api      = require('../api');
@@ -39,10 +40,11 @@ module.exports = function() { describe("/friends", function() {
       }).then((response) => {
         expect(response.statusCode).toEqual(200);
         expect(response.body.randos).toExist(`Expected randos in ${JSON.stringify(response.body)}`);
-        expect(response.body.randos.length).toEqual(3);
-        expect(response.body.randos[0].name).toEqual('Sauer');
-        expect(response.body.randos[1].name).toEqual('Santi');
-        expect(response.body.randos[2].name).toEqual('Kevin');
+        expect(response.body.randos.length).toBeGreaterThan(2, `Expected at least two randos in ${JSON.stringify(response.body)}`);
+        const names = _.map(response.body.randos, 'name');
+        expect(names).toInclude('Sauer');
+        expect(names).toInclude('Santi');
+        expect(names).toInclude('Kevin');
         expect(response.body.randos[0].lat).toNotExist();
         expect(response.body.randos[0].access_token).toNotExist();
       })
@@ -50,10 +52,13 @@ module.exports = function() { describe("/friends", function() {
 
     it("doesn't pull people you're friends with or have requested", function() {
       let u1;
+
+      const name1 = `Esteban ${Math.random()}`;
+      const name2 = `Lynda ${Math.random()}`;
       return Promise.all([
         factory.user({name: 'Neil'}),
-        factory.user({name: 'Santi'}),
-        factory.user({name: 'Sauer'}),
+        factory.user({name: name1}),
+        factory.user({name: name2}),
       ]).then((v) => {
         user = v[0];
         u0 = v[1];
@@ -66,7 +71,9 @@ module.exports = function() { describe("/friends", function() {
       }).then(() => {
         return user.api.get('/randos')
       }).then((response) => {
-        expect(response.body.randos.length).toEqual(0, `Expected no randos in ${JSON.stringify(response.body)}`);
+        const names = _.map(response.body.randos, 'name');
+        expect(names).toNotInclude(name1);
+        expect(names).toNotInclude(name2);
       })
     });
 

@@ -4,7 +4,8 @@ This is the floats api.
 
 ## Requirements
 
-    $ brew install node
+1. node
+1. docker
 
 ## Installation
 
@@ -28,4 +29,6 @@ In-memory (fast)
 
 Against live db (slow)
 
+    $ docker run -p 8000:8000 deangiberson/aws-dynamodb-local
+    $ npm run createTables
     $ npm run livetest

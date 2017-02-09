@@ -30,6 +30,7 @@ function create(user, title, inviteeIds) {
       })
       throw error('Invalid invitees: not friends', {name: 'InvalidFriends', ids: badIds});
     }
+
     return db.floats.create({
       user_id:   user.id,
       title:     title,
@@ -72,6 +73,9 @@ function join(user, floatId, floatToken) {
     if( float.user.id == user.id ) { throw error('You created the float.', {name: 'DuplicateJoinError'})}
     return db.floats.addAttendee(floatId, user);
   }).then(() => {
+    return db.floats.get(floatId)
+  }).then((f) => {
+    float = f;
     return db.convos.findByFloatId(floatId);
   }).then((convos) => {
     if( convos.length == 1 ) {
