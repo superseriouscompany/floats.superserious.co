@@ -32,3 +32,10 @@ Against live db (slow)
     $ docker run -p 8000:8000 deangiberson/aws-dynamodb-local
     $ npm run createTables
     $ npm run livetest
+
+## Adding a new dynamodb table, e.g. `poops`
+
+1. Add schema to `schemas/poops.js` (see others for examples)
+1. Add key to `schemas/schema.js`
+1. Add table names to `config/index.js` and `config/production.js`
+1. Run `npm run createTables`
