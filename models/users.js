@@ -56,7 +56,7 @@ function fieldsFromFacebook(fbUser) {
     facebook_id:  fbUser.id,
     id:           null,
     access_token: uuid.v1(),
-    avatar_url:   `https://graph.facebook.com/v2.8/${fbUser.facebook_id}/picture`,
+    avatar_url:   `https://graph.facebook.com/v2.8/${fbUser.id}/picture`,
   })
   return db.users.create(user);
 }
