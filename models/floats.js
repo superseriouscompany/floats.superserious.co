@@ -31,11 +31,13 @@ function create(user, title, inviteeIds) {
       throw error('Invalid invitees: not friends', {name: 'InvalidFriends', ids: badIds});
     }
 
+    recipients = recipients.map((r) => { return _.pick(r, 'id', 'name', 'username', 'avatar_url')});
+
     return db.floats.create({
       user_id:   user.id,
       title:     title,
       invitees:  recipients.map(function(r) { return r.id }),
-      attendees: recipients.map((r) => { return _.pick(r, 'id', 'name', 'username', 'avatar_url')}),
+      attendees: recipients,
       user:      _.pick(user, 'id', 'name', 'username', 'avatar_url'),
     })
   }).then(function(f) {
