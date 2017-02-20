@@ -14,6 +14,10 @@ const factory = {
     return fakebook.post('/users', {body: body});
   },
 
+  fbFriendship: function(facebookToken, friendId) {
+    return fakebook.post(`/friends/${friendId}?access_token=${facebookToken}`, {body: { id: friendFacebookId }})
+  },
+
   user: function(body) {
     body = Object.assign({lat: 0, lng: 0, name: 'Tiago Quixote'}, body);
 

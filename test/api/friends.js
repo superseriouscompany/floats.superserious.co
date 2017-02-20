@@ -240,6 +240,26 @@ module.exports = function() { describe("/friends", function() {
     })
   })
 
+  describe("autofriending", function() {
+    it("automatically adds friends for the given user", function () {
+      return Promise.all([
+        factory.user(),
+        factory.user(),
+      ]).then((users) => {
+        user = users[0];
+        u0   = users[1];
+        return user.api.post('/autofriend')
+      }).then((response) => {
+        expect(response.statusCode).toEqual(200)
+        expect(response.friend_ids).toEqual([u0.id])
+      })
+    });
+
+    it("doesn't add friends twice", function () {
+
+    });
+  })
+
   describe("blocking", function() {
     it("allows blocking friends", function() {
       return factory.friendship().then((friendship) => {

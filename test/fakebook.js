@@ -17,8 +17,17 @@ app.post('/users', function(req, res) {
 
   users[accessToken] = Object.assign(req.body, {id: String(id)});
   res.json({
-    access_token: accessToken
+    access_token: accessToken,
+    id: id,
   })
+})
+
+app.post('/friends/:id', function(req, res) {
+  const user = users[req.query.access_token];
+  user.friends = user.friends || [];
+  user.friends.push({id: req.params.id})
+
+  res.sendStatus(204);
 })
 
 app.use(function(req, res, next) {
@@ -46,6 +55,14 @@ app.get('/me', function(req, res) {
   }
 
   res.json(user);
+})
+
+app.get('/me/friends', function(req, res) {
+  const user = users[req.query.access_token];
+
+  res.json({
+    data: user.friends || []
+  })
 })
 
 module.exports = function(port) {

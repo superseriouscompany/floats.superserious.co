@@ -49,6 +49,31 @@ describe("fakebook", function() {
       expect(r.body.id).toExist();
     })
   });
+
+  it("creates and returns friendships", function () {
+    let u0, u1;
+    return Promise.all([
+      api.post('/users', {body: {name: 'neil'}}),
+      api.post('/users', {body: {name: 'kevin'}}),
+    ]).then((v) => {
+      u0 = v[0].body;
+      u1 = v[1].body;
+
+      return api.post(`/friends/${u1.id}?access_token=${u0.access_token}`)
+    }).then((response) => {
+      expect(response.statusCode).toEqual(204);
+      return api.get(`/me/friends?access_token=${u0.access_token}`)
+    }).then((response) => {
+      expect(response.body.data).toExist(`Expected data in ${JSON.stringify(response.body)}`)
+      expect(response.body.data.length).toEqual(1, `Expected exactly one friend in ${JSON.stringify(response.body)}`)
+      expect(response.body.data[0].id).toEqual(u1.id)
+      return api.get(`/me/friends?access_token=${u1.access_token}`)
+    }).then((response) => {
+      expect(response.body.data).toExist(`Expected data in ${JSON.stringify(response.body)}`)
+      expect(response.body.data.length).toEqual(1, `Expected exactly one friend in ${JSON.stringify(response.body)}`)
+      expect(response.body.data[0].id).toEqual(u0.id)
+    })
+  });
 })
 
 function shouldFail(r) {
