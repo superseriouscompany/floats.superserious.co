@@ -37,15 +37,15 @@ function nearby(req, res, next) {
     return models.friends.allUsers(req.userId);
   }).then(function(friends) {
     friends = friends.filter(function(f) {
-      return !f.blocked && haversine(
+      f.distance = haversine(
         { latitude: f.lat, longitude: f.lng },
-        { latitude: lat, longitude: lng },
-        { threshold: 25 }
+        { latitude: lat, longitude: lng }
       )
+      return f.distance <= 50;
     })
 
     res.json({
-      friends: friends.map(function(f) { return _.pick(f, ['id', 'avatar_url', 'name']); })
+      friends: friends.map(function(f) { return _.pick(f, ['id', 'avatar_url', 'name', 'distance']); })
     })
   }).catch(function(err) {
     if( err.name == 'NoPin' ) {
