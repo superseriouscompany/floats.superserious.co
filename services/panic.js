@@ -57,9 +57,9 @@ module.exports = {
   ],
 
   nearbyFriends: [
-    { id: 'PANICMODE1', name: "Oops", avatar_url: "https://placekitten.com/640/640"},
-    { id: 'PANICMODE2', name: "Server's down.", avatar_url: "https://placekitten.com/640/640"},
-    { id: 'PANICMODE3', name: "Work here?", avatar_url: "https://placekitten.com/640/640"},
+    { id: 'PANICMODE1', name: "Oops", avatar_url: "https://placekitten.com/640/640", distance: 1 },
+    { id: 'PANICMODE2', name: "Server's down.", avatar_url: "https://placekitten.com/640/640", distance: 1.5 },
+    { id: 'PANICMODE3', name: "Work here?", avatar_url: "https://placekitten.com/640/640", distance: 25 },
   ],
 
   friends: [
@@ -70,9 +70,9 @@ module.exports = {
   ],
 
   randos: [
-    { id: 'PANICMODE1', name: "Randy Rando", avatar_url: "https://placekitten.com/640/640" },
-    { id: 'PANICMODE2', name: "Steve Sketch", avatar_url: "https://placekitten.com/640/640" },
-    { id: 'PANICMODE3', name: "Shirley Shady", avatar_url: "https://placekitten.com/640/640" },
+    { id: 'PANICMODE1', name: "Randy Rando", avatar_url: "https://placekitten.com/640/640", distance: 1 },
+    { id: 'PANICMODE2', name: "Steve Sketch", avatar_url: "https://placekitten.com/640/640", distance: 5 },
+    { id: 'PANICMODE3', name: "Shirley Shady", avatar_url: "https://placekitten.com/640/640", distance: 49 },
   ],
 
   friendRequests: [

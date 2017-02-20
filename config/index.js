@@ -4,7 +4,7 @@ const environment = process.env.NODE_ENV || 'development';
 
 module.exports = Object.assign({
   baseUrl:                 'https://superserious.ngrok.io',
-  awsRegion:               'eu-west-1',
+  awsRegion:               'us-west-2',
   pinsTableName:           'pinsStaging',
   usersTableName:          'usersStaging',
   friendsTableName:        'friendsStaging',
