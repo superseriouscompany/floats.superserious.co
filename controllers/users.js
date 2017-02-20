@@ -13,7 +13,7 @@ const db = {
   friend_requests: require('../db/friend_requests'),
 }
 
-module.exports = function(app, l) {
+module.exports = function(app) {
   app.post('/users', createUser);
   app.get('/users/me', auth, getUser);
   app.patch('/users/me', auth, updateUser);
