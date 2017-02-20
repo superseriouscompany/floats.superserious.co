@@ -4,6 +4,8 @@ if( process.env.NODE_ENV != 'production' && module.parent ) {
   global.TEST_MODE   = true;
   global.facebookUrl = 'http://localhost:4201';
   global.firebaseUrl = 'http://localhost:4202';
+} else {
+  global.TEST_MODE = process.env.TEST_MODE
 }
 
 const express    = require('express');

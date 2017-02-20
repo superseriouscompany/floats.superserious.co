@@ -13,13 +13,16 @@ This is the floats api.
 
 ## Running
     # run normally
-    $ npm start
+    $ npm run dev
 
     # run in panic mode
     $ PANIC_MODE=1 npm start
 
     # run in production mode
     $ NODE_ENV=production npm start
+
+    # run for android (conflict with docker hypervisor)
+    $ TEST_MODE=1 node index.js
 
 ## Testing
 
