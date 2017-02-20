@@ -19,7 +19,7 @@ This is the floats api.
     $ npm run panicmode
 
     # run for android (we can't use docker at the same time)
-    $ TEST_MODE=1 node index.js
+    $ npm run android
 
 ## Testing
 

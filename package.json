@@ -8,6 +8,7 @@
     "test": "mocha",
     "dev": "npm run dynamo & npm run createTables && node index.js",
     "panicmode": "PANIC_MODE=1 node index.js",
+    "android": "TEST_MODE=1 node index.js",
     "livetest": "npm run dynamo & npm run createTables && LIVE=1 mocha --timeout 10000 --slow 2000",
     "dynamo": "docker run -p 8000:8000 deangiberson/aws-dynamodb-local",
     "createTables": "node db/dynamo/schemas/createTables.js",
