@@ -62,6 +62,19 @@ function all(req, res, next) {
   if( process.env.PANIC_MODE ) { return res.json({friends: panic.friends}); }
 
   return models.friends.all(req.userId).then((friends) => {
+    friends = friends.map((f) => {
+      if( f.blocked ) {
+        f.distance = 1000000;
+      } else {
+        f.distance = haversine(
+          { latitude: f.lat, longitude: f.lng },
+          { latitude: lat, longitude: lng }
+        )
+      }
+    }).sort((a,b) => {
+      return a.distance < b.distance ? 1 : -1
+    })
+
     return res.json({
       friends: friends,
     })

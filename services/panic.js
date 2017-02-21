@@ -60,12 +60,13 @@ module.exports = {
     { id: 'PANICMODE1', name: "Oops", avatar_url: "https://placekitten.com/640/640", distance: 1 },
     { id: 'PANICMODE2', name: "Server's down.", avatar_url: "https://placekitten.com/640/640", distance: 1.5 },
     { id: 'PANICMODE3', name: "Work here?", avatar_url: "https://placekitten.com/640/640", distance: 25 },
+    { id: 'PANICMODE3', name: "Far away", avatar_url: "https://placekitten.com/640/640", distance: 1024 },
   ],
 
   friends: [
-    { id: 'PANICMODE1', name: "Neil Sarkar", avatar_url: "https://placekitten.com/640/640"},
-    { id: 'PANICMODE2', name: "Santiago Garza", avatar_url: "https://placekitten.com/640/640"},
-    { id: 'PANICMODE3', name: "São Pão", avatar_url: "https://placekitten.com/640/640"},
+    { id: 'PANICMODE1', name: "Neil Sarkar", avatar_url: "https://placekitten.com/640/640", distance: 1 },
+    { id: 'PANICMODE2', name: "Santiago Garza", avatar_url: "https://placekitten.com/640/640", distance: 10},
+    { id: 'PANICMODE3', name: "São Pão", avatar_url: "https://placekitten.com/640/640", distance: 1024},
     { id: 'PANICMODE4', name: "Trump", avatar_url: "https://placekitten.com/640/640", blocked: true },
   ],
 
