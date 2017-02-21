@@ -67,12 +67,15 @@ function all(req, res, next) {
     friends = friends.map((f) => {
       if( f.blocked ) {
         f.distance = 1000000;
-      } else {
+      } else if( req.user.lat && req.user.lng && f.lat && f.lng ) {
         f.distance = haversine(
           { latitude: f.lat, longitude: f.lng },
           { latitude: req.user.lat, longitude: req.user.lng }
         )
+      } else {
+        f.distance = 1000
       }
+      return f
     }).sort((a,b) => {
       return a.distance < b.distance ? 1 : -1
     })
