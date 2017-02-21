@@ -48,7 +48,7 @@ function create(req, res, next) {
           type: 'messages:new',
           convoId: req.params.convoId,
           message: message,
-        });
+        }, true);
       }).catch(function(err) {
         log.error({err: err, userId: userId}, 'Error finding member');
       })

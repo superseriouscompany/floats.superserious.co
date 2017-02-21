@@ -41,10 +41,10 @@ function create(req, res, next) {
 
   return models.floats.create(req.user, req.body.title, req.body.invitees).then((float) => {
     const promises = float.recipients.map(function(r) {
-      return notify.firebase(r.firebase_token, `${req.user.name} floated "${req.body.title}"`, {
+      return notify.firebase(r.firebase_token, `${req.user.name.split(' ')[0]}: ${req.body.title}`, {
         type: 'floats:new',
         id:   float.id,
-      });
+      }, true);
     })
 
     return Promise.all(promises).then(function() {

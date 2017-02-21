@@ -185,7 +185,7 @@ module.exports = function() { describe("/floats", function() {
         expect(stub.calls[0].body).toExist();
         const notification = stub.calls[0].body;
         expect(notification.priority).toEqual('high');
-        expect(notification.notification.body).toEqual('Becca Webster floated "Go to maracuja"');
+        expect(notification.notification.body).toEqual('Becca: Go to maracuja');
       })
     });
   })

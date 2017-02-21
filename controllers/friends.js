@@ -43,7 +43,7 @@ function nearby(req, res, next) {
         { latitude: f.lat, longitude: f.lng },
         { latitude: lat, longitude: lng }
       )
-      return f.distance <= 50;
+      return f.distance <= 25;
     })
 
     res.json({
