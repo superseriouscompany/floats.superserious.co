@@ -50,7 +50,7 @@ function all() {
 }
 
 function allByCreatedAt() {
-  return Promise.resolve()
+  return Promise.resolve(_.values(users))
 }
 
 function update(id, user) {

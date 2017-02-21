@@ -68,7 +68,7 @@ function all(req, res, next) {
       } else {
         f.distance = haversine(
           { latitude: f.lat, longitude: f.lng },
-          { latitude: lat, longitude: lng }
+          { latitude: req.user.lat, longitude: req.user.lng }
         )
       }
     }).sort((a,b) => {

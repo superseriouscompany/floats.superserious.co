@@ -4,6 +4,7 @@ const express    = require('express');
 const bodyParser = require('body-parser');
 const request    = require('request');
 const shortid    = require('shortid');
+const _          = require('lodash');
 const app        = express();
 
 let users = {};
@@ -22,14 +23,6 @@ app.post('/users', function(req, res) {
   })
 })
 
-app.post('/friends/:id', function(req, res) {
-  const user = users[req.query.access_token];
-  user.friends = user.friends || [];
-  user.friends.push({id: req.params.id})
-
-  res.sendStatus(204);
-})
-
 app.use(function(req, res, next) {
   if( !req.query.access_token || !req.query.access_token.match(/^FAKEBOOK/) ) {
     console.warn("Proxying request to facebook");
@@ -38,6 +31,22 @@ app.use(function(req, res, next) {
   }
 
   next();
+})
+
+app.post('/friends/:id', function(req, res) {
+  const user = users[req.query.access_token];
+  user.friends = user.friends || [];
+  user.friends.push({id: req.params.id})
+
+  for( var i in users ) {
+    if( users[i].id == req.params.id ) {
+      users[i].friends = users[i].friends || [];
+      users[i].friends.push({id: user.id})
+      break;
+    }
+  }
+
+  res.sendStatus(204);
 })
 
 app.get('/me', function(req, res) {
