@@ -15,18 +15,20 @@ const factory = {
   },
 
   fbFriendship: function(facebookToken, friendId) {
-    return fakebook.post(`/friends/${friendId}?access_token=${facebookToken}`, {body: { id: friendFacebookId }})
+    return fakebook.post(`/friends/${friendId}?access_token=${facebookToken}`)
   },
 
   user: function(body) {
     body = Object.assign({lat: 0, lng: 0, name: 'Tiago Quixote'}, body);
-
+    let accessToken, facebookId;
     return factory.fbUser(body).then(function(user) {
+      accessToken = user.access_token;
+      facebookId = user.id;
       return api.post('/users', {body: { facebook_access_token: user.access_token }});
     }).then(function(response) {
       let user = response.body;
       user.api = api.authenticated(user.access_token);
-      return user;
+      return Object.assign({}, user, {facebook_access_token: accessToken, facebook_id: facebookId});
     })
   },
 

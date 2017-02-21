@@ -12,5 +12,13 @@ const fb = request.defaults({
 module.exports = {
   me: function(accessToken) {
     return fb(`/me?access_token=${accessToken}`)
+  },
+
+  friends: function(accessToken) {
+    return fb(`/me/friends?access_token=${accessToken}`).then((payload) => {
+      return payload.data.map((f) => {
+        return f.id
+      })
+    })
   }
 }

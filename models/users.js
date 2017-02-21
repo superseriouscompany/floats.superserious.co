@@ -19,6 +19,7 @@ module.exports = {
   get: get,
   update: update,
   destroy: destroy,
+  findByFacebookIds: findByFacebookIds,
 }
 
 function createFromFacebook(facebookAccessToken) {
@@ -39,7 +40,7 @@ function createFromFacebook(facebookAccessToken) {
   }).catch(function(err) {
     if( err.name == 'UserNotFound' ) {
       let user;
-      return fieldsFromFacebook(fbUser).then(function(u) {
+      return facebookCreate(facebookAccessToken, fbUser).then(function(u) {
         user = u;
         return session.create(user.access_token, user.id).then(() => {
           return _.pick(user, fields);
@@ -51,12 +52,21 @@ function createFromFacebook(facebookAccessToken) {
   })
 }
 
-function fieldsFromFacebook(fbUser) {
+function findByFacebookIds(ids) {
+  return db.users.all().then((users) => {
+    return users.filter((u) => {
+      return _.includes(ids, u.facebook_id)
+    })
+  })
+}
+
+function facebookCreate(fbToken, fbUser) {
   let user = Object.assign({}, fbUser, {
-    facebook_id:  fbUser.id,
-    id:           null,
-    access_token: uuid.v1(),
-    avatar_url:   `https://graph.facebook.com/v2.8/${fbUser.id}/picture`,
+    facebook_id:           fbUser.id,
+    facebook_access_token: fbToken,
+    id:                    null,
+    access_token:          uuid.v1(),
+    avatar_url:            `https://graph.facebook.com/v2.8/${fbUser.id}/picture`,
   })
   return db.users.create(user);
 }

@@ -248,10 +248,12 @@ module.exports = function() { describe("/friends", function() {
       ]).then((users) => {
         user = users[0];
         u0   = users[1];
+        return factory.fbFriendship(user.facebook_access_token, u0.facebook_id)
+      }).then((response) => {
         return user.api.post('/autofriend')
       }).then((response) => {
         expect(response.statusCode).toEqual(200)
-        expect(response.friend_ids).toEqual([u0.id])
+        expect(response.body.friend_ids).toEqual([u0.id])
       })
     });
 

@@ -6,9 +6,10 @@ const auth      = require('../services/auth');
 const error     = require('../services/error');
 const log       = require('../services/log');
 const panic     = require('../services/panic');
-
+const fb        = require('../services/facebook');
 const models = {
   friends: require('../models/friends'),
+  users:   require('../models/users'),
 }
 const db = {
   users: require('../db/users'),
@@ -19,6 +20,7 @@ module.exports = function(app) {
   app.get('/friends', auth, all);
   app.delete('/friends/:id', auth, block);
   app.put('/friends/:id', auth, unblock);
+  app.post('/autofriend', auth, autofriend);
 }
 
 function nearby(req, res, next) {
@@ -79,6 +81,25 @@ function all(req, res, next) {
       friends: friends,
     })
   }).catch(next);
+}
+
+function autofriend(req, res, next) {
+  if( process.env.PANIC_MODE ) { return res.sendStatus(204); }
+
+  let userIds = [];
+  return fb.friends(req.user.facebook_access_token).then((friendIds) => {
+    return models.users.findByFacebookIds(friendIds)
+  }).then((users) => {
+    const promises = users.map((u) => {
+      return models.friends.create(req.userId, u)
+    })
+    userIds = users.map((u) => {
+      return u.id
+    })
+    return Promise.all(promises)
+  }).then(() => {
+    res.json({friend_ids: userIds})
+  }).catch(next)
 }
 
 function block(req, res, next) {
