@@ -1,0 +1,45 @@
+{
+  "name": "floats.superserious.co",
+  "version": "1.0.0",
+  "description": "Floats API",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "mocha",
+    "dev": "npm run dynamo & npm run createTables && node index.js",
+    "panicmode": "PANIC_MODE=1 node index.js",
+    "android": "TEST_MODE=1 node index.js",
+    "livetest": "npm run dynamo & npm run createTables && LIVE=1 mocha --timeout 10000 --slow 2000",
+    "dynamo": "docker run -p 8000:8000 deangiberson/aws-dynamodb-local",
+    "createTables": "node db/dynamo/schemas/createTables.js",
+    "dropTables": "node db/dynamo/schemas/dropTables.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/superseriouscompany/floats.superserious.co.git"
+  },
+  "author": "Neil Sarkar & Super Serious Company",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/superseriouscompany/floats.superserious.co/issues"
+  },
+  "homepage": "https://github.com/superseriouscompany/floats.superserious.co#readme",
+  "devDependencies": {
+    "expect": "^1.20.2",
+    "mocha": "^3.2.0",
+    "tinystub": "^1.0.0"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.7.21",
+    "body-parser": "^1.15.2",
+    "bunyan": "^1.8.5",
+    "express": "^4.14.0",
+    "haversine": "^1.0.2",
+    "lodash": "^4.17.4",
+    "request": "^2.79.0",
+    "request-promise": "^4.1.1",
+    "shortid": "^2.2.6",
+    "uuid": "^3.0.1",
+    "ws": "^1.1.1"
+  }
+}
